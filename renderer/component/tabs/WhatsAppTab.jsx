@@ -67,18 +67,17 @@ export function WhatsAppTab() {
         // Fall through
       }
 
-      // 2. Direct Vercel query fallback
       const res = await fetch(`${WHATSAPP_VERIFY_SETUP_API}?userId=${userId}`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       });
       const data = await res.json();
-      if (data.status && (data.data || data.send)) {
-        const tokenData = data.send || data.data || data;
+      const tokenData = data?.send || data?.data || (data?.wabaId ? data : null);
+      if (tokenData && (tokenData.wabaId || tokenData.phoneNumberId || tokenData.accessToken)) {
         const syncRes = await fetchApi("/whatsapp/save-token", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...tokenData, userObj, schoolId: userId }),
+          body: JSON.stringify({ ...tokenData, userObj, schoolId: tokenData.schoolId || userId }),
         });
         const syncData = await syncRes.json();
         if (syncData.status) {
@@ -326,15 +325,16 @@ export function WhatsAppTab() {
         const data = await res.json();
         console.log("data", data);
 
-        if (data.status && (data.data || data.send)) {
-          const tokenData = data.send || data.data || data;
+        const tokenData = data?.send || data?.data || (data?.wabaId ? data : null);
+
+        if (tokenData && (tokenData.wabaId || tokenData.phoneNumberId || tokenData.accessToken)) {
           try {
             const syncRes = await fetchApi("/whatsapp/save-token", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
               },
-              body: JSON.stringify({ ...tokenData, userObj, schoolId: userId }),
+              body: JSON.stringify({ ...tokenData, userObj, schoolId: tokenData.schoolId || userId }),
             });
             const syncData = await syncRes.json();
             console.log("Local sync result:", syncData);

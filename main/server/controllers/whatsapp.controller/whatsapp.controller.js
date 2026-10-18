@@ -124,28 +124,45 @@ export const verifyAndSaveWhatsAppToken = async (req, res) => {
       });
     }
 
-    const data = await vercelResponse.json().catch(() => ({}));
+    let data = await vercelResponse.json().catch(() => ({}));
 
-    if (!vercelResponse.ok) {
-      return res.status(vercelResponse.status).json({
-        status: false,
-        message:
-          data.message || "Data is not set yet. Please complete the setup.",
-      });
+    // If POST failed or didn't return credentials, try GET on embedded-signup/send
+    if (!data?.send && !data?.data && (!data || !data.accessToken)) {
+      try {
+        const getUrl = new URL(
+          "https://backend-for-drawing-school.vercel.app/api/whatsapp/embedded-signup/send"
+        );
+        if (userId) getUrl.searchParams.append("userId", userId);
+        if (id) getUrl.searchParams.append("id", id);
+        const getRes = await fetch(getUrl.toString(), { method: "GET" });
+        if (getRes.ok) {
+          const getData = await getRes.json().catch(() => ({}));
+          if (getData.send || getData.data || getData.accessToken) {
+            data = getData;
+            vercelResponse = getRes;
+          }
+        }
+      } catch (e) {
+        console.warn("GET fallback error:", e);
+      }
     }
 
-    const send = data.send || data.data || data;
+    const send = data?.send || data?.data || data;
     if (!send || !send.accessToken || !send.wabaId || !send.phoneNumberId) {
       return res
         .status(400)
         .json({
           status: false,
-          message: "Missing required WhatsApp token data from Vercel payload",
+          message:
+            data?.message || "Missing required WhatsApp token data from Vercel payload",
         });
     }
 
     // 2. Save it locally
-    const newToken = await upsertLocalWhatsAppToken(send);
+    const newToken = await upsertLocalWhatsAppToken({
+      ...send,
+      schoolId: send.schoolId || userId || id || ""
+    });
 
     // Auto-register with Meta Cloud API
     if (newToken?.phoneNumberId && newToken?.accessToken) {
