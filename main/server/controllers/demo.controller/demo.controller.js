@@ -13,6 +13,15 @@ export async function getDemoStatus(req, res) {
       });
     }
 
+    if (!demo.isDemo) {
+      return res.status(200).json({
+        success: true,
+        isDemo: false,
+        isExpired: false,
+        remainingDays: 0
+      });
+    }
+
     const demoDuration = 15; // days
     const now = new Date();
     const startDate = new Date(demo.startDate);

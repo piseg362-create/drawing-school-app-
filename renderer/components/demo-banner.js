@@ -3,42 +3,45 @@
 import { useEffect, useState } from "react";
 import { Sparkles, Clock, AlertTriangle, X } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { LicensePaymentModal } from "./LicensePaymentModal";
+import { fetchApi } from "../lib/api";
 
 export function DemoBanner() {
   const [demoStatus, setDemoStatus] = useState(null);
   const [isVerified, setIsVerified] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
   const pathname = usePathname();
+
+  const fetchStatus = async () => {
+    try {
+      const res = await fetchApi("/demo-status");
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success) {
+          setDemoStatus(data);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to fetch demo status", error);
+    }
+  };
 
   useEffect(() => {
     const user = localStorage.getItem("user");
     if (user) {
       setIsVerified(true);
     }
-
-    async function fetchStatus() {
-      try {
-        const res = await fetch("http://localhost:49215/api/demo-status");
-        if (res.ok) {
-          const data = await res.json();
-          if (data.success) {
-            setDemoStatus(data);
-          }
-        }
-      } catch (error) {
-        console.error("Failed to fetch demo status", error);
-      }
-    }
     fetchStatus();
   }, []);
 
+  const handlePaymentSuccess = () => {
+    // Re-fetch status to clear demo banner
+    fetchStatus();
+  };
+
   // Hide on auth screens
   if (pathname === "/login" || pathname === "/register") {
-    return null;
-  }
-
-  // Hide for verified (logged in) users
-  if (isVerified) {
     return null;
   }
 
@@ -96,7 +99,10 @@ export function DemoBanner() {
           </div>
 
           <div className="flex items-center gap-2 w-full sm:w-auto">
-            <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-[#c1552c] hover:bg-[#a84a26] text-white shadow-lg shadow-[#c1552c]/20 transition-colors">
+            <button 
+              onClick={() => setShowPaymentModal(true)}
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-[#c1552c] hover:bg-[#a84a26] text-white shadow-lg shadow-[#c1552c]/20 transition-colors"
+            >
               <Sparkles className="w-4 h-4" />
               {isExpired ? "Proceed to Payment" : "Activate License"}
             </button>
@@ -113,6 +119,11 @@ export function DemoBanner() {
           </div>
         </div>
       </div>
+      <LicensePaymentModal 
+        isOpen={showPaymentModal}
+        onClose={() => setShowPaymentModal(false)}
+        onSuccess={handlePaymentSuccess}
+      />
     </div>
   );
 }

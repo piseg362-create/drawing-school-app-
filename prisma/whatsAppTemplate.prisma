@@ -1,7 +1,7 @@
 model WhatsAppTemplate {
   id String @id @default(uuid())
 
-  name     String @unique
+  name     String
   clientId String?
 
   templateId String?
@@ -16,4 +16,7 @@ model WhatsAppTemplate {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  systemID       String?
+
+  @@unique([name, language])
 }

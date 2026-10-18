@@ -24,6 +24,7 @@ model MessageQueue {
 
   @@index([status])
   @@index([scheduledAt])
+  systemID       String?
 }
 
 enum MessageQueueStatus {

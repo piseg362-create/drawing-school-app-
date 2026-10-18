@@ -3,24 +3,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { fetchApi } from "@/lib/api";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+
 
 const Instructor = ({ onComplete }) => {
   const [formData, setFormData] = useState({
     name: "",
     mobile: "",
     licenseNumber: "",
-    jobType: "INSTRUCTOR", // Default selected type
+    jobType: "instructor", // Set default match to lowercase like the clickable divs
+    joiningDate: "",
+    payment: "",
+    paymentDate: "",
+    status: "Available",
   });
 
   const handleChange = (e) => {
@@ -148,39 +142,48 @@ const Instructor = ({ onComplete }) => {
         </div>
       </div>
 
+      <div className="space-y-2">
+        <Label htmlFor="Instructor-joiningDate" className="text-gray-900 dark:text-[#f2e9de]">Joining Date</Label>
+        <Input
+          id="Instructor-joiningDate"
+          name="joiningDate"
+          type="date"
+          value={formData.joiningDate}
+          onChange={handleChange}
+          required
+          className="bg-white dark:bg-[#171a22] border border-gray-300 dark:border-[#2c3242] text-gray-900 dark:text-[#f2e9de] focus-visible:ring-[#c1552c]"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="Instructor-payment" className="text-gray-900 dark:text-[#f2e9de]">Payment Amount</Label>
+        <Input
+          id="Instructor-payment"
+          name="payment"
+          type="number"
+          value={formData.payment}
+          onChange={handleChange}
+          placeholder="5000"
+          required
+          className="bg-white dark:bg-[#171a22] border border-gray-300 dark:border-[#2c3242] text-gray-900 dark:text-[#f2e9de] focus-visible:ring-[#c1552c]"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="Instructor-paymentDate" className="text-gray-900 dark:text-[#f2e9de]">Payment Date</Label>
+        <Input
+          id="Instructor-paymentDate"
+          name="paymentDate"
+          type="date"
+          value={formData.paymentDate}
+          onChange={handleChange}
+          required
+          className="bg-white dark:bg-[#171a22] border border-gray-300 dark:border-[#2c3242] text-gray-900 dark:text-[#f2e9de] focus-visible:ring-[#c1552c]"
+        />
+      </div>
+
       <div className="pt-4 flex gap-3">
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button
-              type="button"
-              variant="outline"
-              className="flex-1 border-gray-300 dark:border-[#2c3242] text-gray-700 dark:text-[#a8967b] hover:bg-gray-50 dark:hover:bg-[#232734]"
-            >
-              Skip
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Are you sure you want to skip?</AlertDialogTitle>
-              <AlertDialogDescription>
-                To provide the best services, please fill all data. You can always add this information later.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel className="border-gray-300 dark:border-[#2c3242] text-gray-700 dark:text-[#a8967b] hover:bg-gray-50 dark:hover:bg-[#232734]">
-                Cancel
-              </AlertDialogCancel>
-              <AlertDialogAction
-                onClick={() => {
-                  if (onComplete) onComplete();
-                }}
-                className="bg-[#c1552c] text-white hover:bg-[#a84a26]"
-              >
-                Skip Anyway
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        
         <Button
           type="submit"
           className="flex-1 bg-[#c1552c] text-white hover:bg-[#a84a26]"

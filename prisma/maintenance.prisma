@@ -11,6 +11,7 @@ model MaintenanceSchedule {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  systemID       String?
 }
 
 model MaintenanceItem {
@@ -26,6 +27,7 @@ model MaintenanceItem {
   notes String?
   car   Car?    @relation(fields: [carId], references: [id])
   carId String?
+  systemID       String?
 }
 
 enum MaintenanceType {

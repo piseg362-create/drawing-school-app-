@@ -84,6 +84,11 @@ export type SchoolSetUp = $Result.DefaultSelection<Prisma.$SchoolSetUpPayload>
  */
 export type Student = $Result.DefaultSelection<Prisma.$StudentPayload>
 /**
+ * Model StudentAttendance
+ * 
+ */
+export type StudentAttendance = $Result.DefaultSelection<Prisma.$StudentAttendancePayload>
+/**
  * Model MessageQueue
  * 
  */
@@ -449,6 +454,16 @@ export class PrismaClient<
     * ```
     */
   get student(): Prisma.StudentDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.studentAttendance`: Exposes CRUD operations for the **StudentAttendance** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more StudentAttendances
+    * const studentAttendances = await prisma.studentAttendance.findMany()
+    * ```
+    */
+  get studentAttendance(): Prisma.StudentAttendanceDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.messageQueue`: Exposes CRUD operations for the **MessageQueue** model.
@@ -940,6 +955,7 @@ export namespace Prisma {
     Schedule: 'Schedule',
     SchoolSetUp: 'SchoolSetUp',
     Student: 'Student',
+    StudentAttendance: 'StudentAttendance',
     MessageQueue: 'MessageQueue',
     WhatsAppTemplate: 'WhatsAppTemplate',
     WhatsAppToken: 'WhatsAppToken'
@@ -958,7 +974,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "paymentTaken" | "attendance" | "calendarEvent" | "car" | "demoStatus" | "setupChecklist" | "instructor" | "maintenanceSchedule" | "maintenanceItem" | "package" | "paymentCycle" | "schedule" | "schoolSetUp" | "student" | "messageQueue" | "whatsAppTemplate" | "whatsAppToken"
+      modelProps: "paymentTaken" | "attendance" | "calendarEvent" | "car" | "demoStatus" | "setupChecklist" | "instructor" | "maintenanceSchedule" | "maintenanceItem" | "package" | "paymentCycle" | "schedule" | "schoolSetUp" | "student" | "studentAttendance" | "messageQueue" | "whatsAppTemplate" | "whatsAppToken"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1998,6 +2014,80 @@ export namespace Prisma {
           }
         }
       }
+      StudentAttendance: {
+        payload: Prisma.$StudentAttendancePayload<ExtArgs>
+        fields: Prisma.StudentAttendanceFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.StudentAttendanceFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StudentAttendancePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.StudentAttendanceFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StudentAttendancePayload>
+          }
+          findFirst: {
+            args: Prisma.StudentAttendanceFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StudentAttendancePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.StudentAttendanceFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StudentAttendancePayload>
+          }
+          findMany: {
+            args: Prisma.StudentAttendanceFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StudentAttendancePayload>[]
+          }
+          create: {
+            args: Prisma.StudentAttendanceCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StudentAttendancePayload>
+          }
+          createMany: {
+            args: Prisma.StudentAttendanceCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.StudentAttendanceCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StudentAttendancePayload>[]
+          }
+          delete: {
+            args: Prisma.StudentAttendanceDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StudentAttendancePayload>
+          }
+          update: {
+            args: Prisma.StudentAttendanceUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StudentAttendancePayload>
+          }
+          deleteMany: {
+            args: Prisma.StudentAttendanceDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.StudentAttendanceUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.StudentAttendanceUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StudentAttendancePayload>[]
+          }
+          upsert: {
+            args: Prisma.StudentAttendanceUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StudentAttendancePayload>
+          }
+          aggregate: {
+            args: Prisma.StudentAttendanceAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateStudentAttendance>
+          }
+          groupBy: {
+            args: Prisma.StudentAttendanceGroupByArgs<ExtArgs>
+            result: $Utils.Optional<StudentAttendanceGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.StudentAttendanceCountArgs<ExtArgs>
+            result: $Utils.Optional<StudentAttendanceCountAggregateOutputType> | number
+          }
+        }
+      }
       MessageQueue: {
         payload: Prisma.$MessageQueuePayload<ExtArgs>
         fields: Prisma.MessageQueueFieldRefs
@@ -2357,6 +2447,7 @@ export namespace Prisma {
     schedule?: ScheduleOmit
     schoolSetUp?: SchoolSetUpOmit
     student?: StudentOmit
+    studentAttendance?: StudentAttendanceOmit
     messageQueue?: MessageQueueOmit
     whatsAppTemplate?: WhatsAppTemplateOmit
     whatsAppToken?: WhatsAppTokenOmit
@@ -2656,6 +2747,7 @@ export namespace Prisma {
     amount: number | null
     takenAt: Date | null
     note: string | null
+    systemID: string | null
   }
 
   export type PaymentTakenMaxAggregateOutputType = {
@@ -2664,6 +2756,7 @@ export namespace Prisma {
     amount: number | null
     takenAt: Date | null
     note: string | null
+    systemID: string | null
   }
 
   export type PaymentTakenCountAggregateOutputType = {
@@ -2672,6 +2765,7 @@ export namespace Prisma {
     amount: number
     takenAt: number
     note: number
+    systemID: number
     _all: number
   }
 
@@ -2690,6 +2784,7 @@ export namespace Prisma {
     amount?: true
     takenAt?: true
     note?: true
+    systemID?: true
   }
 
   export type PaymentTakenMaxAggregateInputType = {
@@ -2698,6 +2793,7 @@ export namespace Prisma {
     amount?: true
     takenAt?: true
     note?: true
+    systemID?: true
   }
 
   export type PaymentTakenCountAggregateInputType = {
@@ -2706,6 +2802,7 @@ export namespace Prisma {
     amount?: true
     takenAt?: true
     note?: true
+    systemID?: true
     _all?: true
   }
 
@@ -2801,6 +2898,7 @@ export namespace Prisma {
     amount: number
     takenAt: Date
     note: string
+    systemID: string | null
     _count: PaymentTakenCountAggregateOutputType | null
     _avg: PaymentTakenAvgAggregateOutputType | null
     _sum: PaymentTakenSumAggregateOutputType | null
@@ -2828,6 +2926,7 @@ export namespace Prisma {
     amount?: boolean
     takenAt?: boolean
     note?: boolean
+    systemID?: boolean
     paymentCycle?: boolean | PaymentCycleDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["paymentTaken"]>
 
@@ -2837,6 +2936,7 @@ export namespace Prisma {
     amount?: boolean
     takenAt?: boolean
     note?: boolean
+    systemID?: boolean
     paymentCycle?: boolean | PaymentCycleDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["paymentTaken"]>
 
@@ -2846,6 +2946,7 @@ export namespace Prisma {
     amount?: boolean
     takenAt?: boolean
     note?: boolean
+    systemID?: boolean
     paymentCycle?: boolean | PaymentCycleDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["paymentTaken"]>
 
@@ -2855,9 +2956,10 @@ export namespace Prisma {
     amount?: boolean
     takenAt?: boolean
     note?: boolean
+    systemID?: boolean
   }
 
-  export type PaymentTakenOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "paymentCycleId" | "amount" | "takenAt" | "note", ExtArgs["result"]["paymentTaken"]>
+  export type PaymentTakenOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "paymentCycleId" | "amount" | "takenAt" | "note" | "systemID", ExtArgs["result"]["paymentTaken"]>
   export type PaymentTakenInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     paymentCycle?: boolean | PaymentCycleDefaultArgs<ExtArgs>
   }
@@ -2879,6 +2981,7 @@ export namespace Prisma {
       amount: number
       takenAt: Date
       note: string
+      systemID: string | null
     }, ExtArgs["result"]["paymentTaken"]>
     composites: {}
   }
@@ -3308,6 +3411,7 @@ export namespace Prisma {
     readonly amount: FieldRef<"PaymentTaken", 'Int'>
     readonly takenAt: FieldRef<"PaymentTaken", 'DateTime'>
     readonly note: FieldRef<"PaymentTaken", 'String'>
+    readonly systemID: FieldRef<"PaymentTaken", 'String'>
   }
     
 
@@ -3743,6 +3847,7 @@ export namespace Prisma {
     note: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    systemID: string | null
   }
 
   export type AttendanceMaxAggregateOutputType = {
@@ -3753,6 +3858,7 @@ export namespace Prisma {
     note: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    systemID: string | null
   }
 
   export type AttendanceCountAggregateOutputType = {
@@ -3763,6 +3869,7 @@ export namespace Prisma {
     note: number
     createdAt: number
     updatedAt: number
+    systemID: number
     _all: number
   }
 
@@ -3775,6 +3882,7 @@ export namespace Prisma {
     note?: true
     createdAt?: true
     updatedAt?: true
+    systemID?: true
   }
 
   export type AttendanceMaxAggregateInputType = {
@@ -3785,6 +3893,7 @@ export namespace Prisma {
     note?: true
     createdAt?: true
     updatedAt?: true
+    systemID?: true
   }
 
   export type AttendanceCountAggregateInputType = {
@@ -3795,6 +3904,7 @@ export namespace Prisma {
     note?: true
     createdAt?: true
     updatedAt?: true
+    systemID?: true
     _all?: true
   }
 
@@ -3878,6 +3988,7 @@ export namespace Prisma {
     note: string
     createdAt: Date
     updatedAt: Date
+    systemID: string | null
     _count: AttendanceCountAggregateOutputType | null
     _min: AttendanceMinAggregateOutputType | null
     _max: AttendanceMaxAggregateOutputType | null
@@ -3905,6 +4016,7 @@ export namespace Prisma {
     note?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    systemID?: boolean
   }, ExtArgs["result"]["attendance"]>
 
   export type AttendanceSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -3915,6 +4027,7 @@ export namespace Prisma {
     note?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    systemID?: boolean
   }, ExtArgs["result"]["attendance"]>
 
   export type AttendanceSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -3925,6 +4038,7 @@ export namespace Prisma {
     note?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    systemID?: boolean
   }, ExtArgs["result"]["attendance"]>
 
   export type AttendanceSelectScalar = {
@@ -3935,9 +4049,10 @@ export namespace Prisma {
     note?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    systemID?: boolean
   }
 
-  export type AttendanceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "instructorId" | "date" | "status" | "note" | "createdAt" | "updatedAt", ExtArgs["result"]["attendance"]>
+  export type AttendanceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "instructorId" | "date" | "status" | "note" | "createdAt" | "updatedAt" | "systemID", ExtArgs["result"]["attendance"]>
 
   export type $AttendancePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Attendance"
@@ -3950,6 +4065,7 @@ export namespace Prisma {
       note: string
       createdAt: Date
       updatedAt: Date
+      systemID: string | null
     }, ExtArgs["result"]["attendance"]>
     composites: {}
   }
@@ -4380,6 +4496,7 @@ export namespace Prisma {
     readonly note: FieldRef<"Attendance", 'String'>
     readonly createdAt: FieldRef<"Attendance", 'DateTime'>
     readonly updatedAt: FieldRef<"Attendance", 'DateTime'>
+    readonly systemID: FieldRef<"Attendance", 'String'>
   }
     
 
@@ -4768,6 +4885,7 @@ export namespace Prisma {
     color: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    systemID: string | null
   }
 
   export type CalendarEventMaxAggregateOutputType = {
@@ -4779,6 +4897,7 @@ export namespace Prisma {
     color: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    systemID: string | null
   }
 
   export type CalendarEventCountAggregateOutputType = {
@@ -4790,6 +4909,7 @@ export namespace Prisma {
     color: number
     createdAt: number
     updatedAt: number
+    systemID: number
     _all: number
   }
 
@@ -4803,6 +4923,7 @@ export namespace Prisma {
     color?: true
     createdAt?: true
     updatedAt?: true
+    systemID?: true
   }
 
   export type CalendarEventMaxAggregateInputType = {
@@ -4814,6 +4935,7 @@ export namespace Prisma {
     color?: true
     createdAt?: true
     updatedAt?: true
+    systemID?: true
   }
 
   export type CalendarEventCountAggregateInputType = {
@@ -4825,6 +4947,7 @@ export namespace Prisma {
     color?: true
     createdAt?: true
     updatedAt?: true
+    systemID?: true
     _all?: true
   }
 
@@ -4909,6 +5032,7 @@ export namespace Prisma {
     color: string | null
     createdAt: Date
     updatedAt: Date
+    systemID: string | null
     _count: CalendarEventCountAggregateOutputType | null
     _min: CalendarEventMinAggregateOutputType | null
     _max: CalendarEventMaxAggregateOutputType | null
@@ -4937,6 +5061,7 @@ export namespace Prisma {
     color?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    systemID?: boolean
   }, ExtArgs["result"]["calendarEvent"]>
 
   export type CalendarEventSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -4948,6 +5073,7 @@ export namespace Prisma {
     color?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    systemID?: boolean
   }, ExtArgs["result"]["calendarEvent"]>
 
   export type CalendarEventSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -4959,6 +5085,7 @@ export namespace Prisma {
     color?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    systemID?: boolean
   }, ExtArgs["result"]["calendarEvent"]>
 
   export type CalendarEventSelectScalar = {
@@ -4970,9 +5097,10 @@ export namespace Prisma {
     color?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    systemID?: boolean
   }
 
-  export type CalendarEventOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "date" | "type" | "description" | "color" | "createdAt" | "updatedAt", ExtArgs["result"]["calendarEvent"]>
+  export type CalendarEventOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "date" | "type" | "description" | "color" | "createdAt" | "updatedAt" | "systemID", ExtArgs["result"]["calendarEvent"]>
 
   export type $CalendarEventPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "CalendarEvent"
@@ -4986,6 +5114,7 @@ export namespace Prisma {
       color: string | null
       createdAt: Date
       updatedAt: Date
+      systemID: string | null
     }, ExtArgs["result"]["calendarEvent"]>
     composites: {}
   }
@@ -5417,6 +5546,7 @@ export namespace Prisma {
     readonly color: FieldRef<"CalendarEvent", 'String'>
     readonly createdAt: FieldRef<"CalendarEvent", 'DateTime'>
     readonly updatedAt: FieldRef<"CalendarEvent", 'DateTime'>
+    readonly systemID: FieldRef<"CalendarEvent", 'String'>
   }
     
 
@@ -5805,6 +5935,7 @@ export namespace Prisma {
     car_year: string | null
     updatedAt: Date | null
     createdAt: Date | null
+    systemID: string | null
   }
 
   export type CarMaxAggregateOutputType = {
@@ -5816,6 +5947,7 @@ export namespace Prisma {
     car_year: string | null
     updatedAt: Date | null
     createdAt: Date | null
+    systemID: string | null
   }
 
   export type CarCountAggregateOutputType = {
@@ -5827,6 +5959,7 @@ export namespace Prisma {
     car_year: number
     updatedAt: number
     createdAt: number
+    systemID: number
     _all: number
   }
 
@@ -5840,6 +5973,7 @@ export namespace Prisma {
     car_year?: true
     updatedAt?: true
     createdAt?: true
+    systemID?: true
   }
 
   export type CarMaxAggregateInputType = {
@@ -5851,6 +5985,7 @@ export namespace Prisma {
     car_year?: true
     updatedAt?: true
     createdAt?: true
+    systemID?: true
   }
 
   export type CarCountAggregateInputType = {
@@ -5862,6 +5997,7 @@ export namespace Prisma {
     car_year?: true
     updatedAt?: true
     createdAt?: true
+    systemID?: true
     _all?: true
   }
 
@@ -5946,6 +6082,7 @@ export namespace Prisma {
     car_year: string
     updatedAt: Date
     createdAt: Date
+    systemID: string | null
     _count: CarCountAggregateOutputType | null
     _min: CarMinAggregateOutputType | null
     _max: CarMaxAggregateOutputType | null
@@ -5974,6 +6111,7 @@ export namespace Prisma {
     car_year?: boolean
     updatedAt?: boolean
     createdAt?: boolean
+    systemID?: boolean
     students?: boolean | Car$studentsArgs<ExtArgs>
     instructors?: boolean | Car$instructorsArgs<ExtArgs>
     maintenanceItem?: boolean | Car$maintenanceItemArgs<ExtArgs>
@@ -5990,6 +6128,7 @@ export namespace Prisma {
     car_year?: boolean
     updatedAt?: boolean
     createdAt?: boolean
+    systemID?: boolean
   }, ExtArgs["result"]["car"]>
 
   export type CarSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -6001,6 +6140,7 @@ export namespace Prisma {
     car_year?: boolean
     updatedAt?: boolean
     createdAt?: boolean
+    systemID?: boolean
   }, ExtArgs["result"]["car"]>
 
   export type CarSelectScalar = {
@@ -6012,9 +6152,10 @@ export namespace Prisma {
     car_year?: boolean
     updatedAt?: boolean
     createdAt?: boolean
+    systemID?: boolean
   }
 
-  export type CarOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "transmission" | "assigned_instructor" | "car_Number" | "car_year" | "updatedAt" | "createdAt", ExtArgs["result"]["car"]>
+  export type CarOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "transmission" | "assigned_instructor" | "car_Number" | "car_year" | "updatedAt" | "createdAt" | "systemID", ExtArgs["result"]["car"]>
   export type CarInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     students?: boolean | Car$studentsArgs<ExtArgs>
     instructors?: boolean | Car$instructorsArgs<ExtArgs>
@@ -6042,6 +6183,7 @@ export namespace Prisma {
       car_year: string
       updatedAt: Date
       createdAt: Date
+      systemID: string | null
     }, ExtArgs["result"]["car"]>
     composites: {}
   }
@@ -6477,6 +6619,7 @@ export namespace Prisma {
     readonly car_year: FieldRef<"Car", 'String'>
     readonly updatedAt: FieldRef<"Car", 'DateTime'>
     readonly createdAt: FieldRef<"Car", 'DateTime'>
+    readonly systemID: FieldRef<"Car", 'String'>
   }
     
 
@@ -7972,6 +8115,7 @@ export namespace Prisma {
     packageSetup: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
+    systemID: string | null
   }
 
   export type SetupChecklistMaxAggregateOutputType = {
@@ -7982,6 +8126,7 @@ export namespace Prisma {
     packageSetup: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
+    systemID: string | null
   }
 
   export type SetupChecklistCountAggregateOutputType = {
@@ -7992,6 +8137,7 @@ export namespace Prisma {
     packageSetup: number
     createdAt: number
     updatedAt: number
+    systemID: number
     _all: number
   }
 
@@ -8004,6 +8150,7 @@ export namespace Prisma {
     packageSetup?: true
     createdAt?: true
     updatedAt?: true
+    systemID?: true
   }
 
   export type SetupChecklistMaxAggregateInputType = {
@@ -8014,6 +8161,7 @@ export namespace Prisma {
     packageSetup?: true
     createdAt?: true
     updatedAt?: true
+    systemID?: true
   }
 
   export type SetupChecklistCountAggregateInputType = {
@@ -8024,6 +8172,7 @@ export namespace Prisma {
     packageSetup?: true
     createdAt?: true
     updatedAt?: true
+    systemID?: true
     _all?: true
   }
 
@@ -8107,6 +8256,7 @@ export namespace Prisma {
     packageSetup: boolean
     createdAt: Date
     updatedAt: Date
+    systemID: string | null
     _count: SetupChecklistCountAggregateOutputType | null
     _min: SetupChecklistMinAggregateOutputType | null
     _max: SetupChecklistMaxAggregateOutputType | null
@@ -8134,6 +8284,7 @@ export namespace Prisma {
     packageSetup?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    systemID?: boolean
   }, ExtArgs["result"]["setupChecklist"]>
 
   export type SetupChecklistSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -8144,6 +8295,7 @@ export namespace Prisma {
     packageSetup?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    systemID?: boolean
   }, ExtArgs["result"]["setupChecklist"]>
 
   export type SetupChecklistSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -8154,6 +8306,7 @@ export namespace Prisma {
     packageSetup?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    systemID?: boolean
   }, ExtArgs["result"]["setupChecklist"]>
 
   export type SetupChecklistSelectScalar = {
@@ -8164,9 +8317,10 @@ export namespace Prisma {
     packageSetup?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    systemID?: boolean
   }
 
-  export type SetupChecklistOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "schoolSetup" | "instructorSetup" | "carSetup" | "packageSetup" | "createdAt" | "updatedAt", ExtArgs["result"]["setupChecklist"]>
+  export type SetupChecklistOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "schoolSetup" | "instructorSetup" | "carSetup" | "packageSetup" | "createdAt" | "updatedAt" | "systemID", ExtArgs["result"]["setupChecklist"]>
 
   export type $SetupChecklistPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "SetupChecklist"
@@ -8179,6 +8333,7 @@ export namespace Prisma {
       packageSetup: boolean
       createdAt: Date
       updatedAt: Date
+      systemID: string | null
     }, ExtArgs["result"]["setupChecklist"]>
     composites: {}
   }
@@ -8609,6 +8764,7 @@ export namespace Prisma {
     readonly packageSetup: FieldRef<"SetupChecklist", 'Boolean'>
     readonly createdAt: FieldRef<"SetupChecklist", 'DateTime'>
     readonly updatedAt: FieldRef<"SetupChecklist", 'DateTime'>
+    readonly systemID: FieldRef<"SetupChecklist", 'String'>
   }
     
 
@@ -9013,6 +9169,9 @@ export namespace Prisma {
     payment: number | null
     paymentDate: number | null
     assignedCarId: string | null
+    systemID: string | null
+    accessToken: string | null
+    globalMongoId: string | null
   }
 
   export type InstructorMaxAggregateOutputType = {
@@ -9028,6 +9187,9 @@ export namespace Prisma {
     payment: number | null
     paymentDate: number | null
     assignedCarId: string | null
+    systemID: string | null
+    accessToken: string | null
+    globalMongoId: string | null
   }
 
   export type InstructorCountAggregateOutputType = {
@@ -9043,6 +9205,9 @@ export namespace Prisma {
     payment: number
     paymentDate: number
     assignedCarId: number
+    systemID: number
+    accessToken: number
+    globalMongoId: number
     _all: number
   }
 
@@ -9070,6 +9235,9 @@ export namespace Prisma {
     payment?: true
     paymentDate?: true
     assignedCarId?: true
+    systemID?: true
+    accessToken?: true
+    globalMongoId?: true
   }
 
   export type InstructorMaxAggregateInputType = {
@@ -9085,6 +9253,9 @@ export namespace Prisma {
     payment?: true
     paymentDate?: true
     assignedCarId?: true
+    systemID?: true
+    accessToken?: true
+    globalMongoId?: true
   }
 
   export type InstructorCountAggregateInputType = {
@@ -9100,6 +9271,9 @@ export namespace Prisma {
     payment?: true
     paymentDate?: true
     assignedCarId?: true
+    systemID?: true
+    accessToken?: true
+    globalMongoId?: true
     _all?: true
   }
 
@@ -9202,6 +9376,9 @@ export namespace Prisma {
     payment: number | null
     paymentDate: number | null
     assignedCarId: string | null
+    systemID: string | null
+    accessToken: string | null
+    globalMongoId: string | null
     _count: InstructorCountAggregateOutputType | null
     _avg: InstructorAvgAggregateOutputType | null
     _sum: InstructorSumAggregateOutputType | null
@@ -9236,6 +9413,9 @@ export namespace Prisma {
     payment?: boolean
     paymentDate?: boolean
     assignedCarId?: boolean
+    systemID?: boolean
+    accessToken?: boolean
+    globalMongoId?: boolean
     car?: boolean | Instructor$carArgs<ExtArgs>
     paymentCycles?: boolean | Instructor$paymentCyclesArgs<ExtArgs>
     students?: boolean | Instructor$studentsArgs<ExtArgs>
@@ -9255,6 +9435,9 @@ export namespace Prisma {
     payment?: boolean
     paymentDate?: boolean
     assignedCarId?: boolean
+    systemID?: boolean
+    accessToken?: boolean
+    globalMongoId?: boolean
     car?: boolean | Instructor$carArgs<ExtArgs>
   }, ExtArgs["result"]["instructor"]>
 
@@ -9271,6 +9454,9 @@ export namespace Prisma {
     payment?: boolean
     paymentDate?: boolean
     assignedCarId?: boolean
+    systemID?: boolean
+    accessToken?: boolean
+    globalMongoId?: boolean
     car?: boolean | Instructor$carArgs<ExtArgs>
   }, ExtArgs["result"]["instructor"]>
 
@@ -9287,9 +9473,12 @@ export namespace Prisma {
     payment?: boolean
     paymentDate?: boolean
     assignedCarId?: boolean
+    systemID?: boolean
+    accessToken?: boolean
+    globalMongoId?: boolean
   }
 
-  export type InstructorOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "mobile" | "licenseNumber" | "jobType" | "joiningDate" | "isActive" | "createdAt" | "updatedAt" | "payment" | "paymentDate" | "assignedCarId", ExtArgs["result"]["instructor"]>
+  export type InstructorOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "mobile" | "licenseNumber" | "jobType" | "joiningDate" | "isActive" | "createdAt" | "updatedAt" | "payment" | "paymentDate" | "assignedCarId" | "systemID" | "accessToken" | "globalMongoId", ExtArgs["result"]["instructor"]>
   export type InstructorInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     car?: boolean | Instructor$carArgs<ExtArgs>
     paymentCycles?: boolean | Instructor$paymentCyclesArgs<ExtArgs>
@@ -9323,6 +9512,9 @@ export namespace Prisma {
       payment: number | null
       paymentDate: number | null
       assignedCarId: string | null
+      systemID: string | null
+      accessToken: string | null
+      globalMongoId: string | null
     }, ExtArgs["result"]["instructor"]>
     composites: {}
   }
@@ -9761,6 +9953,9 @@ export namespace Prisma {
     readonly payment: FieldRef<"Instructor", 'Float'>
     readonly paymentDate: FieldRef<"Instructor", 'Int'>
     readonly assignedCarId: FieldRef<"Instructor", 'String'>
+    readonly systemID: FieldRef<"Instructor", 'String'>
+    readonly accessToken: FieldRef<"Instructor", 'String'>
+    readonly globalMongoId: FieldRef<"Instructor", 'String'>
   }
     
 
@@ -10262,6 +10457,7 @@ export namespace Prisma {
     notes: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    systemID: string | null
   }
 
   export type MaintenanceScheduleMaxAggregateOutputType = {
@@ -10271,6 +10467,7 @@ export namespace Prisma {
     notes: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    systemID: string | null
   }
 
   export type MaintenanceScheduleCountAggregateOutputType = {
@@ -10280,6 +10477,7 @@ export namespace Prisma {
     notes: number
     createdAt: number
     updatedAt: number
+    systemID: number
     _all: number
   }
 
@@ -10291,6 +10489,7 @@ export namespace Prisma {
     notes?: true
     createdAt?: true
     updatedAt?: true
+    systemID?: true
   }
 
   export type MaintenanceScheduleMaxAggregateInputType = {
@@ -10300,6 +10499,7 @@ export namespace Prisma {
     notes?: true
     createdAt?: true
     updatedAt?: true
+    systemID?: true
   }
 
   export type MaintenanceScheduleCountAggregateInputType = {
@@ -10309,6 +10509,7 @@ export namespace Prisma {
     notes?: true
     createdAt?: true
     updatedAt?: true
+    systemID?: true
     _all?: true
   }
 
@@ -10391,6 +10592,7 @@ export namespace Prisma {
     notes: string | null
     createdAt: Date
     updatedAt: Date
+    systemID: string | null
     _count: MaintenanceScheduleCountAggregateOutputType | null
     _min: MaintenanceScheduleMinAggregateOutputType | null
     _max: MaintenanceScheduleMaxAggregateOutputType | null
@@ -10417,6 +10619,7 @@ export namespace Prisma {
     notes?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    systemID?: boolean
     car?: boolean | CarDefaultArgs<ExtArgs>
     items?: boolean | MaintenanceSchedule$itemsArgs<ExtArgs>
     _count?: boolean | MaintenanceScheduleCountOutputTypeDefaultArgs<ExtArgs>
@@ -10429,6 +10632,7 @@ export namespace Prisma {
     notes?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    systemID?: boolean
     car?: boolean | CarDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["maintenanceSchedule"]>
 
@@ -10439,6 +10643,7 @@ export namespace Prisma {
     notes?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    systemID?: boolean
     car?: boolean | CarDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["maintenanceSchedule"]>
 
@@ -10449,9 +10654,10 @@ export namespace Prisma {
     notes?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    systemID?: boolean
   }
 
-  export type MaintenanceScheduleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "carId" | "serviceDate" | "notes" | "createdAt" | "updatedAt", ExtArgs["result"]["maintenanceSchedule"]>
+  export type MaintenanceScheduleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "carId" | "serviceDate" | "notes" | "createdAt" | "updatedAt" | "systemID", ExtArgs["result"]["maintenanceSchedule"]>
   export type MaintenanceScheduleInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     car?: boolean | CarDefaultArgs<ExtArgs>
     items?: boolean | MaintenanceSchedule$itemsArgs<ExtArgs>
@@ -10477,6 +10683,7 @@ export namespace Prisma {
       notes: string | null
       createdAt: Date
       updatedAt: Date
+      systemID: string | null
     }, ExtArgs["result"]["maintenanceSchedule"]>
     composites: {}
   }
@@ -10908,6 +11115,7 @@ export namespace Prisma {
     readonly notes: FieldRef<"MaintenanceSchedule", 'String'>
     readonly createdAt: FieldRef<"MaintenanceSchedule", 'DateTime'>
     readonly updatedAt: FieldRef<"MaintenanceSchedule", 'DateTime'>
+    readonly systemID: FieldRef<"MaintenanceSchedule", 'String'>
   }
     
 
@@ -11377,6 +11585,7 @@ export namespace Prisma {
     nextServiceDate: Date | null
     notes: string | null
     carId: string | null
+    systemID: string | null
   }
 
   export type MaintenanceItemMaxAggregateOutputType = {
@@ -11387,6 +11596,7 @@ export namespace Prisma {
     nextServiceDate: Date | null
     notes: string | null
     carId: string | null
+    systemID: string | null
   }
 
   export type MaintenanceItemCountAggregateOutputType = {
@@ -11397,6 +11607,7 @@ export namespace Prisma {
     nextServiceDate: number
     notes: number
     carId: number
+    systemID: number
     _all: number
   }
 
@@ -11417,6 +11628,7 @@ export namespace Prisma {
     nextServiceDate?: true
     notes?: true
     carId?: true
+    systemID?: true
   }
 
   export type MaintenanceItemMaxAggregateInputType = {
@@ -11427,6 +11639,7 @@ export namespace Prisma {
     nextServiceDate?: true
     notes?: true
     carId?: true
+    systemID?: true
   }
 
   export type MaintenanceItemCountAggregateInputType = {
@@ -11437,6 +11650,7 @@ export namespace Prisma {
     nextServiceDate?: true
     notes?: true
     carId?: true
+    systemID?: true
     _all?: true
   }
 
@@ -11534,6 +11748,7 @@ export namespace Prisma {
     nextServiceDate: Date | null
     notes: string | null
     carId: string | null
+    systemID: string | null
     _count: MaintenanceItemCountAggregateOutputType | null
     _avg: MaintenanceItemAvgAggregateOutputType | null
     _sum: MaintenanceItemSumAggregateOutputType | null
@@ -11563,6 +11778,7 @@ export namespace Prisma {
     nextServiceDate?: boolean
     notes?: boolean
     carId?: boolean
+    systemID?: boolean
     maintenanceSchedule?: boolean | MaintenanceScheduleDefaultArgs<ExtArgs>
     car?: boolean | MaintenanceItem$carArgs<ExtArgs>
   }, ExtArgs["result"]["maintenanceItem"]>
@@ -11575,6 +11791,7 @@ export namespace Prisma {
     nextServiceDate?: boolean
     notes?: boolean
     carId?: boolean
+    systemID?: boolean
     maintenanceSchedule?: boolean | MaintenanceScheduleDefaultArgs<ExtArgs>
     car?: boolean | MaintenanceItem$carArgs<ExtArgs>
   }, ExtArgs["result"]["maintenanceItem"]>
@@ -11587,6 +11804,7 @@ export namespace Prisma {
     nextServiceDate?: boolean
     notes?: boolean
     carId?: boolean
+    systemID?: boolean
     maintenanceSchedule?: boolean | MaintenanceScheduleDefaultArgs<ExtArgs>
     car?: boolean | MaintenanceItem$carArgs<ExtArgs>
   }, ExtArgs["result"]["maintenanceItem"]>
@@ -11599,9 +11817,10 @@ export namespace Prisma {
     nextServiceDate?: boolean
     notes?: boolean
     carId?: boolean
+    systemID?: boolean
   }
 
-  export type MaintenanceItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "maintenanceScheduleId" | "type" | "intervalDays" | "nextServiceDate" | "notes" | "carId", ExtArgs["result"]["maintenanceItem"]>
+  export type MaintenanceItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "maintenanceScheduleId" | "type" | "intervalDays" | "nextServiceDate" | "notes" | "carId" | "systemID", ExtArgs["result"]["maintenanceItem"]>
   export type MaintenanceItemInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     maintenanceSchedule?: boolean | MaintenanceScheduleDefaultArgs<ExtArgs>
     car?: boolean | MaintenanceItem$carArgs<ExtArgs>
@@ -11629,6 +11848,7 @@ export namespace Prisma {
       nextServiceDate: Date | null
       notes: string | null
       carId: string | null
+      systemID: string | null
     }, ExtArgs["result"]["maintenanceItem"]>
     composites: {}
   }
@@ -12061,6 +12281,7 @@ export namespace Prisma {
     readonly nextServiceDate: FieldRef<"MaintenanceItem", 'DateTime'>
     readonly notes: FieldRef<"MaintenanceItem", 'String'>
     readonly carId: FieldRef<"MaintenanceItem", 'String'>
+    readonly systemID: FieldRef<"MaintenanceItem", 'String'>
   }
     
 
@@ -12525,6 +12746,7 @@ export namespace Prisma {
     price: Decimal | null
     duration: number | null
     isActive: boolean | null
+    systemID: string | null
   }
 
   export type PackageMaxAggregateOutputType = {
@@ -12533,6 +12755,7 @@ export namespace Prisma {
     price: Decimal | null
     duration: number | null
     isActive: boolean | null
+    systemID: string | null
   }
 
   export type PackageCountAggregateOutputType = {
@@ -12541,6 +12764,7 @@ export namespace Prisma {
     price: number
     duration: number
     isActive: number
+    systemID: number
     _all: number
   }
 
@@ -12561,6 +12785,7 @@ export namespace Prisma {
     price?: true
     duration?: true
     isActive?: true
+    systemID?: true
   }
 
   export type PackageMaxAggregateInputType = {
@@ -12569,6 +12794,7 @@ export namespace Prisma {
     price?: true
     duration?: true
     isActive?: true
+    systemID?: true
   }
 
   export type PackageCountAggregateInputType = {
@@ -12577,6 +12803,7 @@ export namespace Prisma {
     price?: true
     duration?: true
     isActive?: true
+    systemID?: true
     _all?: true
   }
 
@@ -12672,6 +12899,7 @@ export namespace Prisma {
     price: Decimal
     duration: number
     isActive: boolean
+    systemID: string | null
     _count: PackageCountAggregateOutputType | null
     _avg: PackageAvgAggregateOutputType | null
     _sum: PackageSumAggregateOutputType | null
@@ -12699,6 +12927,7 @@ export namespace Prisma {
     price?: boolean
     duration?: boolean
     isActive?: boolean
+    systemID?: boolean
   }, ExtArgs["result"]["package"]>
 
   export type PackageSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -12707,6 +12936,7 @@ export namespace Prisma {
     price?: boolean
     duration?: boolean
     isActive?: boolean
+    systemID?: boolean
   }, ExtArgs["result"]["package"]>
 
   export type PackageSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -12715,6 +12945,7 @@ export namespace Prisma {
     price?: boolean
     duration?: boolean
     isActive?: boolean
+    systemID?: boolean
   }, ExtArgs["result"]["package"]>
 
   export type PackageSelectScalar = {
@@ -12723,9 +12954,10 @@ export namespace Prisma {
     price?: boolean
     duration?: boolean
     isActive?: boolean
+    systemID?: boolean
   }
 
-  export type PackageOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "price" | "duration" | "isActive", ExtArgs["result"]["package"]>
+  export type PackageOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "price" | "duration" | "isActive" | "systemID", ExtArgs["result"]["package"]>
 
   export type $PackagePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Package"
@@ -12736,6 +12968,7 @@ export namespace Prisma {
       price: Prisma.Decimal
       duration: number
       isActive: boolean
+      systemID: string | null
     }, ExtArgs["result"]["package"]>
     composites: {}
   }
@@ -13164,6 +13397,7 @@ export namespace Prisma {
     readonly price: FieldRef<"Package", 'Decimal'>
     readonly duration: FieldRef<"Package", 'Int'>
     readonly isActive: FieldRef<"Package", 'Boolean'>
+    readonly systemID: FieldRef<"Package", 'String'>
   }
     
 
@@ -13575,6 +13809,7 @@ export namespace Prisma {
     status: $Enums.PaymentStatus | null
     createdAt: Date | null
     updatedAt: Date | null
+    systemID: string | null
   }
 
   export type PaymentCycleMaxAggregateOutputType = {
@@ -13591,6 +13826,7 @@ export namespace Prisma {
     status: $Enums.PaymentStatus | null
     createdAt: Date | null
     updatedAt: Date | null
+    systemID: string | null
   }
 
   export type PaymentCycleCountAggregateOutputType = {
@@ -13607,6 +13843,7 @@ export namespace Prisma {
     status: number
     createdAt: number
     updatedAt: number
+    systemID: number
     _all: number
   }
 
@@ -13641,6 +13878,7 @@ export namespace Prisma {
     status?: true
     createdAt?: true
     updatedAt?: true
+    systemID?: true
   }
 
   export type PaymentCycleMaxAggregateInputType = {
@@ -13657,6 +13895,7 @@ export namespace Prisma {
     status?: true
     createdAt?: true
     updatedAt?: true
+    systemID?: true
   }
 
   export type PaymentCycleCountAggregateInputType = {
@@ -13673,6 +13912,7 @@ export namespace Prisma {
     status?: true
     createdAt?: true
     updatedAt?: true
+    systemID?: true
     _all?: true
   }
 
@@ -13776,6 +14016,7 @@ export namespace Prisma {
     status: $Enums.PaymentStatus
     createdAt: Date
     updatedAt: Date
+    systemID: string | null
     _count: PaymentCycleCountAggregateOutputType | null
     _avg: PaymentCycleAvgAggregateOutputType | null
     _sum: PaymentCycleSumAggregateOutputType | null
@@ -13811,6 +14052,7 @@ export namespace Prisma {
     status?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    systemID?: boolean
     instructor?: boolean | InstructorDefaultArgs<ExtArgs>
     paymentsTaken?: boolean | PaymentCycle$paymentsTakenArgs<ExtArgs>
     _count?: boolean | PaymentCycleCountOutputTypeDefaultArgs<ExtArgs>
@@ -13830,6 +14072,7 @@ export namespace Prisma {
     status?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    systemID?: boolean
     instructor?: boolean | InstructorDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["paymentCycle"]>
 
@@ -13847,6 +14090,7 @@ export namespace Prisma {
     status?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    systemID?: boolean
     instructor?: boolean | InstructorDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["paymentCycle"]>
 
@@ -13864,9 +14108,10 @@ export namespace Prisma {
     status?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    systemID?: boolean
   }
 
-  export type PaymentCycleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "instructorId" | "month" | "amountTaken" | "baseAmount" | "deductions" | "bonus" | "netAmount" | "paidAt" | "note" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["paymentCycle"]>
+  export type PaymentCycleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "instructorId" | "month" | "amountTaken" | "baseAmount" | "deductions" | "bonus" | "netAmount" | "paidAt" | "note" | "status" | "createdAt" | "updatedAt" | "systemID", ExtArgs["result"]["paymentCycle"]>
   export type PaymentCycleInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     instructor?: boolean | InstructorDefaultArgs<ExtArgs>
     paymentsTaken?: boolean | PaymentCycle$paymentsTakenArgs<ExtArgs>
@@ -13899,6 +14144,7 @@ export namespace Prisma {
       status: $Enums.PaymentStatus
       createdAt: Date
       updatedAt: Date
+      systemID: string | null
     }, ExtArgs["result"]["paymentCycle"]>
     composites: {}
   }
@@ -14337,6 +14583,7 @@ export namespace Prisma {
     readonly status: FieldRef<"PaymentCycle", 'PaymentStatus'>
     readonly createdAt: FieldRef<"PaymentCycle", 'DateTime'>
     readonly updatedAt: FieldRef<"PaymentCycle", 'DateTime'>
+    readonly systemID: FieldRef<"PaymentCycle", 'String'>
   }
     
 
@@ -14794,6 +15041,7 @@ export namespace Prisma {
     Batch_time: string | null
     Duration_time: string | null
     Car_id: string | null
+    systemID: string | null
   }
 
   export type ScheduleMaxAggregateOutputType = {
@@ -14802,6 +15050,7 @@ export namespace Prisma {
     Batch_time: string | null
     Duration_time: string | null
     Car_id: string | null
+    systemID: string | null
   }
 
   export type ScheduleCountAggregateOutputType = {
@@ -14810,6 +15059,7 @@ export namespace Prisma {
     Batch_time: number
     Duration_time: number
     Car_id: number
+    systemID: number
     _all: number
   }
 
@@ -14820,6 +15070,7 @@ export namespace Prisma {
     Batch_time?: true
     Duration_time?: true
     Car_id?: true
+    systemID?: true
   }
 
   export type ScheduleMaxAggregateInputType = {
@@ -14828,6 +15079,7 @@ export namespace Prisma {
     Batch_time?: true
     Duration_time?: true
     Car_id?: true
+    systemID?: true
   }
 
   export type ScheduleCountAggregateInputType = {
@@ -14836,6 +15088,7 @@ export namespace Prisma {
     Batch_time?: true
     Duration_time?: true
     Car_id?: true
+    systemID?: true
     _all?: true
   }
 
@@ -14917,6 +15170,7 @@ export namespace Prisma {
     Batch_time: string
     Duration_time: string
     Car_id: string
+    systemID: string | null
     _count: ScheduleCountAggregateOutputType | null
     _min: ScheduleMinAggregateOutputType | null
     _max: ScheduleMaxAggregateOutputType | null
@@ -14942,6 +15196,7 @@ export namespace Prisma {
     Batch_time?: boolean
     Duration_time?: boolean
     Car_id?: boolean
+    systemID?: boolean
   }, ExtArgs["result"]["schedule"]>
 
   export type ScheduleSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -14950,6 +15205,7 @@ export namespace Prisma {
     Batch_time?: boolean
     Duration_time?: boolean
     Car_id?: boolean
+    systemID?: boolean
   }, ExtArgs["result"]["schedule"]>
 
   export type ScheduleSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -14958,6 +15214,7 @@ export namespace Prisma {
     Batch_time?: boolean
     Duration_time?: boolean
     Car_id?: boolean
+    systemID?: boolean
   }, ExtArgs["result"]["schedule"]>
 
   export type ScheduleSelectScalar = {
@@ -14966,9 +15223,10 @@ export namespace Prisma {
     Batch_time?: boolean
     Duration_time?: boolean
     Car_id?: boolean
+    systemID?: boolean
   }
 
-  export type ScheduleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "student_id" | "Batch_time" | "Duration_time" | "Car_id", ExtArgs["result"]["schedule"]>
+  export type ScheduleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "student_id" | "Batch_time" | "Duration_time" | "Car_id" | "systemID", ExtArgs["result"]["schedule"]>
 
   export type $SchedulePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Schedule"
@@ -14979,6 +15237,7 @@ export namespace Prisma {
       Batch_time: string
       Duration_time: string
       Car_id: string
+      systemID: string | null
     }, ExtArgs["result"]["schedule"]>
     composites: {}
   }
@@ -15407,6 +15666,7 @@ export namespace Prisma {
     readonly Batch_time: FieldRef<"Schedule", 'String'>
     readonly Duration_time: FieldRef<"Schedule", 'String'>
     readonly Car_id: FieldRef<"Schedule", 'String'>
+    readonly systemID: FieldRef<"Schedule", 'String'>
   }
     
 
@@ -15782,76 +16042,152 @@ export namespace Prisma {
 
   export type AggregateSchoolSetUp = {
     _count: SchoolSetUpCountAggregateOutputType | null
+    _avg: SchoolSetUpAvgAggregateOutputType | null
+    _sum: SchoolSetUpSumAggregateOutputType | null
     _min: SchoolSetUpMinAggregateOutputType | null
     _max: SchoolSetUpMaxAggregateOutputType | null
   }
 
+  export type SchoolSetUpAvgAggregateOutputType = {
+    reminderDays: number | null
+    reminderBeforeMinutes: number | null
+  }
+
+  export type SchoolSetUpSumAggregateOutputType = {
+    reminderDays: number | null
+    reminderBeforeMinutes: number | null
+  }
+
   export type SchoolSetUpMinAggregateOutputType = {
     id: string | null
-    systemID: string | null
     school_name: string | null
     support_Email: string | null
     address: string | null
     contact_Number: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    systemID: string | null
+    reminderDays: number | null
+    enableOnboardingMsg: boolean | null
+    enableReminderMsg: boolean | null
+    enableCompletionMsg: boolean | null
+    workingStartTime: string | null
+    workingEndTime: string | null
+    enableAttendanceReminder: boolean | null
+    reminderBeforeMinutes: number | null
+    lastAttendanceReminderDate: string | null
   }
 
   export type SchoolSetUpMaxAggregateOutputType = {
     id: string | null
-    systemID: string | null
     school_name: string | null
     support_Email: string | null
     address: string | null
     contact_Number: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    systemID: string | null
+    reminderDays: number | null
+    enableOnboardingMsg: boolean | null
+    enableReminderMsg: boolean | null
+    enableCompletionMsg: boolean | null
+    workingStartTime: string | null
+    workingEndTime: string | null
+    enableAttendanceReminder: boolean | null
+    reminderBeforeMinutes: number | null
+    lastAttendanceReminderDate: string | null
   }
 
   export type SchoolSetUpCountAggregateOutputType = {
     id: number
-    systemID: number
     school_name: number
     support_Email: number
     address: number
     contact_Number: number
     createdAt: number
     updatedAt: number
+    systemID: number
+    reminderDays: number
+    enableOnboardingMsg: number
+    enableReminderMsg: number
+    enableCompletionMsg: number
+    workingStartTime: number
+    workingEndTime: number
+    enableAttendanceReminder: number
+    reminderBeforeMinutes: number
+    lastAttendanceReminderDate: number
     _all: number
   }
 
 
+  export type SchoolSetUpAvgAggregateInputType = {
+    reminderDays?: true
+    reminderBeforeMinutes?: true
+  }
+
+  export type SchoolSetUpSumAggregateInputType = {
+    reminderDays?: true
+    reminderBeforeMinutes?: true
+  }
+
   export type SchoolSetUpMinAggregateInputType = {
     id?: true
-    systemID?: true
     school_name?: true
     support_Email?: true
     address?: true
     contact_Number?: true
     createdAt?: true
     updatedAt?: true
+    systemID?: true
+    reminderDays?: true
+    enableOnboardingMsg?: true
+    enableReminderMsg?: true
+    enableCompletionMsg?: true
+    workingStartTime?: true
+    workingEndTime?: true
+    enableAttendanceReminder?: true
+    reminderBeforeMinutes?: true
+    lastAttendanceReminderDate?: true
   }
 
   export type SchoolSetUpMaxAggregateInputType = {
     id?: true
-    systemID?: true
     school_name?: true
     support_Email?: true
     address?: true
     contact_Number?: true
     createdAt?: true
     updatedAt?: true
+    systemID?: true
+    reminderDays?: true
+    enableOnboardingMsg?: true
+    enableReminderMsg?: true
+    enableCompletionMsg?: true
+    workingStartTime?: true
+    workingEndTime?: true
+    enableAttendanceReminder?: true
+    reminderBeforeMinutes?: true
+    lastAttendanceReminderDate?: true
   }
 
   export type SchoolSetUpCountAggregateInputType = {
     id?: true
-    systemID?: true
     school_name?: true
     support_Email?: true
     address?: true
     contact_Number?: true
     createdAt?: true
     updatedAt?: true
+    systemID?: true
+    reminderDays?: true
+    enableOnboardingMsg?: true
+    enableReminderMsg?: true
+    enableCompletionMsg?: true
+    workingStartTime?: true
+    workingEndTime?: true
+    enableAttendanceReminder?: true
+    reminderBeforeMinutes?: true
+    lastAttendanceReminderDate?: true
     _all?: true
   }
 
@@ -15893,6 +16229,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: SchoolSetUpAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: SchoolSetUpSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: SchoolSetUpMinAggregateInputType
@@ -15923,20 +16271,33 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: SchoolSetUpCountAggregateInputType | true
+    _avg?: SchoolSetUpAvgAggregateInputType
+    _sum?: SchoolSetUpSumAggregateInputType
     _min?: SchoolSetUpMinAggregateInputType
     _max?: SchoolSetUpMaxAggregateInputType
   }
 
   export type SchoolSetUpGroupByOutputType = {
     id: string
-    systemID: string | null
     school_name: string
     support_Email: string
     address: string
     contact_Number: string
     createdAt: Date
     updatedAt: Date
+    systemID: string | null
+    reminderDays: number
+    enableOnboardingMsg: boolean
+    enableReminderMsg: boolean
+    enableCompletionMsg: boolean
+    workingStartTime: string
+    workingEndTime: string
+    enableAttendanceReminder: boolean
+    reminderBeforeMinutes: number
+    lastAttendanceReminderDate: string | null
     _count: SchoolSetUpCountAggregateOutputType | null
+    _avg: SchoolSetUpAvgAggregateOutputType | null
+    _sum: SchoolSetUpSumAggregateOutputType | null
     _min: SchoolSetUpMinAggregateOutputType | null
     _max: SchoolSetUpMaxAggregateOutputType | null
   }
@@ -15957,62 +16318,107 @@ export namespace Prisma {
 
   export type SchoolSetUpSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    systemID?: boolean
     school_name?: boolean
     support_Email?: boolean
     address?: boolean
     contact_Number?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    systemID?: boolean
+    reminderDays?: boolean
+    enableOnboardingMsg?: boolean
+    enableReminderMsg?: boolean
+    enableCompletionMsg?: boolean
+    workingStartTime?: boolean
+    workingEndTime?: boolean
+    enableAttendanceReminder?: boolean
+    reminderBeforeMinutes?: boolean
+    lastAttendanceReminderDate?: boolean
   }, ExtArgs["result"]["schoolSetUp"]>
 
   export type SchoolSetUpSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    systemID?: boolean
     school_name?: boolean
     support_Email?: boolean
     address?: boolean
     contact_Number?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    systemID?: boolean
+    reminderDays?: boolean
+    enableOnboardingMsg?: boolean
+    enableReminderMsg?: boolean
+    enableCompletionMsg?: boolean
+    workingStartTime?: boolean
+    workingEndTime?: boolean
+    enableAttendanceReminder?: boolean
+    reminderBeforeMinutes?: boolean
+    lastAttendanceReminderDate?: boolean
   }, ExtArgs["result"]["schoolSetUp"]>
 
   export type SchoolSetUpSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    systemID?: boolean
     school_name?: boolean
     support_Email?: boolean
     address?: boolean
     contact_Number?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    systemID?: boolean
+    reminderDays?: boolean
+    enableOnboardingMsg?: boolean
+    enableReminderMsg?: boolean
+    enableCompletionMsg?: boolean
+    workingStartTime?: boolean
+    workingEndTime?: boolean
+    enableAttendanceReminder?: boolean
+    reminderBeforeMinutes?: boolean
+    lastAttendanceReminderDate?: boolean
   }, ExtArgs["result"]["schoolSetUp"]>
 
   export type SchoolSetUpSelectScalar = {
     id?: boolean
-    systemID?: boolean
     school_name?: boolean
     support_Email?: boolean
     address?: boolean
     contact_Number?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    systemID?: boolean
+    reminderDays?: boolean
+    enableOnboardingMsg?: boolean
+    enableReminderMsg?: boolean
+    enableCompletionMsg?: boolean
+    workingStartTime?: boolean
+    workingEndTime?: boolean
+    enableAttendanceReminder?: boolean
+    reminderBeforeMinutes?: boolean
+    lastAttendanceReminderDate?: boolean
   }
 
-  export type SchoolSetUpOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "systemID" | "school_name" | "support_Email" | "address" | "contact_Number" | "createdAt" | "updatedAt", ExtArgs["result"]["schoolSetUp"]>
+  export type SchoolSetUpOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "school_name" | "support_Email" | "address" | "contact_Number" | "createdAt" | "updatedAt" | "systemID" | "reminderDays" | "enableOnboardingMsg" | "enableReminderMsg" | "enableCompletionMsg" | "workingStartTime" | "workingEndTime" | "enableAttendanceReminder" | "reminderBeforeMinutes" | "lastAttendanceReminderDate", ExtArgs["result"]["schoolSetUp"]>
 
   export type $SchoolSetUpPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "SchoolSetUp"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
       id: string
-      systemID: string | null
       school_name: string
       support_Email: string
       address: string
       contact_Number: string
       createdAt: Date
       updatedAt: Date
+      systemID: string | null
+      reminderDays: number
+      enableOnboardingMsg: boolean
+      enableReminderMsg: boolean
+      enableCompletionMsg: boolean
+      workingStartTime: string
+      workingEndTime: string
+      enableAttendanceReminder: boolean
+      reminderBeforeMinutes: number
+      lastAttendanceReminderDate: string | null
     }, ExtArgs["result"]["schoolSetUp"]>
     composites: {}
   }
@@ -16437,13 +16843,22 @@ export namespace Prisma {
    */
   interface SchoolSetUpFieldRefs {
     readonly id: FieldRef<"SchoolSetUp", 'String'>
-    readonly systemID: FieldRef<"SchoolSetUp", 'String'>
     readonly school_name: FieldRef<"SchoolSetUp", 'String'>
     readonly support_Email: FieldRef<"SchoolSetUp", 'String'>
     readonly address: FieldRef<"SchoolSetUp", 'String'>
     readonly contact_Number: FieldRef<"SchoolSetUp", 'String'>
     readonly createdAt: FieldRef<"SchoolSetUp", 'DateTime'>
     readonly updatedAt: FieldRef<"SchoolSetUp", 'DateTime'>
+    readonly systemID: FieldRef<"SchoolSetUp", 'String'>
+    readonly reminderDays: FieldRef<"SchoolSetUp", 'Int'>
+    readonly enableOnboardingMsg: FieldRef<"SchoolSetUp", 'Boolean'>
+    readonly enableReminderMsg: FieldRef<"SchoolSetUp", 'Boolean'>
+    readonly enableCompletionMsg: FieldRef<"SchoolSetUp", 'Boolean'>
+    readonly workingStartTime: FieldRef<"SchoolSetUp", 'String'>
+    readonly workingEndTime: FieldRef<"SchoolSetUp", 'String'>
+    readonly enableAttendanceReminder: FieldRef<"SchoolSetUp", 'Boolean'>
+    readonly reminderBeforeMinutes: FieldRef<"SchoolSetUp", 'Int'>
+    readonly lastAttendanceReminderDate: FieldRef<"SchoolSetUp", 'String'>
   }
     
 
@@ -16856,6 +17271,12 @@ export namespace Prisma {
     Assigned_car_id: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    systemID: string | null
+    reminderDate: Date | null
+    licenseTestDate: Date | null
+    licenseTestTime: string | null
+    licenseTestLocation: string | null
+    licenseTestStatus: string | null
   }
 
   export type StudentMaxAggregateOutputType = {
@@ -16875,6 +17296,12 @@ export namespace Prisma {
     Assigned_car_id: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    systemID: string | null
+    reminderDate: Date | null
+    licenseTestDate: Date | null
+    licenseTestTime: string | null
+    licenseTestLocation: string | null
+    licenseTestStatus: string | null
   }
 
   export type StudentCountAggregateOutputType = {
@@ -16894,6 +17321,12 @@ export namespace Prisma {
     Assigned_car_id: number
     createdAt: number
     updatedAt: number
+    systemID: number
+    reminderDate: number
+    licenseTestDate: number
+    licenseTestTime: number
+    licenseTestLocation: number
+    licenseTestStatus: number
     _all: number
   }
 
@@ -16929,6 +17362,12 @@ export namespace Prisma {
     Assigned_car_id?: true
     createdAt?: true
     updatedAt?: true
+    systemID?: true
+    reminderDate?: true
+    licenseTestDate?: true
+    licenseTestTime?: true
+    licenseTestLocation?: true
+    licenseTestStatus?: true
   }
 
   export type StudentMaxAggregateInputType = {
@@ -16948,6 +17387,12 @@ export namespace Prisma {
     Assigned_car_id?: true
     createdAt?: true
     updatedAt?: true
+    systemID?: true
+    reminderDate?: true
+    licenseTestDate?: true
+    licenseTestTime?: true
+    licenseTestLocation?: true
+    licenseTestStatus?: true
   }
 
   export type StudentCountAggregateInputType = {
@@ -16967,6 +17412,12 @@ export namespace Prisma {
     Assigned_car_id?: true
     createdAt?: true
     updatedAt?: true
+    systemID?: true
+    reminderDate?: true
+    licenseTestDate?: true
+    licenseTestTime?: true
+    licenseTestLocation?: true
+    licenseTestStatus?: true
     _all?: true
   }
 
@@ -17073,6 +17524,12 @@ export namespace Prisma {
     Assigned_car_id: string | null
     createdAt: Date
     updatedAt: Date
+    systemID: string | null
+    reminderDate: Date | null
+    licenseTestDate: Date | null
+    licenseTestTime: string | null
+    licenseTestLocation: string | null
+    licenseTestStatus: string | null
     _count: StudentCountAggregateOutputType | null
     _avg: StudentAvgAggregateOutputType | null
     _sum: StudentSumAggregateOutputType | null
@@ -17111,6 +17568,12 @@ export namespace Prisma {
     Assigned_car_id?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    systemID?: boolean
+    reminderDate?: boolean
+    licenseTestDate?: boolean
+    licenseTestTime?: boolean
+    licenseTestLocation?: boolean
+    licenseTestStatus?: boolean
     instructor?: boolean | Student$instructorArgs<ExtArgs>
     car?: boolean | Student$carArgs<ExtArgs>
   }, ExtArgs["result"]["student"]>
@@ -17132,6 +17595,12 @@ export namespace Prisma {
     Assigned_car_id?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    systemID?: boolean
+    reminderDate?: boolean
+    licenseTestDate?: boolean
+    licenseTestTime?: boolean
+    licenseTestLocation?: boolean
+    licenseTestStatus?: boolean
     instructor?: boolean | Student$instructorArgs<ExtArgs>
     car?: boolean | Student$carArgs<ExtArgs>
   }, ExtArgs["result"]["student"]>
@@ -17153,6 +17622,12 @@ export namespace Prisma {
     Assigned_car_id?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    systemID?: boolean
+    reminderDate?: boolean
+    licenseTestDate?: boolean
+    licenseTestTime?: boolean
+    licenseTestLocation?: boolean
+    licenseTestStatus?: boolean
     instructor?: boolean | Student$instructorArgs<ExtArgs>
     car?: boolean | Student$carArgs<ExtArgs>
   }, ExtArgs["result"]["student"]>
@@ -17174,9 +17649,15 @@ export namespace Prisma {
     Assigned_car_id?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    systemID?: boolean
+    reminderDate?: boolean
+    licenseTestDate?: boolean
+    licenseTestTime?: boolean
+    licenseTestLocation?: boolean
+    licenseTestStatus?: boolean
   }
 
-  export type StudentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "mobile" | "packageId" | "package_name" | "Enrollment_status" | "Course_Start_date" | "Course_End_Date" | "Assigned_Instructor" | "Total_amount" | "Amount_paid" | "Remaining_percentage" | "remaining_amount" | "Assigned_car_id" | "createdAt" | "updatedAt", ExtArgs["result"]["student"]>
+  export type StudentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "mobile" | "packageId" | "package_name" | "Enrollment_status" | "Course_Start_date" | "Course_End_Date" | "Assigned_Instructor" | "Total_amount" | "Amount_paid" | "Remaining_percentage" | "remaining_amount" | "Assigned_car_id" | "createdAt" | "updatedAt" | "systemID" | "reminderDate" | "licenseTestDate" | "licenseTestTime" | "licenseTestLocation" | "licenseTestStatus", ExtArgs["result"]["student"]>
   export type StudentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     instructor?: boolean | Student$instructorArgs<ExtArgs>
     car?: boolean | Student$carArgs<ExtArgs>
@@ -17213,6 +17694,12 @@ export namespace Prisma {
       Assigned_car_id: string | null
       createdAt: Date
       updatedAt: Date
+      systemID: string | null
+      reminderDate: Date | null
+      licenseTestDate: Date | null
+      licenseTestTime: string | null
+      licenseTestLocation: string | null
+      licenseTestStatus: string | null
     }, ExtArgs["result"]["student"]>
     composites: {}
   }
@@ -17654,6 +18141,12 @@ export namespace Prisma {
     readonly Assigned_car_id: FieldRef<"Student", 'String'>
     readonly createdAt: FieldRef<"Student", 'DateTime'>
     readonly updatedAt: FieldRef<"Student", 'DateTime'>
+    readonly systemID: FieldRef<"Student", 'String'>
+    readonly reminderDate: FieldRef<"Student", 'DateTime'>
+    readonly licenseTestDate: FieldRef<"Student", 'DateTime'>
+    readonly licenseTestTime: FieldRef<"Student", 'String'>
+    readonly licenseTestLocation: FieldRef<"Student", 'String'>
+    readonly licenseTestStatus: FieldRef<"Student", 'String'>
   }
     
 
@@ -18110,6 +18603,1043 @@ export namespace Prisma {
 
 
   /**
+   * Model StudentAttendance
+   */
+
+  export type AggregateStudentAttendance = {
+    _count: StudentAttendanceCountAggregateOutputType | null
+    _min: StudentAttendanceMinAggregateOutputType | null
+    _max: StudentAttendanceMaxAggregateOutputType | null
+  }
+
+  export type StudentAttendanceMinAggregateOutputType = {
+    id: string | null
+    studentId: string | null
+    date: Date | null
+    status: string | null
+    note: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    systemID: string | null
+  }
+
+  export type StudentAttendanceMaxAggregateOutputType = {
+    id: string | null
+    studentId: string | null
+    date: Date | null
+    status: string | null
+    note: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    systemID: string | null
+  }
+
+  export type StudentAttendanceCountAggregateOutputType = {
+    id: number
+    studentId: number
+    date: number
+    status: number
+    note: number
+    createdAt: number
+    updatedAt: number
+    systemID: number
+    _all: number
+  }
+
+
+  export type StudentAttendanceMinAggregateInputType = {
+    id?: true
+    studentId?: true
+    date?: true
+    status?: true
+    note?: true
+    createdAt?: true
+    updatedAt?: true
+    systemID?: true
+  }
+
+  export type StudentAttendanceMaxAggregateInputType = {
+    id?: true
+    studentId?: true
+    date?: true
+    status?: true
+    note?: true
+    createdAt?: true
+    updatedAt?: true
+    systemID?: true
+  }
+
+  export type StudentAttendanceCountAggregateInputType = {
+    id?: true
+    studentId?: true
+    date?: true
+    status?: true
+    note?: true
+    createdAt?: true
+    updatedAt?: true
+    systemID?: true
+    _all?: true
+  }
+
+  export type StudentAttendanceAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which StudentAttendance to aggregate.
+     */
+    where?: StudentAttendanceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of StudentAttendances to fetch.
+     */
+    orderBy?: StudentAttendanceOrderByWithRelationInput | StudentAttendanceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: StudentAttendanceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` StudentAttendances from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` StudentAttendances.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned StudentAttendances
+    **/
+    _count?: true | StudentAttendanceCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: StudentAttendanceMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: StudentAttendanceMaxAggregateInputType
+  }
+
+  export type GetStudentAttendanceAggregateType<T extends StudentAttendanceAggregateArgs> = {
+        [P in keyof T & keyof AggregateStudentAttendance]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateStudentAttendance[P]>
+      : GetScalarType<T[P], AggregateStudentAttendance[P]>
+  }
+
+
+
+
+  export type StudentAttendanceGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: StudentAttendanceWhereInput
+    orderBy?: StudentAttendanceOrderByWithAggregationInput | StudentAttendanceOrderByWithAggregationInput[]
+    by: StudentAttendanceScalarFieldEnum[] | StudentAttendanceScalarFieldEnum
+    having?: StudentAttendanceScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: StudentAttendanceCountAggregateInputType | true
+    _min?: StudentAttendanceMinAggregateInputType
+    _max?: StudentAttendanceMaxAggregateInputType
+  }
+
+  export type StudentAttendanceGroupByOutputType = {
+    id: string
+    studentId: string
+    date: Date
+    status: string
+    note: string | null
+    createdAt: Date
+    updatedAt: Date
+    systemID: string | null
+    _count: StudentAttendanceCountAggregateOutputType | null
+    _min: StudentAttendanceMinAggregateOutputType | null
+    _max: StudentAttendanceMaxAggregateOutputType | null
+  }
+
+  type GetStudentAttendanceGroupByPayload<T extends StudentAttendanceGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<StudentAttendanceGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof StudentAttendanceGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], StudentAttendanceGroupByOutputType[P]>
+            : GetScalarType<T[P], StudentAttendanceGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type StudentAttendanceSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    studentId?: boolean
+    date?: boolean
+    status?: boolean
+    note?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    systemID?: boolean
+  }, ExtArgs["result"]["studentAttendance"]>
+
+  export type StudentAttendanceSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    studentId?: boolean
+    date?: boolean
+    status?: boolean
+    note?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    systemID?: boolean
+  }, ExtArgs["result"]["studentAttendance"]>
+
+  export type StudentAttendanceSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    studentId?: boolean
+    date?: boolean
+    status?: boolean
+    note?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    systemID?: boolean
+  }, ExtArgs["result"]["studentAttendance"]>
+
+  export type StudentAttendanceSelectScalar = {
+    id?: boolean
+    studentId?: boolean
+    date?: boolean
+    status?: boolean
+    note?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    systemID?: boolean
+  }
+
+  export type StudentAttendanceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "studentId" | "date" | "status" | "note" | "createdAt" | "updatedAt" | "systemID", ExtArgs["result"]["studentAttendance"]>
+
+  export type $StudentAttendancePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "StudentAttendance"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      studentId: string
+      date: Date
+      status: string
+      note: string | null
+      createdAt: Date
+      updatedAt: Date
+      systemID: string | null
+    }, ExtArgs["result"]["studentAttendance"]>
+    composites: {}
+  }
+
+  type StudentAttendanceGetPayload<S extends boolean | null | undefined | StudentAttendanceDefaultArgs> = $Result.GetResult<Prisma.$StudentAttendancePayload, S>
+
+  type StudentAttendanceCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<StudentAttendanceFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: StudentAttendanceCountAggregateInputType | true
+    }
+
+  export interface StudentAttendanceDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['StudentAttendance'], meta: { name: 'StudentAttendance' } }
+    /**
+     * Find zero or one StudentAttendance that matches the filter.
+     * @param {StudentAttendanceFindUniqueArgs} args - Arguments to find a StudentAttendance
+     * @example
+     * // Get one StudentAttendance
+     * const studentAttendance = await prisma.studentAttendance.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends StudentAttendanceFindUniqueArgs>(args: SelectSubset<T, StudentAttendanceFindUniqueArgs<ExtArgs>>): Prisma__StudentAttendanceClient<$Result.GetResult<Prisma.$StudentAttendancePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one StudentAttendance that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {StudentAttendanceFindUniqueOrThrowArgs} args - Arguments to find a StudentAttendance
+     * @example
+     * // Get one StudentAttendance
+     * const studentAttendance = await prisma.studentAttendance.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends StudentAttendanceFindUniqueOrThrowArgs>(args: SelectSubset<T, StudentAttendanceFindUniqueOrThrowArgs<ExtArgs>>): Prisma__StudentAttendanceClient<$Result.GetResult<Prisma.$StudentAttendancePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first StudentAttendance that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StudentAttendanceFindFirstArgs} args - Arguments to find a StudentAttendance
+     * @example
+     * // Get one StudentAttendance
+     * const studentAttendance = await prisma.studentAttendance.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends StudentAttendanceFindFirstArgs>(args?: SelectSubset<T, StudentAttendanceFindFirstArgs<ExtArgs>>): Prisma__StudentAttendanceClient<$Result.GetResult<Prisma.$StudentAttendancePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first StudentAttendance that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StudentAttendanceFindFirstOrThrowArgs} args - Arguments to find a StudentAttendance
+     * @example
+     * // Get one StudentAttendance
+     * const studentAttendance = await prisma.studentAttendance.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends StudentAttendanceFindFirstOrThrowArgs>(args?: SelectSubset<T, StudentAttendanceFindFirstOrThrowArgs<ExtArgs>>): Prisma__StudentAttendanceClient<$Result.GetResult<Prisma.$StudentAttendancePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more StudentAttendances that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StudentAttendanceFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all StudentAttendances
+     * const studentAttendances = await prisma.studentAttendance.findMany()
+     * 
+     * // Get first 10 StudentAttendances
+     * const studentAttendances = await prisma.studentAttendance.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const studentAttendanceWithIdOnly = await prisma.studentAttendance.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends StudentAttendanceFindManyArgs>(args?: SelectSubset<T, StudentAttendanceFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StudentAttendancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a StudentAttendance.
+     * @param {StudentAttendanceCreateArgs} args - Arguments to create a StudentAttendance.
+     * @example
+     * // Create one StudentAttendance
+     * const StudentAttendance = await prisma.studentAttendance.create({
+     *   data: {
+     *     // ... data to create a StudentAttendance
+     *   }
+     * })
+     * 
+     */
+    create<T extends StudentAttendanceCreateArgs>(args: SelectSubset<T, StudentAttendanceCreateArgs<ExtArgs>>): Prisma__StudentAttendanceClient<$Result.GetResult<Prisma.$StudentAttendancePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many StudentAttendances.
+     * @param {StudentAttendanceCreateManyArgs} args - Arguments to create many StudentAttendances.
+     * @example
+     * // Create many StudentAttendances
+     * const studentAttendance = await prisma.studentAttendance.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends StudentAttendanceCreateManyArgs>(args?: SelectSubset<T, StudentAttendanceCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many StudentAttendances and returns the data saved in the database.
+     * @param {StudentAttendanceCreateManyAndReturnArgs} args - Arguments to create many StudentAttendances.
+     * @example
+     * // Create many StudentAttendances
+     * const studentAttendance = await prisma.studentAttendance.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many StudentAttendances and only return the `id`
+     * const studentAttendanceWithIdOnly = await prisma.studentAttendance.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends StudentAttendanceCreateManyAndReturnArgs>(args?: SelectSubset<T, StudentAttendanceCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StudentAttendancePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a StudentAttendance.
+     * @param {StudentAttendanceDeleteArgs} args - Arguments to delete one StudentAttendance.
+     * @example
+     * // Delete one StudentAttendance
+     * const StudentAttendance = await prisma.studentAttendance.delete({
+     *   where: {
+     *     // ... filter to delete one StudentAttendance
+     *   }
+     * })
+     * 
+     */
+    delete<T extends StudentAttendanceDeleteArgs>(args: SelectSubset<T, StudentAttendanceDeleteArgs<ExtArgs>>): Prisma__StudentAttendanceClient<$Result.GetResult<Prisma.$StudentAttendancePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one StudentAttendance.
+     * @param {StudentAttendanceUpdateArgs} args - Arguments to update one StudentAttendance.
+     * @example
+     * // Update one StudentAttendance
+     * const studentAttendance = await prisma.studentAttendance.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends StudentAttendanceUpdateArgs>(args: SelectSubset<T, StudentAttendanceUpdateArgs<ExtArgs>>): Prisma__StudentAttendanceClient<$Result.GetResult<Prisma.$StudentAttendancePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more StudentAttendances.
+     * @param {StudentAttendanceDeleteManyArgs} args - Arguments to filter StudentAttendances to delete.
+     * @example
+     * // Delete a few StudentAttendances
+     * const { count } = await prisma.studentAttendance.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends StudentAttendanceDeleteManyArgs>(args?: SelectSubset<T, StudentAttendanceDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more StudentAttendances.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StudentAttendanceUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many StudentAttendances
+     * const studentAttendance = await prisma.studentAttendance.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends StudentAttendanceUpdateManyArgs>(args: SelectSubset<T, StudentAttendanceUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more StudentAttendances and returns the data updated in the database.
+     * @param {StudentAttendanceUpdateManyAndReturnArgs} args - Arguments to update many StudentAttendances.
+     * @example
+     * // Update many StudentAttendances
+     * const studentAttendance = await prisma.studentAttendance.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more StudentAttendances and only return the `id`
+     * const studentAttendanceWithIdOnly = await prisma.studentAttendance.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends StudentAttendanceUpdateManyAndReturnArgs>(args: SelectSubset<T, StudentAttendanceUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StudentAttendancePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one StudentAttendance.
+     * @param {StudentAttendanceUpsertArgs} args - Arguments to update or create a StudentAttendance.
+     * @example
+     * // Update or create a StudentAttendance
+     * const studentAttendance = await prisma.studentAttendance.upsert({
+     *   create: {
+     *     // ... data to create a StudentAttendance
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the StudentAttendance we want to update
+     *   }
+     * })
+     */
+    upsert<T extends StudentAttendanceUpsertArgs>(args: SelectSubset<T, StudentAttendanceUpsertArgs<ExtArgs>>): Prisma__StudentAttendanceClient<$Result.GetResult<Prisma.$StudentAttendancePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of StudentAttendances.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StudentAttendanceCountArgs} args - Arguments to filter StudentAttendances to count.
+     * @example
+     * // Count the number of StudentAttendances
+     * const count = await prisma.studentAttendance.count({
+     *   where: {
+     *     // ... the filter for the StudentAttendances we want to count
+     *   }
+     * })
+    **/
+    count<T extends StudentAttendanceCountArgs>(
+      args?: Subset<T, StudentAttendanceCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], StudentAttendanceCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a StudentAttendance.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StudentAttendanceAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends StudentAttendanceAggregateArgs>(args: Subset<T, StudentAttendanceAggregateArgs>): Prisma.PrismaPromise<GetStudentAttendanceAggregateType<T>>
+
+    /**
+     * Group by StudentAttendance.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StudentAttendanceGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends StudentAttendanceGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: StudentAttendanceGroupByArgs['orderBy'] }
+        : { orderBy?: StudentAttendanceGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, StudentAttendanceGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetStudentAttendanceGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the StudentAttendance model
+   */
+  readonly fields: StudentAttendanceFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for StudentAttendance.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__StudentAttendanceClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the StudentAttendance model
+   */
+  interface StudentAttendanceFieldRefs {
+    readonly id: FieldRef<"StudentAttendance", 'String'>
+    readonly studentId: FieldRef<"StudentAttendance", 'String'>
+    readonly date: FieldRef<"StudentAttendance", 'DateTime'>
+    readonly status: FieldRef<"StudentAttendance", 'String'>
+    readonly note: FieldRef<"StudentAttendance", 'String'>
+    readonly createdAt: FieldRef<"StudentAttendance", 'DateTime'>
+    readonly updatedAt: FieldRef<"StudentAttendance", 'DateTime'>
+    readonly systemID: FieldRef<"StudentAttendance", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * StudentAttendance findUnique
+   */
+  export type StudentAttendanceFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudentAttendance
+     */
+    select?: StudentAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudentAttendance
+     */
+    omit?: StudentAttendanceOmit<ExtArgs> | null
+    /**
+     * Filter, which StudentAttendance to fetch.
+     */
+    where: StudentAttendanceWhereUniqueInput
+  }
+
+  /**
+   * StudentAttendance findUniqueOrThrow
+   */
+  export type StudentAttendanceFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudentAttendance
+     */
+    select?: StudentAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudentAttendance
+     */
+    omit?: StudentAttendanceOmit<ExtArgs> | null
+    /**
+     * Filter, which StudentAttendance to fetch.
+     */
+    where: StudentAttendanceWhereUniqueInput
+  }
+
+  /**
+   * StudentAttendance findFirst
+   */
+  export type StudentAttendanceFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudentAttendance
+     */
+    select?: StudentAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudentAttendance
+     */
+    omit?: StudentAttendanceOmit<ExtArgs> | null
+    /**
+     * Filter, which StudentAttendance to fetch.
+     */
+    where?: StudentAttendanceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of StudentAttendances to fetch.
+     */
+    orderBy?: StudentAttendanceOrderByWithRelationInput | StudentAttendanceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for StudentAttendances.
+     */
+    cursor?: StudentAttendanceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` StudentAttendances from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` StudentAttendances.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of StudentAttendances.
+     */
+    distinct?: StudentAttendanceScalarFieldEnum | StudentAttendanceScalarFieldEnum[]
+  }
+
+  /**
+   * StudentAttendance findFirstOrThrow
+   */
+  export type StudentAttendanceFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudentAttendance
+     */
+    select?: StudentAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudentAttendance
+     */
+    omit?: StudentAttendanceOmit<ExtArgs> | null
+    /**
+     * Filter, which StudentAttendance to fetch.
+     */
+    where?: StudentAttendanceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of StudentAttendances to fetch.
+     */
+    orderBy?: StudentAttendanceOrderByWithRelationInput | StudentAttendanceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for StudentAttendances.
+     */
+    cursor?: StudentAttendanceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` StudentAttendances from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` StudentAttendances.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of StudentAttendances.
+     */
+    distinct?: StudentAttendanceScalarFieldEnum | StudentAttendanceScalarFieldEnum[]
+  }
+
+  /**
+   * StudentAttendance findMany
+   */
+  export type StudentAttendanceFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudentAttendance
+     */
+    select?: StudentAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudentAttendance
+     */
+    omit?: StudentAttendanceOmit<ExtArgs> | null
+    /**
+     * Filter, which StudentAttendances to fetch.
+     */
+    where?: StudentAttendanceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of StudentAttendances to fetch.
+     */
+    orderBy?: StudentAttendanceOrderByWithRelationInput | StudentAttendanceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing StudentAttendances.
+     */
+    cursor?: StudentAttendanceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` StudentAttendances from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` StudentAttendances.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of StudentAttendances.
+     */
+    distinct?: StudentAttendanceScalarFieldEnum | StudentAttendanceScalarFieldEnum[]
+  }
+
+  /**
+   * StudentAttendance create
+   */
+  export type StudentAttendanceCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudentAttendance
+     */
+    select?: StudentAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudentAttendance
+     */
+    omit?: StudentAttendanceOmit<ExtArgs> | null
+    /**
+     * The data needed to create a StudentAttendance.
+     */
+    data: XOR<StudentAttendanceCreateInput, StudentAttendanceUncheckedCreateInput>
+  }
+
+  /**
+   * StudentAttendance createMany
+   */
+  export type StudentAttendanceCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many StudentAttendances.
+     */
+    data: StudentAttendanceCreateManyInput | StudentAttendanceCreateManyInput[]
+  }
+
+  /**
+   * StudentAttendance createManyAndReturn
+   */
+  export type StudentAttendanceCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudentAttendance
+     */
+    select?: StudentAttendanceSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudentAttendance
+     */
+    omit?: StudentAttendanceOmit<ExtArgs> | null
+    /**
+     * The data used to create many StudentAttendances.
+     */
+    data: StudentAttendanceCreateManyInput | StudentAttendanceCreateManyInput[]
+  }
+
+  /**
+   * StudentAttendance update
+   */
+  export type StudentAttendanceUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudentAttendance
+     */
+    select?: StudentAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudentAttendance
+     */
+    omit?: StudentAttendanceOmit<ExtArgs> | null
+    /**
+     * The data needed to update a StudentAttendance.
+     */
+    data: XOR<StudentAttendanceUpdateInput, StudentAttendanceUncheckedUpdateInput>
+    /**
+     * Choose, which StudentAttendance to update.
+     */
+    where: StudentAttendanceWhereUniqueInput
+  }
+
+  /**
+   * StudentAttendance updateMany
+   */
+  export type StudentAttendanceUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update StudentAttendances.
+     */
+    data: XOR<StudentAttendanceUpdateManyMutationInput, StudentAttendanceUncheckedUpdateManyInput>
+    /**
+     * Filter which StudentAttendances to update
+     */
+    where?: StudentAttendanceWhereInput
+    /**
+     * Limit how many StudentAttendances to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * StudentAttendance updateManyAndReturn
+   */
+  export type StudentAttendanceUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudentAttendance
+     */
+    select?: StudentAttendanceSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudentAttendance
+     */
+    omit?: StudentAttendanceOmit<ExtArgs> | null
+    /**
+     * The data used to update StudentAttendances.
+     */
+    data: XOR<StudentAttendanceUpdateManyMutationInput, StudentAttendanceUncheckedUpdateManyInput>
+    /**
+     * Filter which StudentAttendances to update
+     */
+    where?: StudentAttendanceWhereInput
+    /**
+     * Limit how many StudentAttendances to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * StudentAttendance upsert
+   */
+  export type StudentAttendanceUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudentAttendance
+     */
+    select?: StudentAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudentAttendance
+     */
+    omit?: StudentAttendanceOmit<ExtArgs> | null
+    /**
+     * The filter to search for the StudentAttendance to update in case it exists.
+     */
+    where: StudentAttendanceWhereUniqueInput
+    /**
+     * In case the StudentAttendance found by the `where` argument doesn't exist, create a new StudentAttendance with this data.
+     */
+    create: XOR<StudentAttendanceCreateInput, StudentAttendanceUncheckedCreateInput>
+    /**
+     * In case the StudentAttendance was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<StudentAttendanceUpdateInput, StudentAttendanceUncheckedUpdateInput>
+  }
+
+  /**
+   * StudentAttendance delete
+   */
+  export type StudentAttendanceDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudentAttendance
+     */
+    select?: StudentAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudentAttendance
+     */
+    omit?: StudentAttendanceOmit<ExtArgs> | null
+    /**
+     * Filter which StudentAttendance to delete.
+     */
+    where: StudentAttendanceWhereUniqueInput
+  }
+
+  /**
+   * StudentAttendance deleteMany
+   */
+  export type StudentAttendanceDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which StudentAttendances to delete
+     */
+    where?: StudentAttendanceWhereInput
+    /**
+     * Limit how many StudentAttendances to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * StudentAttendance without action
+   */
+  export type StudentAttendanceDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StudentAttendance
+     */
+    select?: StudentAttendanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StudentAttendance
+     */
+    omit?: StudentAttendanceOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Model MessageQueue
    */
 
@@ -18145,6 +19675,7 @@ export namespace Prisma {
     lastError: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    systemID: string | null
   }
 
   export type MessageQueueMaxAggregateOutputType = {
@@ -18161,6 +19692,7 @@ export namespace Prisma {
     lastError: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    systemID: string | null
   }
 
   export type MessageQueueCountAggregateOutputType = {
@@ -18178,6 +19710,7 @@ export namespace Prisma {
     lastError: number
     createdAt: number
     updatedAt: number
+    systemID: number
     _all: number
   }
 
@@ -18206,6 +19739,7 @@ export namespace Prisma {
     lastError?: true
     createdAt?: true
     updatedAt?: true
+    systemID?: true
   }
 
   export type MessageQueueMaxAggregateInputType = {
@@ -18222,6 +19756,7 @@ export namespace Prisma {
     lastError?: true
     createdAt?: true
     updatedAt?: true
+    systemID?: true
   }
 
   export type MessageQueueCountAggregateInputType = {
@@ -18239,6 +19774,7 @@ export namespace Prisma {
     lastError?: true
     createdAt?: true
     updatedAt?: true
+    systemID?: true
     _all?: true
   }
 
@@ -18343,6 +19879,7 @@ export namespace Prisma {
     lastError: string | null
     createdAt: Date
     updatedAt: Date
+    systemID: string | null
     _count: MessageQueueCountAggregateOutputType | null
     _avg: MessageQueueAvgAggregateOutputType | null
     _sum: MessageQueueSumAggregateOutputType | null
@@ -18379,6 +19916,7 @@ export namespace Prisma {
     lastError?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    systemID?: boolean
     template?: boolean | WhatsAppTemplateDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["messageQueue"]>
 
@@ -18397,6 +19935,7 @@ export namespace Prisma {
     lastError?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    systemID?: boolean
     template?: boolean | WhatsAppTemplateDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["messageQueue"]>
 
@@ -18415,6 +19954,7 @@ export namespace Prisma {
     lastError?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    systemID?: boolean
     template?: boolean | WhatsAppTemplateDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["messageQueue"]>
 
@@ -18433,9 +19973,10 @@ export namespace Prisma {
     lastError?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    systemID?: boolean
   }
 
-  export type MessageQueueOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "templateId" | "recipient" | "variables" | "status" | "attempts" | "maxAttempts" | "scheduledAt" | "processingAt" | "sentAt" | "messageId" | "lastError" | "createdAt" | "updatedAt", ExtArgs["result"]["messageQueue"]>
+  export type MessageQueueOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "templateId" | "recipient" | "variables" | "status" | "attempts" | "maxAttempts" | "scheduledAt" | "processingAt" | "sentAt" | "messageId" | "lastError" | "createdAt" | "updatedAt" | "systemID", ExtArgs["result"]["messageQueue"]>
   export type MessageQueueInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     template?: boolean | WhatsAppTemplateDefaultArgs<ExtArgs>
   }
@@ -18466,6 +20007,7 @@ export namespace Prisma {
       lastError: string | null
       createdAt: Date
       updatedAt: Date
+      systemID: string | null
     }, ExtArgs["result"]["messageQueue"]>
     composites: {}
   }
@@ -18904,6 +20446,7 @@ export namespace Prisma {
     readonly lastError: FieldRef<"MessageQueue", 'String'>
     readonly createdAt: FieldRef<"MessageQueue", 'DateTime'>
     readonly updatedAt: FieldRef<"MessageQueue", 'DateTime'>
+    readonly systemID: FieldRef<"MessageQueue", 'String'>
   }
     
 
@@ -19342,6 +20885,7 @@ export namespace Prisma {
     body: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    systemID: string | null
   }
 
   export type WhatsAppTemplateMaxAggregateOutputType = {
@@ -19355,6 +20899,7 @@ export namespace Prisma {
     body: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    systemID: string | null
   }
 
   export type WhatsAppTemplateCountAggregateOutputType = {
@@ -19369,6 +20914,7 @@ export namespace Prisma {
     variables: number
     createdAt: number
     updatedAt: number
+    systemID: number
     _all: number
   }
 
@@ -19384,6 +20930,7 @@ export namespace Prisma {
     body?: true
     createdAt?: true
     updatedAt?: true
+    systemID?: true
   }
 
   export type WhatsAppTemplateMaxAggregateInputType = {
@@ -19397,6 +20944,7 @@ export namespace Prisma {
     body?: true
     createdAt?: true
     updatedAt?: true
+    systemID?: true
   }
 
   export type WhatsAppTemplateCountAggregateInputType = {
@@ -19411,6 +20959,7 @@ export namespace Prisma {
     variables?: true
     createdAt?: true
     updatedAt?: true
+    systemID?: true
     _all?: true
   }
 
@@ -19498,6 +21047,7 @@ export namespace Prisma {
     variables: JsonValue | null
     createdAt: Date
     updatedAt: Date
+    systemID: string | null
     _count: WhatsAppTemplateCountAggregateOutputType | null
     _min: WhatsAppTemplateMinAggregateOutputType | null
     _max: WhatsAppTemplateMaxAggregateOutputType | null
@@ -19529,6 +21079,7 @@ export namespace Prisma {
     variables?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    systemID?: boolean
     messages?: boolean | WhatsAppTemplate$messagesArgs<ExtArgs>
     _count?: boolean | WhatsAppTemplateCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["whatsAppTemplate"]>
@@ -19545,6 +21096,7 @@ export namespace Prisma {
     variables?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    systemID?: boolean
   }, ExtArgs["result"]["whatsAppTemplate"]>
 
   export type WhatsAppTemplateSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -19559,6 +21111,7 @@ export namespace Prisma {
     variables?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    systemID?: boolean
   }, ExtArgs["result"]["whatsAppTemplate"]>
 
   export type WhatsAppTemplateSelectScalar = {
@@ -19573,9 +21126,10 @@ export namespace Prisma {
     variables?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    systemID?: boolean
   }
 
-  export type WhatsAppTemplateOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "clientId" | "templateId" | "language" | "category" | "status" | "body" | "variables" | "createdAt" | "updatedAt", ExtArgs["result"]["whatsAppTemplate"]>
+  export type WhatsAppTemplateOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "clientId" | "templateId" | "language" | "category" | "status" | "body" | "variables" | "createdAt" | "updatedAt" | "systemID", ExtArgs["result"]["whatsAppTemplate"]>
   export type WhatsAppTemplateInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     messages?: boolean | WhatsAppTemplate$messagesArgs<ExtArgs>
     _count?: boolean | WhatsAppTemplateCountOutputTypeDefaultArgs<ExtArgs>
@@ -19600,6 +21154,7 @@ export namespace Prisma {
       variables: Prisma.JsonValue | null
       createdAt: Date
       updatedAt: Date
+      systemID: string | null
     }, ExtArgs["result"]["whatsAppTemplate"]>
     composites: {}
   }
@@ -20035,6 +21590,7 @@ export namespace Prisma {
     readonly variables: FieldRef<"WhatsAppTemplate", 'Json'>
     readonly createdAt: FieldRef<"WhatsAppTemplate", 'DateTime'>
     readonly updatedAt: FieldRef<"WhatsAppTemplate", 'DateTime'>
+    readonly systemID: FieldRef<"WhatsAppTemplate", 'String'>
   }
     
 
@@ -20474,8 +22030,20 @@ export namespace Prisma {
 
   export type AggregateWhatsAppToken = {
     _count: WhatsAppTokenCountAggregateOutputType | null
+    _avg: WhatsAppTokenAvgAggregateOutputType | null
+    _sum: WhatsAppTokenSumAggregateOutputType | null
     _min: WhatsAppTokenMinAggregateOutputType | null
     _max: WhatsAppTokenMaxAggregateOutputType | null
+  }
+
+  export type WhatsAppTokenAvgAggregateOutputType = {
+    monthlyBudget: number | null
+    utilityRate: number | null
+  }
+
+  export type WhatsAppTokenSumAggregateOutputType = {
+    monthlyBudget: number | null
+    utilityRate: number | null
   }
 
   export type WhatsAppTokenMinAggregateOutputType = {
@@ -20488,8 +22056,13 @@ export namespace Prisma {
     displayPhoneNumber: string | null
     verifiedName: string | null
     safeMode: boolean | null
+    switchOffMode: boolean | null
+    monthlyBudget: number | null
+    utilityRate: number | null
+    defaultLanguage: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    systemID: string | null
   }
 
   export type WhatsAppTokenMaxAggregateOutputType = {
@@ -20502,8 +22075,13 @@ export namespace Prisma {
     displayPhoneNumber: string | null
     verifiedName: string | null
     safeMode: boolean | null
+    switchOffMode: boolean | null
+    monthlyBudget: number | null
+    utilityRate: number | null
+    defaultLanguage: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    systemID: string | null
   }
 
   export type WhatsAppTokenCountAggregateOutputType = {
@@ -20516,11 +22094,26 @@ export namespace Prisma {
     displayPhoneNumber: number
     verifiedName: number
     safeMode: number
+    switchOffMode: number
+    monthlyBudget: number
+    utilityRate: number
+    defaultLanguage: number
     createdAt: number
     updatedAt: number
+    systemID: number
     _all: number
   }
 
+
+  export type WhatsAppTokenAvgAggregateInputType = {
+    monthlyBudget?: true
+    utilityRate?: true
+  }
+
+  export type WhatsAppTokenSumAggregateInputType = {
+    monthlyBudget?: true
+    utilityRate?: true
+  }
 
   export type WhatsAppTokenMinAggregateInputType = {
     id?: true
@@ -20532,8 +22125,13 @@ export namespace Prisma {
     displayPhoneNumber?: true
     verifiedName?: true
     safeMode?: true
+    switchOffMode?: true
+    monthlyBudget?: true
+    utilityRate?: true
+    defaultLanguage?: true
     createdAt?: true
     updatedAt?: true
+    systemID?: true
   }
 
   export type WhatsAppTokenMaxAggregateInputType = {
@@ -20546,8 +22144,13 @@ export namespace Prisma {
     displayPhoneNumber?: true
     verifiedName?: true
     safeMode?: true
+    switchOffMode?: true
+    monthlyBudget?: true
+    utilityRate?: true
+    defaultLanguage?: true
     createdAt?: true
     updatedAt?: true
+    systemID?: true
   }
 
   export type WhatsAppTokenCountAggregateInputType = {
@@ -20560,8 +22163,13 @@ export namespace Prisma {
     displayPhoneNumber?: true
     verifiedName?: true
     safeMode?: true
+    switchOffMode?: true
+    monthlyBudget?: true
+    utilityRate?: true
+    defaultLanguage?: true
     createdAt?: true
     updatedAt?: true
+    systemID?: true
     _all?: true
   }
 
@@ -20603,6 +22211,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: WhatsAppTokenAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: WhatsAppTokenSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: WhatsAppTokenMinAggregateInputType
@@ -20633,6 +22253,8 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: WhatsAppTokenCountAggregateInputType | true
+    _avg?: WhatsAppTokenAvgAggregateInputType
+    _sum?: WhatsAppTokenSumAggregateInputType
     _min?: WhatsAppTokenMinAggregateInputType
     _max?: WhatsAppTokenMaxAggregateInputType
   }
@@ -20647,9 +22269,16 @@ export namespace Prisma {
     displayPhoneNumber: string | null
     verifiedName: string | null
     safeMode: boolean
+    switchOffMode: boolean
+    monthlyBudget: number
+    utilityRate: number
+    defaultLanguage: string | null
     createdAt: Date
     updatedAt: Date
+    systemID: string | null
     _count: WhatsAppTokenCountAggregateOutputType | null
+    _avg: WhatsAppTokenAvgAggregateOutputType | null
+    _sum: WhatsAppTokenSumAggregateOutputType | null
     _min: WhatsAppTokenMinAggregateOutputType | null
     _max: WhatsAppTokenMaxAggregateOutputType | null
   }
@@ -20678,8 +22307,13 @@ export namespace Prisma {
     displayPhoneNumber?: boolean
     verifiedName?: boolean
     safeMode?: boolean
+    switchOffMode?: boolean
+    monthlyBudget?: boolean
+    utilityRate?: boolean
+    defaultLanguage?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    systemID?: boolean
   }, ExtArgs["result"]["whatsAppToken"]>
 
   export type WhatsAppTokenSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -20692,8 +22326,13 @@ export namespace Prisma {
     displayPhoneNumber?: boolean
     verifiedName?: boolean
     safeMode?: boolean
+    switchOffMode?: boolean
+    monthlyBudget?: boolean
+    utilityRate?: boolean
+    defaultLanguage?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    systemID?: boolean
   }, ExtArgs["result"]["whatsAppToken"]>
 
   export type WhatsAppTokenSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -20706,8 +22345,13 @@ export namespace Prisma {
     displayPhoneNumber?: boolean
     verifiedName?: boolean
     safeMode?: boolean
+    switchOffMode?: boolean
+    monthlyBudget?: boolean
+    utilityRate?: boolean
+    defaultLanguage?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    systemID?: boolean
   }, ExtArgs["result"]["whatsAppToken"]>
 
   export type WhatsAppTokenSelectScalar = {
@@ -20720,11 +22364,16 @@ export namespace Prisma {
     displayPhoneNumber?: boolean
     verifiedName?: boolean
     safeMode?: boolean
+    switchOffMode?: boolean
+    monthlyBudget?: boolean
+    utilityRate?: boolean
+    defaultLanguage?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    systemID?: boolean
   }
 
-  export type WhatsAppTokenOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "wabaId" | "accessToken" | "phoneNumberId" | "status" | "schoolId" | "displayPhoneNumber" | "verifiedName" | "safeMode" | "createdAt" | "updatedAt", ExtArgs["result"]["whatsAppToken"]>
+  export type WhatsAppTokenOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "wabaId" | "accessToken" | "phoneNumberId" | "status" | "schoolId" | "displayPhoneNumber" | "verifiedName" | "safeMode" | "switchOffMode" | "monthlyBudget" | "utilityRate" | "defaultLanguage" | "createdAt" | "updatedAt" | "systemID", ExtArgs["result"]["whatsAppToken"]>
 
   export type $WhatsAppTokenPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "WhatsAppToken"
@@ -20739,8 +22388,13 @@ export namespace Prisma {
       displayPhoneNumber: string | null
       verifiedName: string | null
       safeMode: boolean
+      switchOffMode: boolean
+      monthlyBudget: number
+      utilityRate: number
+      defaultLanguage: string | null
       createdAt: Date
       updatedAt: Date
+      systemID: string | null
     }, ExtArgs["result"]["whatsAppToken"]>
     composites: {}
   }
@@ -21173,8 +22827,13 @@ export namespace Prisma {
     readonly displayPhoneNumber: FieldRef<"WhatsAppToken", 'String'>
     readonly verifiedName: FieldRef<"WhatsAppToken", 'String'>
     readonly safeMode: FieldRef<"WhatsAppToken", 'Boolean'>
+    readonly switchOffMode: FieldRef<"WhatsAppToken", 'Boolean'>
+    readonly monthlyBudget: FieldRef<"WhatsAppToken", 'Float'>
+    readonly utilityRate: FieldRef<"WhatsAppToken", 'Float'>
+    readonly defaultLanguage: FieldRef<"WhatsAppToken", 'String'>
     readonly createdAt: FieldRef<"WhatsAppToken", 'DateTime'>
     readonly updatedAt: FieldRef<"WhatsAppToken", 'DateTime'>
+    readonly systemID: FieldRef<"WhatsAppToken", 'String'>
   }
     
 
@@ -21560,7 +23219,8 @@ export namespace Prisma {
     paymentCycleId: 'paymentCycleId',
     amount: 'amount',
     takenAt: 'takenAt',
-    note: 'note'
+    note: 'note',
+    systemID: 'systemID'
   };
 
   export type PaymentTakenScalarFieldEnum = (typeof PaymentTakenScalarFieldEnum)[keyof typeof PaymentTakenScalarFieldEnum]
@@ -21573,7 +23233,8 @@ export namespace Prisma {
     status: 'status',
     note: 'note',
     createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
+    updatedAt: 'updatedAt',
+    systemID: 'systemID'
   };
 
   export type AttendanceScalarFieldEnum = (typeof AttendanceScalarFieldEnum)[keyof typeof AttendanceScalarFieldEnum]
@@ -21587,7 +23248,8 @@ export namespace Prisma {
     description: 'description',
     color: 'color',
     createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
+    updatedAt: 'updatedAt',
+    systemID: 'systemID'
   };
 
   export type CalendarEventScalarFieldEnum = (typeof CalendarEventScalarFieldEnum)[keyof typeof CalendarEventScalarFieldEnum]
@@ -21601,7 +23263,8 @@ export namespace Prisma {
     car_Number: 'car_Number',
     car_year: 'car_year',
     updatedAt: 'updatedAt',
-    createdAt: 'createdAt'
+    createdAt: 'createdAt',
+    systemID: 'systemID'
   };
 
   export type CarScalarFieldEnum = (typeof CarScalarFieldEnum)[keyof typeof CarScalarFieldEnum]
@@ -21623,7 +23286,8 @@ export namespace Prisma {
     carSetup: 'carSetup',
     packageSetup: 'packageSetup',
     createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
+    updatedAt: 'updatedAt',
+    systemID: 'systemID'
   };
 
   export type SetupChecklistScalarFieldEnum = (typeof SetupChecklistScalarFieldEnum)[keyof typeof SetupChecklistScalarFieldEnum]
@@ -21641,7 +23305,10 @@ export namespace Prisma {
     updatedAt: 'updatedAt',
     payment: 'payment',
     paymentDate: 'paymentDate',
-    assignedCarId: 'assignedCarId'
+    assignedCarId: 'assignedCarId',
+    systemID: 'systemID',
+    accessToken: 'accessToken',
+    globalMongoId: 'globalMongoId'
   };
 
   export type InstructorScalarFieldEnum = (typeof InstructorScalarFieldEnum)[keyof typeof InstructorScalarFieldEnum]
@@ -21653,7 +23320,8 @@ export namespace Prisma {
     serviceDate: 'serviceDate',
     notes: 'notes',
     createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
+    updatedAt: 'updatedAt',
+    systemID: 'systemID'
   };
 
   export type MaintenanceScheduleScalarFieldEnum = (typeof MaintenanceScheduleScalarFieldEnum)[keyof typeof MaintenanceScheduleScalarFieldEnum]
@@ -21666,7 +23334,8 @@ export namespace Prisma {
     intervalDays: 'intervalDays',
     nextServiceDate: 'nextServiceDate',
     notes: 'notes',
-    carId: 'carId'
+    carId: 'carId',
+    systemID: 'systemID'
   };
 
   export type MaintenanceItemScalarFieldEnum = (typeof MaintenanceItemScalarFieldEnum)[keyof typeof MaintenanceItemScalarFieldEnum]
@@ -21677,7 +23346,8 @@ export namespace Prisma {
     name: 'name',
     price: 'price',
     duration: 'duration',
-    isActive: 'isActive'
+    isActive: 'isActive',
+    systemID: 'systemID'
   };
 
   export type PackageScalarFieldEnum = (typeof PackageScalarFieldEnum)[keyof typeof PackageScalarFieldEnum]
@@ -21696,7 +23366,8 @@ export namespace Prisma {
     note: 'note',
     status: 'status',
     createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
+    updatedAt: 'updatedAt',
+    systemID: 'systemID'
   };
 
   export type PaymentCycleScalarFieldEnum = (typeof PaymentCycleScalarFieldEnum)[keyof typeof PaymentCycleScalarFieldEnum]
@@ -21707,7 +23378,8 @@ export namespace Prisma {
     student_id: 'student_id',
     Batch_time: 'Batch_time',
     Duration_time: 'Duration_time',
-    Car_id: 'Car_id'
+    Car_id: 'Car_id',
+    systemID: 'systemID'
   };
 
   export type ScheduleScalarFieldEnum = (typeof ScheduleScalarFieldEnum)[keyof typeof ScheduleScalarFieldEnum]
@@ -21715,13 +23387,22 @@ export namespace Prisma {
 
   export const SchoolSetUpScalarFieldEnum: {
     id: 'id',
-    systemID: 'systemID',
     school_name: 'school_name',
     support_Email: 'support_Email',
     address: 'address',
     contact_Number: 'contact_Number',
     createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
+    updatedAt: 'updatedAt',
+    systemID: 'systemID',
+    reminderDays: 'reminderDays',
+    enableOnboardingMsg: 'enableOnboardingMsg',
+    enableReminderMsg: 'enableReminderMsg',
+    enableCompletionMsg: 'enableCompletionMsg',
+    workingStartTime: 'workingStartTime',
+    workingEndTime: 'workingEndTime',
+    enableAttendanceReminder: 'enableAttendanceReminder',
+    reminderBeforeMinutes: 'reminderBeforeMinutes',
+    lastAttendanceReminderDate: 'lastAttendanceReminderDate'
   };
 
   export type SchoolSetUpScalarFieldEnum = (typeof SchoolSetUpScalarFieldEnum)[keyof typeof SchoolSetUpScalarFieldEnum]
@@ -21743,10 +23424,30 @@ export namespace Prisma {
     remaining_amount: 'remaining_amount',
     Assigned_car_id: 'Assigned_car_id',
     createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
+    updatedAt: 'updatedAt',
+    systemID: 'systemID',
+    reminderDate: 'reminderDate',
+    licenseTestDate: 'licenseTestDate',
+    licenseTestTime: 'licenseTestTime',
+    licenseTestLocation: 'licenseTestLocation',
+    licenseTestStatus: 'licenseTestStatus'
   };
 
   export type StudentScalarFieldEnum = (typeof StudentScalarFieldEnum)[keyof typeof StudentScalarFieldEnum]
+
+
+  export const StudentAttendanceScalarFieldEnum: {
+    id: 'id',
+    studentId: 'studentId',
+    date: 'date',
+    status: 'status',
+    note: 'note',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
+    systemID: 'systemID'
+  };
+
+  export type StudentAttendanceScalarFieldEnum = (typeof StudentAttendanceScalarFieldEnum)[keyof typeof StudentAttendanceScalarFieldEnum]
 
 
   export const MessageQueueScalarFieldEnum: {
@@ -21763,7 +23464,8 @@ export namespace Prisma {
     messageId: 'messageId',
     lastError: 'lastError',
     createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
+    updatedAt: 'updatedAt',
+    systemID: 'systemID'
   };
 
   export type MessageQueueScalarFieldEnum = (typeof MessageQueueScalarFieldEnum)[keyof typeof MessageQueueScalarFieldEnum]
@@ -21780,7 +23482,8 @@ export namespace Prisma {
     body: 'body',
     variables: 'variables',
     createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
+    updatedAt: 'updatedAt',
+    systemID: 'systemID'
   };
 
   export type WhatsAppTemplateScalarFieldEnum = (typeof WhatsAppTemplateScalarFieldEnum)[keyof typeof WhatsAppTemplateScalarFieldEnum]
@@ -21796,8 +23499,13 @@ export namespace Prisma {
     displayPhoneNumber: 'displayPhoneNumber',
     verifiedName: 'verifiedName',
     safeMode: 'safeMode',
+    switchOffMode: 'switchOffMode',
+    monthlyBudget: 'monthlyBudget',
+    utilityRate: 'utilityRate',
+    defaultLanguage: 'defaultLanguage',
     createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
+    updatedAt: 'updatedAt',
+    systemID: 'systemID'
   };
 
   export type WhatsAppTokenScalarFieldEnum = (typeof WhatsAppTokenScalarFieldEnum)[keyof typeof WhatsAppTokenScalarFieldEnum]
@@ -21959,6 +23667,7 @@ export namespace Prisma {
     amount?: IntFilter<"PaymentTaken"> | number
     takenAt?: DateTimeFilter<"PaymentTaken"> | Date | string
     note?: StringFilter<"PaymentTaken"> | string
+    systemID?: StringNullableFilter<"PaymentTaken"> | string | null
     paymentCycle?: XOR<PaymentCycleScalarRelationFilter, PaymentCycleWhereInput>
   }
 
@@ -21968,6 +23677,7 @@ export namespace Prisma {
     amount?: SortOrder
     takenAt?: SortOrder
     note?: SortOrder
+    systemID?: SortOrderInput | SortOrder
     paymentCycle?: PaymentCycleOrderByWithRelationInput
   }
 
@@ -21980,6 +23690,7 @@ export namespace Prisma {
     amount?: IntFilter<"PaymentTaken"> | number
     takenAt?: DateTimeFilter<"PaymentTaken"> | Date | string
     note?: StringFilter<"PaymentTaken"> | string
+    systemID?: StringNullableFilter<"PaymentTaken"> | string | null
     paymentCycle?: XOR<PaymentCycleScalarRelationFilter, PaymentCycleWhereInput>
   }, "id">
 
@@ -21989,6 +23700,7 @@ export namespace Prisma {
     amount?: SortOrder
     takenAt?: SortOrder
     note?: SortOrder
+    systemID?: SortOrderInput | SortOrder
     _count?: PaymentTakenCountOrderByAggregateInput
     _avg?: PaymentTakenAvgOrderByAggregateInput
     _max?: PaymentTakenMaxOrderByAggregateInput
@@ -22005,6 +23717,7 @@ export namespace Prisma {
     amount?: IntWithAggregatesFilter<"PaymentTaken"> | number
     takenAt?: DateTimeWithAggregatesFilter<"PaymentTaken"> | Date | string
     note?: StringWithAggregatesFilter<"PaymentTaken"> | string
+    systemID?: StringNullableWithAggregatesFilter<"PaymentTaken"> | string | null
   }
 
   export type AttendanceWhereInput = {
@@ -22018,6 +23731,7 @@ export namespace Prisma {
     note?: StringFilter<"Attendance"> | string
     createdAt?: DateTimeFilter<"Attendance"> | Date | string
     updatedAt?: DateTimeFilter<"Attendance"> | Date | string
+    systemID?: StringNullableFilter<"Attendance"> | string | null
   }
 
   export type AttendanceOrderByWithRelationInput = {
@@ -22028,6 +23742,7 @@ export namespace Prisma {
     note?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    systemID?: SortOrderInput | SortOrder
   }
 
   export type AttendanceWhereUniqueInput = Prisma.AtLeast<{
@@ -22042,6 +23757,7 @@ export namespace Prisma {
     note?: StringFilter<"Attendance"> | string
     createdAt?: DateTimeFilter<"Attendance"> | Date | string
     updatedAt?: DateTimeFilter<"Attendance"> | Date | string
+    systemID?: StringNullableFilter<"Attendance"> | string | null
   }, "id" | "instructorId_date">
 
   export type AttendanceOrderByWithAggregationInput = {
@@ -22052,6 +23768,7 @@ export namespace Prisma {
     note?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    systemID?: SortOrderInput | SortOrder
     _count?: AttendanceCountOrderByAggregateInput
     _max?: AttendanceMaxOrderByAggregateInput
     _min?: AttendanceMinOrderByAggregateInput
@@ -22068,6 +23785,7 @@ export namespace Prisma {
     note?: StringWithAggregatesFilter<"Attendance"> | string
     createdAt?: DateTimeWithAggregatesFilter<"Attendance"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Attendance"> | Date | string
+    systemID?: StringNullableWithAggregatesFilter<"Attendance"> | string | null
   }
 
   export type CalendarEventWhereInput = {
@@ -22082,6 +23800,7 @@ export namespace Prisma {
     color?: StringNullableFilter<"CalendarEvent"> | string | null
     createdAt?: DateTimeFilter<"CalendarEvent"> | Date | string
     updatedAt?: DateTimeFilter<"CalendarEvent"> | Date | string
+    systemID?: StringNullableFilter<"CalendarEvent"> | string | null
   }
 
   export type CalendarEventOrderByWithRelationInput = {
@@ -22093,6 +23812,7 @@ export namespace Prisma {
     color?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    systemID?: SortOrderInput | SortOrder
   }
 
   export type CalendarEventWhereUniqueInput = Prisma.AtLeast<{
@@ -22107,6 +23827,7 @@ export namespace Prisma {
     color?: StringNullableFilter<"CalendarEvent"> | string | null
     createdAt?: DateTimeFilter<"CalendarEvent"> | Date | string
     updatedAt?: DateTimeFilter<"CalendarEvent"> | Date | string
+    systemID?: StringNullableFilter<"CalendarEvent"> | string | null
   }, "id">
 
   export type CalendarEventOrderByWithAggregationInput = {
@@ -22118,6 +23839,7 @@ export namespace Prisma {
     color?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    systemID?: SortOrderInput | SortOrder
     _count?: CalendarEventCountOrderByAggregateInput
     _max?: CalendarEventMaxOrderByAggregateInput
     _min?: CalendarEventMinOrderByAggregateInput
@@ -22135,6 +23857,7 @@ export namespace Prisma {
     color?: StringNullableWithAggregatesFilter<"CalendarEvent"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"CalendarEvent"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"CalendarEvent"> | Date | string
+    systemID?: StringNullableWithAggregatesFilter<"CalendarEvent"> | string | null
   }
 
   export type CarWhereInput = {
@@ -22149,6 +23872,7 @@ export namespace Prisma {
     car_year?: StringFilter<"Car"> | string
     updatedAt?: DateTimeFilter<"Car"> | Date | string
     createdAt?: DateTimeFilter<"Car"> | Date | string
+    systemID?: StringNullableFilter<"Car"> | string | null
     students?: StudentListRelationFilter
     instructors?: InstructorListRelationFilter
     maintenanceItem?: MaintenanceItemListRelationFilter
@@ -22164,6 +23888,7 @@ export namespace Prisma {
     car_year?: SortOrder
     updatedAt?: SortOrder
     createdAt?: SortOrder
+    systemID?: SortOrderInput | SortOrder
     students?: StudentOrderByRelationAggregateInput
     instructors?: InstructorOrderByRelationAggregateInput
     maintenanceItem?: MaintenanceItemOrderByRelationAggregateInput
@@ -22182,6 +23907,7 @@ export namespace Prisma {
     car_year?: StringFilter<"Car"> | string
     updatedAt?: DateTimeFilter<"Car"> | Date | string
     createdAt?: DateTimeFilter<"Car"> | Date | string
+    systemID?: StringNullableFilter<"Car"> | string | null
     students?: StudentListRelationFilter
     instructors?: InstructorListRelationFilter
     maintenanceItem?: MaintenanceItemListRelationFilter
@@ -22197,6 +23923,7 @@ export namespace Prisma {
     car_year?: SortOrder
     updatedAt?: SortOrder
     createdAt?: SortOrder
+    systemID?: SortOrderInput | SortOrder
     _count?: CarCountOrderByAggregateInput
     _max?: CarMaxOrderByAggregateInput
     _min?: CarMinOrderByAggregateInput
@@ -22214,6 +23941,7 @@ export namespace Prisma {
     car_year?: StringWithAggregatesFilter<"Car"> | string
     updatedAt?: DateTimeWithAggregatesFilter<"Car"> | Date | string
     createdAt?: DateTimeWithAggregatesFilter<"Car"> | Date | string
+    systemID?: StringNullableWithAggregatesFilter<"Car"> | string | null
   }
 
   export type DemoStatusWhereInput = {
@@ -22269,6 +23997,7 @@ export namespace Prisma {
     packageSetup?: BoolFilter<"SetupChecklist"> | boolean
     createdAt?: DateTimeFilter<"SetupChecklist"> | Date | string
     updatedAt?: DateTimeFilter<"SetupChecklist"> | Date | string
+    systemID?: StringNullableFilter<"SetupChecklist"> | string | null
   }
 
   export type SetupChecklistOrderByWithRelationInput = {
@@ -22279,6 +24008,7 @@ export namespace Prisma {
     packageSetup?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    systemID?: SortOrderInput | SortOrder
   }
 
   export type SetupChecklistWhereUniqueInput = Prisma.AtLeast<{
@@ -22292,6 +24022,7 @@ export namespace Prisma {
     packageSetup?: BoolFilter<"SetupChecklist"> | boolean
     createdAt?: DateTimeFilter<"SetupChecklist"> | Date | string
     updatedAt?: DateTimeFilter<"SetupChecklist"> | Date | string
+    systemID?: StringNullableFilter<"SetupChecklist"> | string | null
   }, "id">
 
   export type SetupChecklistOrderByWithAggregationInput = {
@@ -22302,6 +24033,7 @@ export namespace Prisma {
     packageSetup?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    systemID?: SortOrderInput | SortOrder
     _count?: SetupChecklistCountOrderByAggregateInput
     _max?: SetupChecklistMaxOrderByAggregateInput
     _min?: SetupChecklistMinOrderByAggregateInput
@@ -22318,6 +24050,7 @@ export namespace Prisma {
     packageSetup?: BoolWithAggregatesFilter<"SetupChecklist"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"SetupChecklist"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"SetupChecklist"> | Date | string
+    systemID?: StringNullableWithAggregatesFilter<"SetupChecklist"> | string | null
   }
 
   export type InstructorWhereInput = {
@@ -22336,6 +24069,9 @@ export namespace Prisma {
     payment?: FloatNullableFilter<"Instructor"> | number | null
     paymentDate?: IntNullableFilter<"Instructor"> | number | null
     assignedCarId?: StringNullableFilter<"Instructor"> | string | null
+    systemID?: StringNullableFilter<"Instructor"> | string | null
+    accessToken?: StringNullableFilter<"Instructor"> | string | null
+    globalMongoId?: StringNullableFilter<"Instructor"> | string | null
     car?: XOR<CarNullableScalarRelationFilter, CarWhereInput> | null
     paymentCycles?: PaymentCycleListRelationFilter
     students?: StudentListRelationFilter
@@ -22354,6 +24090,9 @@ export namespace Prisma {
     payment?: SortOrderInput | SortOrder
     paymentDate?: SortOrderInput | SortOrder
     assignedCarId?: SortOrderInput | SortOrder
+    systemID?: SortOrderInput | SortOrder
+    accessToken?: SortOrderInput | SortOrder
+    globalMongoId?: SortOrderInput | SortOrder
     car?: CarOrderByWithRelationInput
     paymentCycles?: PaymentCycleOrderByRelationAggregateInput
     students?: StudentOrderByRelationAggregateInput
@@ -22375,6 +24114,9 @@ export namespace Prisma {
     payment?: FloatNullableFilter<"Instructor"> | number | null
     paymentDate?: IntNullableFilter<"Instructor"> | number | null
     assignedCarId?: StringNullableFilter<"Instructor"> | string | null
+    systemID?: StringNullableFilter<"Instructor"> | string | null
+    accessToken?: StringNullableFilter<"Instructor"> | string | null
+    globalMongoId?: StringNullableFilter<"Instructor"> | string | null
     car?: XOR<CarNullableScalarRelationFilter, CarWhereInput> | null
     paymentCycles?: PaymentCycleListRelationFilter
     students?: StudentListRelationFilter
@@ -22393,6 +24135,9 @@ export namespace Prisma {
     payment?: SortOrderInput | SortOrder
     paymentDate?: SortOrderInput | SortOrder
     assignedCarId?: SortOrderInput | SortOrder
+    systemID?: SortOrderInput | SortOrder
+    accessToken?: SortOrderInput | SortOrder
+    globalMongoId?: SortOrderInput | SortOrder
     _count?: InstructorCountOrderByAggregateInput
     _avg?: InstructorAvgOrderByAggregateInput
     _max?: InstructorMaxOrderByAggregateInput
@@ -22416,6 +24161,9 @@ export namespace Prisma {
     payment?: FloatNullableWithAggregatesFilter<"Instructor"> | number | null
     paymentDate?: IntNullableWithAggregatesFilter<"Instructor"> | number | null
     assignedCarId?: StringNullableWithAggregatesFilter<"Instructor"> | string | null
+    systemID?: StringNullableWithAggregatesFilter<"Instructor"> | string | null
+    accessToken?: StringNullableWithAggregatesFilter<"Instructor"> | string | null
+    globalMongoId?: StringNullableWithAggregatesFilter<"Instructor"> | string | null
   }
 
   export type MaintenanceScheduleWhereInput = {
@@ -22428,6 +24176,7 @@ export namespace Prisma {
     notes?: StringNullableFilter<"MaintenanceSchedule"> | string | null
     createdAt?: DateTimeFilter<"MaintenanceSchedule"> | Date | string
     updatedAt?: DateTimeFilter<"MaintenanceSchedule"> | Date | string
+    systemID?: StringNullableFilter<"MaintenanceSchedule"> | string | null
     car?: XOR<CarScalarRelationFilter, CarWhereInput>
     items?: MaintenanceItemListRelationFilter
   }
@@ -22439,6 +24188,7 @@ export namespace Prisma {
     notes?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    systemID?: SortOrderInput | SortOrder
     car?: CarOrderByWithRelationInput
     items?: MaintenanceItemOrderByRelationAggregateInput
   }
@@ -22453,6 +24203,7 @@ export namespace Prisma {
     notes?: StringNullableFilter<"MaintenanceSchedule"> | string | null
     createdAt?: DateTimeFilter<"MaintenanceSchedule"> | Date | string
     updatedAt?: DateTimeFilter<"MaintenanceSchedule"> | Date | string
+    systemID?: StringNullableFilter<"MaintenanceSchedule"> | string | null
     car?: XOR<CarScalarRelationFilter, CarWhereInput>
     items?: MaintenanceItemListRelationFilter
   }, "id">
@@ -22464,6 +24215,7 @@ export namespace Prisma {
     notes?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    systemID?: SortOrderInput | SortOrder
     _count?: MaintenanceScheduleCountOrderByAggregateInput
     _max?: MaintenanceScheduleMaxOrderByAggregateInput
     _min?: MaintenanceScheduleMinOrderByAggregateInput
@@ -22479,6 +24231,7 @@ export namespace Prisma {
     notes?: StringNullableWithAggregatesFilter<"MaintenanceSchedule"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"MaintenanceSchedule"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"MaintenanceSchedule"> | Date | string
+    systemID?: StringNullableWithAggregatesFilter<"MaintenanceSchedule"> | string | null
   }
 
   export type MaintenanceItemWhereInput = {
@@ -22492,6 +24245,7 @@ export namespace Prisma {
     nextServiceDate?: DateTimeNullableFilter<"MaintenanceItem"> | Date | string | null
     notes?: StringNullableFilter<"MaintenanceItem"> | string | null
     carId?: StringNullableFilter<"MaintenanceItem"> | string | null
+    systemID?: StringNullableFilter<"MaintenanceItem"> | string | null
     maintenanceSchedule?: XOR<MaintenanceScheduleScalarRelationFilter, MaintenanceScheduleWhereInput>
     car?: XOR<CarNullableScalarRelationFilter, CarWhereInput> | null
   }
@@ -22504,6 +24258,7 @@ export namespace Prisma {
     nextServiceDate?: SortOrderInput | SortOrder
     notes?: SortOrderInput | SortOrder
     carId?: SortOrderInput | SortOrder
+    systemID?: SortOrderInput | SortOrder
     maintenanceSchedule?: MaintenanceScheduleOrderByWithRelationInput
     car?: CarOrderByWithRelationInput
   }
@@ -22519,6 +24274,7 @@ export namespace Prisma {
     nextServiceDate?: DateTimeNullableFilter<"MaintenanceItem"> | Date | string | null
     notes?: StringNullableFilter<"MaintenanceItem"> | string | null
     carId?: StringNullableFilter<"MaintenanceItem"> | string | null
+    systemID?: StringNullableFilter<"MaintenanceItem"> | string | null
     maintenanceSchedule?: XOR<MaintenanceScheduleScalarRelationFilter, MaintenanceScheduleWhereInput>
     car?: XOR<CarNullableScalarRelationFilter, CarWhereInput> | null
   }, "id">
@@ -22531,6 +24287,7 @@ export namespace Prisma {
     nextServiceDate?: SortOrderInput | SortOrder
     notes?: SortOrderInput | SortOrder
     carId?: SortOrderInput | SortOrder
+    systemID?: SortOrderInput | SortOrder
     _count?: MaintenanceItemCountOrderByAggregateInput
     _avg?: MaintenanceItemAvgOrderByAggregateInput
     _max?: MaintenanceItemMaxOrderByAggregateInput
@@ -22549,6 +24306,7 @@ export namespace Prisma {
     nextServiceDate?: DateTimeNullableWithAggregatesFilter<"MaintenanceItem"> | Date | string | null
     notes?: StringNullableWithAggregatesFilter<"MaintenanceItem"> | string | null
     carId?: StringNullableWithAggregatesFilter<"MaintenanceItem"> | string | null
+    systemID?: StringNullableWithAggregatesFilter<"MaintenanceItem"> | string | null
   }
 
   export type PackageWhereInput = {
@@ -22560,6 +24318,7 @@ export namespace Prisma {
     price?: DecimalFilter<"Package"> | Decimal | DecimalJsLike | number | string
     duration?: IntFilter<"Package"> | number
     isActive?: BoolFilter<"Package"> | boolean
+    systemID?: StringNullableFilter<"Package"> | string | null
   }
 
   export type PackageOrderByWithRelationInput = {
@@ -22568,6 +24327,7 @@ export namespace Prisma {
     price?: SortOrder
     duration?: SortOrder
     isActive?: SortOrder
+    systemID?: SortOrderInput | SortOrder
   }
 
   export type PackageWhereUniqueInput = Prisma.AtLeast<{
@@ -22579,6 +24339,7 @@ export namespace Prisma {
     price?: DecimalFilter<"Package"> | Decimal | DecimalJsLike | number | string
     duration?: IntFilter<"Package"> | number
     isActive?: BoolFilter<"Package"> | boolean
+    systemID?: StringNullableFilter<"Package"> | string | null
   }, "id">
 
   export type PackageOrderByWithAggregationInput = {
@@ -22587,6 +24348,7 @@ export namespace Prisma {
     price?: SortOrder
     duration?: SortOrder
     isActive?: SortOrder
+    systemID?: SortOrderInput | SortOrder
     _count?: PackageCountOrderByAggregateInput
     _avg?: PackageAvgOrderByAggregateInput
     _max?: PackageMaxOrderByAggregateInput
@@ -22603,6 +24365,7 @@ export namespace Prisma {
     price?: DecimalWithAggregatesFilter<"Package"> | Decimal | DecimalJsLike | number | string
     duration?: IntWithAggregatesFilter<"Package"> | number
     isActive?: BoolWithAggregatesFilter<"Package"> | boolean
+    systemID?: StringNullableWithAggregatesFilter<"Package"> | string | null
   }
 
   export type PaymentCycleWhereInput = {
@@ -22622,6 +24385,7 @@ export namespace Prisma {
     status?: EnumPaymentStatusFilter<"PaymentCycle"> | $Enums.PaymentStatus
     createdAt?: DateTimeFilter<"PaymentCycle"> | Date | string
     updatedAt?: DateTimeFilter<"PaymentCycle"> | Date | string
+    systemID?: StringNullableFilter<"PaymentCycle"> | string | null
     instructor?: XOR<InstructorScalarRelationFilter, InstructorWhereInput>
     paymentsTaken?: PaymentTakenListRelationFilter
   }
@@ -22640,6 +24404,7 @@ export namespace Prisma {
     status?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    systemID?: SortOrderInput | SortOrder
     instructor?: InstructorOrderByWithRelationInput
     paymentsTaken?: PaymentTakenOrderByRelationAggregateInput
   }
@@ -22662,6 +24427,7 @@ export namespace Prisma {
     status?: EnumPaymentStatusFilter<"PaymentCycle"> | $Enums.PaymentStatus
     createdAt?: DateTimeFilter<"PaymentCycle"> | Date | string
     updatedAt?: DateTimeFilter<"PaymentCycle"> | Date | string
+    systemID?: StringNullableFilter<"PaymentCycle"> | string | null
     instructor?: XOR<InstructorScalarRelationFilter, InstructorWhereInput>
     paymentsTaken?: PaymentTakenListRelationFilter
   }, "id" | "instructorId_month">
@@ -22680,6 +24446,7 @@ export namespace Prisma {
     status?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    systemID?: SortOrderInput | SortOrder
     _count?: PaymentCycleCountOrderByAggregateInput
     _avg?: PaymentCycleAvgOrderByAggregateInput
     _max?: PaymentCycleMaxOrderByAggregateInput
@@ -22704,6 +24471,7 @@ export namespace Prisma {
     status?: EnumPaymentStatusWithAggregatesFilter<"PaymentCycle"> | $Enums.PaymentStatus
     createdAt?: DateTimeWithAggregatesFilter<"PaymentCycle"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"PaymentCycle"> | Date | string
+    systemID?: StringNullableWithAggregatesFilter<"PaymentCycle"> | string | null
   }
 
   export type ScheduleWhereInput = {
@@ -22715,6 +24483,7 @@ export namespace Prisma {
     Batch_time?: StringFilter<"Schedule"> | string
     Duration_time?: StringFilter<"Schedule"> | string
     Car_id?: StringFilter<"Schedule"> | string
+    systemID?: StringNullableFilter<"Schedule"> | string | null
   }
 
   export type ScheduleOrderByWithRelationInput = {
@@ -22723,6 +24492,7 @@ export namespace Prisma {
     Batch_time?: SortOrder
     Duration_time?: SortOrder
     Car_id?: SortOrder
+    systemID?: SortOrderInput | SortOrder
   }
 
   export type ScheduleWhereUniqueInput = Prisma.AtLeast<{
@@ -22734,6 +24504,7 @@ export namespace Prisma {
     Batch_time?: StringFilter<"Schedule"> | string
     Duration_time?: StringFilter<"Schedule"> | string
     Car_id?: StringFilter<"Schedule"> | string
+    systemID?: StringNullableFilter<"Schedule"> | string | null
   }, "id">
 
   export type ScheduleOrderByWithAggregationInput = {
@@ -22742,6 +24513,7 @@ export namespace Prisma {
     Batch_time?: SortOrder
     Duration_time?: SortOrder
     Car_id?: SortOrder
+    systemID?: SortOrderInput | SortOrder
     _count?: ScheduleCountOrderByAggregateInput
     _max?: ScheduleMaxOrderByAggregateInput
     _min?: ScheduleMinOrderByAggregateInput
@@ -22756,6 +24528,7 @@ export namespace Prisma {
     Batch_time?: StringWithAggregatesFilter<"Schedule"> | string
     Duration_time?: StringWithAggregatesFilter<"Schedule"> | string
     Car_id?: StringWithAggregatesFilter<"Schedule"> | string
+    systemID?: StringNullableWithAggregatesFilter<"Schedule"> | string | null
   }
 
   export type SchoolSetUpWhereInput = {
@@ -22763,24 +24536,42 @@ export namespace Prisma {
     OR?: SchoolSetUpWhereInput[]
     NOT?: SchoolSetUpWhereInput | SchoolSetUpWhereInput[]
     id?: StringFilter<"SchoolSetUp"> | string
-    systemID?: StringNullableFilter<"SchoolSetUp"> | string | null
     school_name?: StringFilter<"SchoolSetUp"> | string
     support_Email?: StringFilter<"SchoolSetUp"> | string
     address?: StringFilter<"SchoolSetUp"> | string
     contact_Number?: StringFilter<"SchoolSetUp"> | string
     createdAt?: DateTimeFilter<"SchoolSetUp"> | Date | string
     updatedAt?: DateTimeFilter<"SchoolSetUp"> | Date | string
+    systemID?: StringNullableFilter<"SchoolSetUp"> | string | null
+    reminderDays?: IntFilter<"SchoolSetUp"> | number
+    enableOnboardingMsg?: BoolFilter<"SchoolSetUp"> | boolean
+    enableReminderMsg?: BoolFilter<"SchoolSetUp"> | boolean
+    enableCompletionMsg?: BoolFilter<"SchoolSetUp"> | boolean
+    workingStartTime?: StringFilter<"SchoolSetUp"> | string
+    workingEndTime?: StringFilter<"SchoolSetUp"> | string
+    enableAttendanceReminder?: BoolFilter<"SchoolSetUp"> | boolean
+    reminderBeforeMinutes?: IntFilter<"SchoolSetUp"> | number
+    lastAttendanceReminderDate?: StringNullableFilter<"SchoolSetUp"> | string | null
   }
 
   export type SchoolSetUpOrderByWithRelationInput = {
     id?: SortOrder
-    systemID?: SortOrderInput | SortOrder
     school_name?: SortOrder
     support_Email?: SortOrder
     address?: SortOrder
     contact_Number?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    systemID?: SortOrderInput | SortOrder
+    reminderDays?: SortOrder
+    enableOnboardingMsg?: SortOrder
+    enableReminderMsg?: SortOrder
+    enableCompletionMsg?: SortOrder
+    workingStartTime?: SortOrder
+    workingEndTime?: SortOrder
+    enableAttendanceReminder?: SortOrder
+    reminderBeforeMinutes?: SortOrder
+    lastAttendanceReminderDate?: SortOrderInput | SortOrder
   }
 
   export type SchoolSetUpWhereUniqueInput = Prisma.AtLeast<{
@@ -22788,27 +24579,47 @@ export namespace Prisma {
     AND?: SchoolSetUpWhereInput | SchoolSetUpWhereInput[]
     OR?: SchoolSetUpWhereInput[]
     NOT?: SchoolSetUpWhereInput | SchoolSetUpWhereInput[]
-    systemID?: StringNullableFilter<"SchoolSetUp"> | string | null
     school_name?: StringFilter<"SchoolSetUp"> | string
     support_Email?: StringFilter<"SchoolSetUp"> | string
     address?: StringFilter<"SchoolSetUp"> | string
     contact_Number?: StringFilter<"SchoolSetUp"> | string
     createdAt?: DateTimeFilter<"SchoolSetUp"> | Date | string
     updatedAt?: DateTimeFilter<"SchoolSetUp"> | Date | string
+    systemID?: StringNullableFilter<"SchoolSetUp"> | string | null
+    reminderDays?: IntFilter<"SchoolSetUp"> | number
+    enableOnboardingMsg?: BoolFilter<"SchoolSetUp"> | boolean
+    enableReminderMsg?: BoolFilter<"SchoolSetUp"> | boolean
+    enableCompletionMsg?: BoolFilter<"SchoolSetUp"> | boolean
+    workingStartTime?: StringFilter<"SchoolSetUp"> | string
+    workingEndTime?: StringFilter<"SchoolSetUp"> | string
+    enableAttendanceReminder?: BoolFilter<"SchoolSetUp"> | boolean
+    reminderBeforeMinutes?: IntFilter<"SchoolSetUp"> | number
+    lastAttendanceReminderDate?: StringNullableFilter<"SchoolSetUp"> | string | null
   }, "id">
 
   export type SchoolSetUpOrderByWithAggregationInput = {
     id?: SortOrder
-    systemID?: SortOrderInput | SortOrder
     school_name?: SortOrder
     support_Email?: SortOrder
     address?: SortOrder
     contact_Number?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    systemID?: SortOrderInput | SortOrder
+    reminderDays?: SortOrder
+    enableOnboardingMsg?: SortOrder
+    enableReminderMsg?: SortOrder
+    enableCompletionMsg?: SortOrder
+    workingStartTime?: SortOrder
+    workingEndTime?: SortOrder
+    enableAttendanceReminder?: SortOrder
+    reminderBeforeMinutes?: SortOrder
+    lastAttendanceReminderDate?: SortOrderInput | SortOrder
     _count?: SchoolSetUpCountOrderByAggregateInput
+    _avg?: SchoolSetUpAvgOrderByAggregateInput
     _max?: SchoolSetUpMaxOrderByAggregateInput
     _min?: SchoolSetUpMinOrderByAggregateInput
+    _sum?: SchoolSetUpSumOrderByAggregateInput
   }
 
   export type SchoolSetUpScalarWhereWithAggregatesInput = {
@@ -22816,13 +24627,22 @@ export namespace Prisma {
     OR?: SchoolSetUpScalarWhereWithAggregatesInput[]
     NOT?: SchoolSetUpScalarWhereWithAggregatesInput | SchoolSetUpScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"SchoolSetUp"> | string
-    systemID?: StringNullableWithAggregatesFilter<"SchoolSetUp"> | string | null
     school_name?: StringWithAggregatesFilter<"SchoolSetUp"> | string
     support_Email?: StringWithAggregatesFilter<"SchoolSetUp"> | string
     address?: StringWithAggregatesFilter<"SchoolSetUp"> | string
     contact_Number?: StringWithAggregatesFilter<"SchoolSetUp"> | string
     createdAt?: DateTimeWithAggregatesFilter<"SchoolSetUp"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"SchoolSetUp"> | Date | string
+    systemID?: StringNullableWithAggregatesFilter<"SchoolSetUp"> | string | null
+    reminderDays?: IntWithAggregatesFilter<"SchoolSetUp"> | number
+    enableOnboardingMsg?: BoolWithAggregatesFilter<"SchoolSetUp"> | boolean
+    enableReminderMsg?: BoolWithAggregatesFilter<"SchoolSetUp"> | boolean
+    enableCompletionMsg?: BoolWithAggregatesFilter<"SchoolSetUp"> | boolean
+    workingStartTime?: StringWithAggregatesFilter<"SchoolSetUp"> | string
+    workingEndTime?: StringWithAggregatesFilter<"SchoolSetUp"> | string
+    enableAttendanceReminder?: BoolWithAggregatesFilter<"SchoolSetUp"> | boolean
+    reminderBeforeMinutes?: IntWithAggregatesFilter<"SchoolSetUp"> | number
+    lastAttendanceReminderDate?: StringNullableWithAggregatesFilter<"SchoolSetUp"> | string | null
   }
 
   export type StudentWhereInput = {
@@ -22845,6 +24665,12 @@ export namespace Prisma {
     Assigned_car_id?: StringNullableFilter<"Student"> | string | null
     createdAt?: DateTimeFilter<"Student"> | Date | string
     updatedAt?: DateTimeFilter<"Student"> | Date | string
+    systemID?: StringNullableFilter<"Student"> | string | null
+    reminderDate?: DateTimeNullableFilter<"Student"> | Date | string | null
+    licenseTestDate?: DateTimeNullableFilter<"Student"> | Date | string | null
+    licenseTestTime?: StringNullableFilter<"Student"> | string | null
+    licenseTestLocation?: StringNullableFilter<"Student"> | string | null
+    licenseTestStatus?: StringNullableFilter<"Student"> | string | null
     instructor?: XOR<InstructorNullableScalarRelationFilter, InstructorWhereInput> | null
     car?: XOR<CarNullableScalarRelationFilter, CarWhereInput> | null
   }
@@ -22866,6 +24692,12 @@ export namespace Prisma {
     Assigned_car_id?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    systemID?: SortOrderInput | SortOrder
+    reminderDate?: SortOrderInput | SortOrder
+    licenseTestDate?: SortOrderInput | SortOrder
+    licenseTestTime?: SortOrderInput | SortOrder
+    licenseTestLocation?: SortOrderInput | SortOrder
+    licenseTestStatus?: SortOrderInput | SortOrder
     instructor?: InstructorOrderByWithRelationInput
     car?: CarOrderByWithRelationInput
   }
@@ -22890,6 +24722,12 @@ export namespace Prisma {
     Assigned_car_id?: StringNullableFilter<"Student"> | string | null
     createdAt?: DateTimeFilter<"Student"> | Date | string
     updatedAt?: DateTimeFilter<"Student"> | Date | string
+    systemID?: StringNullableFilter<"Student"> | string | null
+    reminderDate?: DateTimeNullableFilter<"Student"> | Date | string | null
+    licenseTestDate?: DateTimeNullableFilter<"Student"> | Date | string | null
+    licenseTestTime?: StringNullableFilter<"Student"> | string | null
+    licenseTestLocation?: StringNullableFilter<"Student"> | string | null
+    licenseTestStatus?: StringNullableFilter<"Student"> | string | null
     instructor?: XOR<InstructorNullableScalarRelationFilter, InstructorWhereInput> | null
     car?: XOR<CarNullableScalarRelationFilter, CarWhereInput> | null
   }, "id">
@@ -22911,6 +24749,12 @@ export namespace Prisma {
     Assigned_car_id?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    systemID?: SortOrderInput | SortOrder
+    reminderDate?: SortOrderInput | SortOrder
+    licenseTestDate?: SortOrderInput | SortOrder
+    licenseTestTime?: SortOrderInput | SortOrder
+    licenseTestLocation?: SortOrderInput | SortOrder
+    licenseTestStatus?: SortOrderInput | SortOrder
     _count?: StudentCountOrderByAggregateInput
     _avg?: StudentAvgOrderByAggregateInput
     _max?: StudentMaxOrderByAggregateInput
@@ -22938,6 +24782,80 @@ export namespace Prisma {
     Assigned_car_id?: StringNullableWithAggregatesFilter<"Student"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Student"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Student"> | Date | string
+    systemID?: StringNullableWithAggregatesFilter<"Student"> | string | null
+    reminderDate?: DateTimeNullableWithAggregatesFilter<"Student"> | Date | string | null
+    licenseTestDate?: DateTimeNullableWithAggregatesFilter<"Student"> | Date | string | null
+    licenseTestTime?: StringNullableWithAggregatesFilter<"Student"> | string | null
+    licenseTestLocation?: StringNullableWithAggregatesFilter<"Student"> | string | null
+    licenseTestStatus?: StringNullableWithAggregatesFilter<"Student"> | string | null
+  }
+
+  export type StudentAttendanceWhereInput = {
+    AND?: StudentAttendanceWhereInput | StudentAttendanceWhereInput[]
+    OR?: StudentAttendanceWhereInput[]
+    NOT?: StudentAttendanceWhereInput | StudentAttendanceWhereInput[]
+    id?: StringFilter<"StudentAttendance"> | string
+    studentId?: StringFilter<"StudentAttendance"> | string
+    date?: DateTimeFilter<"StudentAttendance"> | Date | string
+    status?: StringFilter<"StudentAttendance"> | string
+    note?: StringNullableFilter<"StudentAttendance"> | string | null
+    createdAt?: DateTimeFilter<"StudentAttendance"> | Date | string
+    updatedAt?: DateTimeFilter<"StudentAttendance"> | Date | string
+    systemID?: StringNullableFilter<"StudentAttendance"> | string | null
+  }
+
+  export type StudentAttendanceOrderByWithRelationInput = {
+    id?: SortOrder
+    studentId?: SortOrder
+    date?: SortOrder
+    status?: SortOrder
+    note?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    systemID?: SortOrderInput | SortOrder
+  }
+
+  export type StudentAttendanceWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    studentId_date?: StudentAttendanceStudentIdDateCompoundUniqueInput
+    AND?: StudentAttendanceWhereInput | StudentAttendanceWhereInput[]
+    OR?: StudentAttendanceWhereInput[]
+    NOT?: StudentAttendanceWhereInput | StudentAttendanceWhereInput[]
+    studentId?: StringFilter<"StudentAttendance"> | string
+    date?: DateTimeFilter<"StudentAttendance"> | Date | string
+    status?: StringFilter<"StudentAttendance"> | string
+    note?: StringNullableFilter<"StudentAttendance"> | string | null
+    createdAt?: DateTimeFilter<"StudentAttendance"> | Date | string
+    updatedAt?: DateTimeFilter<"StudentAttendance"> | Date | string
+    systemID?: StringNullableFilter<"StudentAttendance"> | string | null
+  }, "id" | "studentId_date">
+
+  export type StudentAttendanceOrderByWithAggregationInput = {
+    id?: SortOrder
+    studentId?: SortOrder
+    date?: SortOrder
+    status?: SortOrder
+    note?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    systemID?: SortOrderInput | SortOrder
+    _count?: StudentAttendanceCountOrderByAggregateInput
+    _max?: StudentAttendanceMaxOrderByAggregateInput
+    _min?: StudentAttendanceMinOrderByAggregateInput
+  }
+
+  export type StudentAttendanceScalarWhereWithAggregatesInput = {
+    AND?: StudentAttendanceScalarWhereWithAggregatesInput | StudentAttendanceScalarWhereWithAggregatesInput[]
+    OR?: StudentAttendanceScalarWhereWithAggregatesInput[]
+    NOT?: StudentAttendanceScalarWhereWithAggregatesInput | StudentAttendanceScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"StudentAttendance"> | string
+    studentId?: StringWithAggregatesFilter<"StudentAttendance"> | string
+    date?: DateTimeWithAggregatesFilter<"StudentAttendance"> | Date | string
+    status?: StringWithAggregatesFilter<"StudentAttendance"> | string
+    note?: StringNullableWithAggregatesFilter<"StudentAttendance"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"StudentAttendance"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"StudentAttendance"> | Date | string
+    systemID?: StringNullableWithAggregatesFilter<"StudentAttendance"> | string | null
   }
 
   export type MessageQueueWhereInput = {
@@ -22958,6 +24876,7 @@ export namespace Prisma {
     lastError?: StringNullableFilter<"MessageQueue"> | string | null
     createdAt?: DateTimeFilter<"MessageQueue"> | Date | string
     updatedAt?: DateTimeFilter<"MessageQueue"> | Date | string
+    systemID?: StringNullableFilter<"MessageQueue"> | string | null
     template?: XOR<WhatsAppTemplateScalarRelationFilter, WhatsAppTemplateWhereInput>
   }
 
@@ -22976,6 +24895,7 @@ export namespace Prisma {
     lastError?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    systemID?: SortOrderInput | SortOrder
     template?: WhatsAppTemplateOrderByWithRelationInput
   }
 
@@ -22997,6 +24917,7 @@ export namespace Prisma {
     lastError?: StringNullableFilter<"MessageQueue"> | string | null
     createdAt?: DateTimeFilter<"MessageQueue"> | Date | string
     updatedAt?: DateTimeFilter<"MessageQueue"> | Date | string
+    systemID?: StringNullableFilter<"MessageQueue"> | string | null
     template?: XOR<WhatsAppTemplateScalarRelationFilter, WhatsAppTemplateWhereInput>
   }, "id">
 
@@ -23015,6 +24936,7 @@ export namespace Prisma {
     lastError?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    systemID?: SortOrderInput | SortOrder
     _count?: MessageQueueCountOrderByAggregateInput
     _avg?: MessageQueueAvgOrderByAggregateInput
     _max?: MessageQueueMaxOrderByAggregateInput
@@ -23040,6 +24962,7 @@ export namespace Prisma {
     lastError?: StringNullableWithAggregatesFilter<"MessageQueue"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"MessageQueue"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"MessageQueue"> | Date | string
+    systemID?: StringNullableWithAggregatesFilter<"MessageQueue"> | string | null
   }
 
   export type WhatsAppTemplateWhereInput = {
@@ -23057,6 +24980,7 @@ export namespace Prisma {
     variables?: JsonNullableFilter<"WhatsAppTemplate">
     createdAt?: DateTimeFilter<"WhatsAppTemplate"> | Date | string
     updatedAt?: DateTimeFilter<"WhatsAppTemplate"> | Date | string
+    systemID?: StringNullableFilter<"WhatsAppTemplate"> | string | null
     messages?: MessageQueueListRelationFilter
   }
 
@@ -23072,15 +24996,17 @@ export namespace Prisma {
     variables?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    systemID?: SortOrderInput | SortOrder
     messages?: MessageQueueOrderByRelationAggregateInput
   }
 
   export type WhatsAppTemplateWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    name?: string
+    name_language?: WhatsAppTemplateNameLanguageCompoundUniqueInput
     AND?: WhatsAppTemplateWhereInput | WhatsAppTemplateWhereInput[]
     OR?: WhatsAppTemplateWhereInput[]
     NOT?: WhatsAppTemplateWhereInput | WhatsAppTemplateWhereInput[]
+    name?: StringFilter<"WhatsAppTemplate"> | string
     clientId?: StringNullableFilter<"WhatsAppTemplate"> | string | null
     templateId?: StringNullableFilter<"WhatsAppTemplate"> | string | null
     language?: StringFilter<"WhatsAppTemplate"> | string
@@ -23090,8 +25016,9 @@ export namespace Prisma {
     variables?: JsonNullableFilter<"WhatsAppTemplate">
     createdAt?: DateTimeFilter<"WhatsAppTemplate"> | Date | string
     updatedAt?: DateTimeFilter<"WhatsAppTemplate"> | Date | string
+    systemID?: StringNullableFilter<"WhatsAppTemplate"> | string | null
     messages?: MessageQueueListRelationFilter
-  }, "id" | "name">
+  }, "id" | "name_language">
 
   export type WhatsAppTemplateOrderByWithAggregationInput = {
     id?: SortOrder
@@ -23105,6 +25032,7 @@ export namespace Prisma {
     variables?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    systemID?: SortOrderInput | SortOrder
     _count?: WhatsAppTemplateCountOrderByAggregateInput
     _max?: WhatsAppTemplateMaxOrderByAggregateInput
     _min?: WhatsAppTemplateMinOrderByAggregateInput
@@ -23125,6 +25053,7 @@ export namespace Prisma {
     variables?: JsonNullableWithAggregatesFilter<"WhatsAppTemplate">
     createdAt?: DateTimeWithAggregatesFilter<"WhatsAppTemplate"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"WhatsAppTemplate"> | Date | string
+    systemID?: StringNullableWithAggregatesFilter<"WhatsAppTemplate"> | string | null
   }
 
   export type WhatsAppTokenWhereInput = {
@@ -23140,8 +25069,13 @@ export namespace Prisma {
     displayPhoneNumber?: StringNullableFilter<"WhatsAppToken"> | string | null
     verifiedName?: StringNullableFilter<"WhatsAppToken"> | string | null
     safeMode?: BoolFilter<"WhatsAppToken"> | boolean
+    switchOffMode?: BoolFilter<"WhatsAppToken"> | boolean
+    monthlyBudget?: FloatFilter<"WhatsAppToken"> | number
+    utilityRate?: FloatFilter<"WhatsAppToken"> | number
+    defaultLanguage?: StringNullableFilter<"WhatsAppToken"> | string | null
     createdAt?: DateTimeFilter<"WhatsAppToken"> | Date | string
     updatedAt?: DateTimeFilter<"WhatsAppToken"> | Date | string
+    systemID?: StringNullableFilter<"WhatsAppToken"> | string | null
   }
 
   export type WhatsAppTokenOrderByWithRelationInput = {
@@ -23154,8 +25088,13 @@ export namespace Prisma {
     displayPhoneNumber?: SortOrderInput | SortOrder
     verifiedName?: SortOrderInput | SortOrder
     safeMode?: SortOrder
+    switchOffMode?: SortOrder
+    monthlyBudget?: SortOrder
+    utilityRate?: SortOrder
+    defaultLanguage?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    systemID?: SortOrderInput | SortOrder
   }
 
   export type WhatsAppTokenWhereUniqueInput = Prisma.AtLeast<{
@@ -23171,8 +25110,13 @@ export namespace Prisma {
     displayPhoneNumber?: StringNullableFilter<"WhatsAppToken"> | string | null
     verifiedName?: StringNullableFilter<"WhatsAppToken"> | string | null
     safeMode?: BoolFilter<"WhatsAppToken"> | boolean
+    switchOffMode?: BoolFilter<"WhatsAppToken"> | boolean
+    monthlyBudget?: FloatFilter<"WhatsAppToken"> | number
+    utilityRate?: FloatFilter<"WhatsAppToken"> | number
+    defaultLanguage?: StringNullableFilter<"WhatsAppToken"> | string | null
     createdAt?: DateTimeFilter<"WhatsAppToken"> | Date | string
     updatedAt?: DateTimeFilter<"WhatsAppToken"> | Date | string
+    systemID?: StringNullableFilter<"WhatsAppToken"> | string | null
   }, "id">
 
   export type WhatsAppTokenOrderByWithAggregationInput = {
@@ -23185,11 +25129,18 @@ export namespace Prisma {
     displayPhoneNumber?: SortOrderInput | SortOrder
     verifiedName?: SortOrderInput | SortOrder
     safeMode?: SortOrder
+    switchOffMode?: SortOrder
+    monthlyBudget?: SortOrder
+    utilityRate?: SortOrder
+    defaultLanguage?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    systemID?: SortOrderInput | SortOrder
     _count?: WhatsAppTokenCountOrderByAggregateInput
+    _avg?: WhatsAppTokenAvgOrderByAggregateInput
     _max?: WhatsAppTokenMaxOrderByAggregateInput
     _min?: WhatsAppTokenMinOrderByAggregateInput
+    _sum?: WhatsAppTokenSumOrderByAggregateInput
   }
 
   export type WhatsAppTokenScalarWhereWithAggregatesInput = {
@@ -23205,8 +25156,13 @@ export namespace Prisma {
     displayPhoneNumber?: StringNullableWithAggregatesFilter<"WhatsAppToken"> | string | null
     verifiedName?: StringNullableWithAggregatesFilter<"WhatsAppToken"> | string | null
     safeMode?: BoolWithAggregatesFilter<"WhatsAppToken"> | boolean
+    switchOffMode?: BoolWithAggregatesFilter<"WhatsAppToken"> | boolean
+    monthlyBudget?: FloatWithAggregatesFilter<"WhatsAppToken"> | number
+    utilityRate?: FloatWithAggregatesFilter<"WhatsAppToken"> | number
+    defaultLanguage?: StringNullableWithAggregatesFilter<"WhatsAppToken"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"WhatsAppToken"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"WhatsAppToken"> | Date | string
+    systemID?: StringNullableWithAggregatesFilter<"WhatsAppToken"> | string | null
   }
 
   export type PaymentTakenCreateInput = {
@@ -23214,6 +25170,7 @@ export namespace Prisma {
     amount: number
     takenAt?: Date | string
     note: string
+    systemID?: string | null
     paymentCycle: PaymentCycleCreateNestedOneWithoutPaymentsTakenInput
   }
 
@@ -23223,6 +25180,7 @@ export namespace Prisma {
     amount: number
     takenAt?: Date | string
     note: string
+    systemID?: string | null
   }
 
   export type PaymentTakenUpdateInput = {
@@ -23230,6 +25188,7 @@ export namespace Prisma {
     amount?: IntFieldUpdateOperationsInput | number
     takenAt?: DateTimeFieldUpdateOperationsInput | Date | string
     note?: StringFieldUpdateOperationsInput | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
     paymentCycle?: PaymentCycleUpdateOneRequiredWithoutPaymentsTakenNestedInput
   }
 
@@ -23239,6 +25198,7 @@ export namespace Prisma {
     amount?: IntFieldUpdateOperationsInput | number
     takenAt?: DateTimeFieldUpdateOperationsInput | Date | string
     note?: StringFieldUpdateOperationsInput | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PaymentTakenCreateManyInput = {
@@ -23247,6 +25207,7 @@ export namespace Prisma {
     amount: number
     takenAt?: Date | string
     note: string
+    systemID?: string | null
   }
 
   export type PaymentTakenUpdateManyMutationInput = {
@@ -23254,6 +25215,7 @@ export namespace Prisma {
     amount?: IntFieldUpdateOperationsInput | number
     takenAt?: DateTimeFieldUpdateOperationsInput | Date | string
     note?: StringFieldUpdateOperationsInput | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PaymentTakenUncheckedUpdateManyInput = {
@@ -23262,6 +25224,7 @@ export namespace Prisma {
     amount?: IntFieldUpdateOperationsInput | number
     takenAt?: DateTimeFieldUpdateOperationsInput | Date | string
     note?: StringFieldUpdateOperationsInput | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AttendanceCreateInput = {
@@ -23272,6 +25235,7 @@ export namespace Prisma {
     note: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
   }
 
   export type AttendanceUncheckedCreateInput = {
@@ -23282,6 +25246,7 @@ export namespace Prisma {
     note: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
   }
 
   export type AttendanceUpdateInput = {
@@ -23292,6 +25257,7 @@ export namespace Prisma {
     note?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AttendanceUncheckedUpdateInput = {
@@ -23302,6 +25268,7 @@ export namespace Prisma {
     note?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AttendanceCreateManyInput = {
@@ -23312,6 +25279,7 @@ export namespace Prisma {
     note: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
   }
 
   export type AttendanceUpdateManyMutationInput = {
@@ -23322,6 +25290,7 @@ export namespace Prisma {
     note?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AttendanceUncheckedUpdateManyInput = {
@@ -23332,6 +25301,7 @@ export namespace Prisma {
     note?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type CalendarEventCreateInput = {
@@ -23343,6 +25313,7 @@ export namespace Prisma {
     color?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
   }
 
   export type CalendarEventUncheckedCreateInput = {
@@ -23354,6 +25325,7 @@ export namespace Prisma {
     color?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
   }
 
   export type CalendarEventUpdateInput = {
@@ -23365,6 +25337,7 @@ export namespace Prisma {
     color?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type CalendarEventUncheckedUpdateInput = {
@@ -23376,6 +25349,7 @@ export namespace Prisma {
     color?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type CalendarEventCreateManyInput = {
@@ -23387,6 +25361,7 @@ export namespace Prisma {
     color?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
   }
 
   export type CalendarEventUpdateManyMutationInput = {
@@ -23398,6 +25373,7 @@ export namespace Prisma {
     color?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type CalendarEventUncheckedUpdateManyInput = {
@@ -23409,6 +25385,7 @@ export namespace Prisma {
     color?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type CarCreateInput = {
@@ -23420,6 +25397,7 @@ export namespace Prisma {
     car_year: string
     updatedAt?: Date | string
     createdAt?: Date | string
+    systemID?: string | null
     students?: StudentCreateNestedManyWithoutCarInput
     instructors?: InstructorCreateNestedManyWithoutCarInput
     maintenanceItem?: MaintenanceItemCreateNestedManyWithoutCarInput
@@ -23435,6 +25413,7 @@ export namespace Prisma {
     car_year: string
     updatedAt?: Date | string
     createdAt?: Date | string
+    systemID?: string | null
     students?: StudentUncheckedCreateNestedManyWithoutCarInput
     instructors?: InstructorUncheckedCreateNestedManyWithoutCarInput
     maintenanceItem?: MaintenanceItemUncheckedCreateNestedManyWithoutCarInput
@@ -23450,6 +25429,7 @@ export namespace Prisma {
     car_year?: StringFieldUpdateOperationsInput | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
     students?: StudentUpdateManyWithoutCarNestedInput
     instructors?: InstructorUpdateManyWithoutCarNestedInput
     maintenanceItem?: MaintenanceItemUpdateManyWithoutCarNestedInput
@@ -23465,6 +25445,7 @@ export namespace Prisma {
     car_year?: StringFieldUpdateOperationsInput | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
     students?: StudentUncheckedUpdateManyWithoutCarNestedInput
     instructors?: InstructorUncheckedUpdateManyWithoutCarNestedInput
     maintenanceItem?: MaintenanceItemUncheckedUpdateManyWithoutCarNestedInput
@@ -23480,6 +25461,7 @@ export namespace Prisma {
     car_year: string
     updatedAt?: Date | string
     createdAt?: Date | string
+    systemID?: string | null
   }
 
   export type CarUpdateManyMutationInput = {
@@ -23491,6 +25473,7 @@ export namespace Prisma {
     car_year?: StringFieldUpdateOperationsInput | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type CarUncheckedUpdateManyInput = {
@@ -23502,6 +25485,7 @@ export namespace Prisma {
     car_year?: StringFieldUpdateOperationsInput | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type DemoStatusCreateInput = {
@@ -23554,6 +25538,7 @@ export namespace Prisma {
     packageSetup?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
   }
 
   export type SetupChecklistUncheckedCreateInput = {
@@ -23564,6 +25549,7 @@ export namespace Prisma {
     packageSetup?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
   }
 
   export type SetupChecklistUpdateInput = {
@@ -23574,6 +25560,7 @@ export namespace Prisma {
     packageSetup?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type SetupChecklistUncheckedUpdateInput = {
@@ -23584,6 +25571,7 @@ export namespace Prisma {
     packageSetup?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type SetupChecklistCreateManyInput = {
@@ -23594,6 +25582,7 @@ export namespace Prisma {
     packageSetup?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
   }
 
   export type SetupChecklistUpdateManyMutationInput = {
@@ -23604,6 +25593,7 @@ export namespace Prisma {
     packageSetup?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type SetupChecklistUncheckedUpdateManyInput = {
@@ -23614,6 +25604,7 @@ export namespace Prisma {
     packageSetup?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type InstructorCreateInput = {
@@ -23628,6 +25619,9 @@ export namespace Prisma {
     updatedAt?: Date | string
     payment?: number | null
     paymentDate?: number | null
+    systemID?: string | null
+    accessToken?: string | null
+    globalMongoId?: string | null
     car?: CarCreateNestedOneWithoutInstructorsInput
     paymentCycles?: PaymentCycleCreateNestedManyWithoutInstructorInput
     students?: StudentCreateNestedManyWithoutInstructorInput
@@ -23646,6 +25640,9 @@ export namespace Prisma {
     payment?: number | null
     paymentDate?: number | null
     assignedCarId?: string | null
+    systemID?: string | null
+    accessToken?: string | null
+    globalMongoId?: string | null
     paymentCycles?: PaymentCycleUncheckedCreateNestedManyWithoutInstructorInput
     students?: StudentUncheckedCreateNestedManyWithoutInstructorInput
   }
@@ -23662,6 +25659,9 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     payment?: NullableFloatFieldUpdateOperationsInput | number | null
     paymentDate?: NullableIntFieldUpdateOperationsInput | number | null
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
+    accessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    globalMongoId?: NullableStringFieldUpdateOperationsInput | string | null
     car?: CarUpdateOneWithoutInstructorsNestedInput
     paymentCycles?: PaymentCycleUpdateManyWithoutInstructorNestedInput
     students?: StudentUpdateManyWithoutInstructorNestedInput
@@ -23680,6 +25680,9 @@ export namespace Prisma {
     payment?: NullableFloatFieldUpdateOperationsInput | number | null
     paymentDate?: NullableIntFieldUpdateOperationsInput | number | null
     assignedCarId?: NullableStringFieldUpdateOperationsInput | string | null
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
+    accessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    globalMongoId?: NullableStringFieldUpdateOperationsInput | string | null
     paymentCycles?: PaymentCycleUncheckedUpdateManyWithoutInstructorNestedInput
     students?: StudentUncheckedUpdateManyWithoutInstructorNestedInput
   }
@@ -23697,6 +25700,9 @@ export namespace Prisma {
     payment?: number | null
     paymentDate?: number | null
     assignedCarId?: string | null
+    systemID?: string | null
+    accessToken?: string | null
+    globalMongoId?: string | null
   }
 
   export type InstructorUpdateManyMutationInput = {
@@ -23711,6 +25717,9 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     payment?: NullableFloatFieldUpdateOperationsInput | number | null
     paymentDate?: NullableIntFieldUpdateOperationsInput | number | null
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
+    accessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    globalMongoId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type InstructorUncheckedUpdateManyInput = {
@@ -23726,6 +25735,9 @@ export namespace Prisma {
     payment?: NullableFloatFieldUpdateOperationsInput | number | null
     paymentDate?: NullableIntFieldUpdateOperationsInput | number | null
     assignedCarId?: NullableStringFieldUpdateOperationsInput | string | null
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
+    accessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    globalMongoId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type MaintenanceScheduleCreateInput = {
@@ -23734,6 +25746,7 @@ export namespace Prisma {
     notes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
     car: CarCreateNestedOneWithoutMaintenanceSchedulesInput
     items?: MaintenanceItemCreateNestedManyWithoutMaintenanceScheduleInput
   }
@@ -23745,6 +25758,7 @@ export namespace Prisma {
     notes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
     items?: MaintenanceItemUncheckedCreateNestedManyWithoutMaintenanceScheduleInput
   }
 
@@ -23754,6 +25768,7 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
     car?: CarUpdateOneRequiredWithoutMaintenanceSchedulesNestedInput
     items?: MaintenanceItemUpdateManyWithoutMaintenanceScheduleNestedInput
   }
@@ -23765,6 +25780,7 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
     items?: MaintenanceItemUncheckedUpdateManyWithoutMaintenanceScheduleNestedInput
   }
 
@@ -23775,6 +25791,7 @@ export namespace Prisma {
     notes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
   }
 
   export type MaintenanceScheduleUpdateManyMutationInput = {
@@ -23783,6 +25800,7 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type MaintenanceScheduleUncheckedUpdateManyInput = {
@@ -23792,6 +25810,7 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type MaintenanceItemCreateInput = {
@@ -23800,6 +25819,7 @@ export namespace Prisma {
     intervalDays?: number | null
     nextServiceDate?: Date | string | null
     notes?: string | null
+    systemID?: string | null
     maintenanceSchedule: MaintenanceScheduleCreateNestedOneWithoutItemsInput
     car?: CarCreateNestedOneWithoutMaintenanceItemInput
   }
@@ -23812,6 +25832,7 @@ export namespace Prisma {
     nextServiceDate?: Date | string | null
     notes?: string | null
     carId?: string | null
+    systemID?: string | null
   }
 
   export type MaintenanceItemUpdateInput = {
@@ -23820,6 +25841,7 @@ export namespace Prisma {
     intervalDays?: NullableIntFieldUpdateOperationsInput | number | null
     nextServiceDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
     maintenanceSchedule?: MaintenanceScheduleUpdateOneRequiredWithoutItemsNestedInput
     car?: CarUpdateOneWithoutMaintenanceItemNestedInput
   }
@@ -23832,6 +25854,7 @@ export namespace Prisma {
     nextServiceDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     carId?: NullableStringFieldUpdateOperationsInput | string | null
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type MaintenanceItemCreateManyInput = {
@@ -23842,6 +25865,7 @@ export namespace Prisma {
     nextServiceDate?: Date | string | null
     notes?: string | null
     carId?: string | null
+    systemID?: string | null
   }
 
   export type MaintenanceItemUpdateManyMutationInput = {
@@ -23850,6 +25874,7 @@ export namespace Prisma {
     intervalDays?: NullableIntFieldUpdateOperationsInput | number | null
     nextServiceDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type MaintenanceItemUncheckedUpdateManyInput = {
@@ -23860,6 +25885,7 @@ export namespace Prisma {
     nextServiceDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     carId?: NullableStringFieldUpdateOperationsInput | string | null
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PackageCreateInput = {
@@ -23868,6 +25894,7 @@ export namespace Prisma {
     price: Decimal | DecimalJsLike | number | string
     duration: number
     isActive?: boolean
+    systemID?: string | null
   }
 
   export type PackageUncheckedCreateInput = {
@@ -23876,6 +25903,7 @@ export namespace Prisma {
     price: Decimal | DecimalJsLike | number | string
     duration: number
     isActive?: boolean
+    systemID?: string | null
   }
 
   export type PackageUpdateInput = {
@@ -23884,6 +25912,7 @@ export namespace Prisma {
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     duration?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PackageUncheckedUpdateInput = {
@@ -23892,6 +25921,7 @@ export namespace Prisma {
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     duration?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PackageCreateManyInput = {
@@ -23900,6 +25930,7 @@ export namespace Prisma {
     price: Decimal | DecimalJsLike | number | string
     duration: number
     isActive?: boolean
+    systemID?: string | null
   }
 
   export type PackageUpdateManyMutationInput = {
@@ -23908,6 +25939,7 @@ export namespace Prisma {
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     duration?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PackageUncheckedUpdateManyInput = {
@@ -23916,6 +25948,7 @@ export namespace Prisma {
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     duration?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PaymentCycleCreateInput = {
@@ -23931,6 +25964,7 @@ export namespace Prisma {
     status?: $Enums.PaymentStatus
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
     instructor: InstructorCreateNestedOneWithoutPaymentCyclesInput
     paymentsTaken?: PaymentTakenCreateNestedManyWithoutPaymentCycleInput
   }
@@ -23949,6 +25983,7 @@ export namespace Prisma {
     status?: $Enums.PaymentStatus
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
     paymentsTaken?: PaymentTakenUncheckedCreateNestedManyWithoutPaymentCycleInput
   }
 
@@ -23965,6 +26000,7 @@ export namespace Prisma {
     status?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
     instructor?: InstructorUpdateOneRequiredWithoutPaymentCyclesNestedInput
     paymentsTaken?: PaymentTakenUpdateManyWithoutPaymentCycleNestedInput
   }
@@ -23983,6 +26019,7 @@ export namespace Prisma {
     status?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
     paymentsTaken?: PaymentTakenUncheckedUpdateManyWithoutPaymentCycleNestedInput
   }
 
@@ -24000,6 +26037,7 @@ export namespace Prisma {
     status?: $Enums.PaymentStatus
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
   }
 
   export type PaymentCycleUpdateManyMutationInput = {
@@ -24015,6 +26053,7 @@ export namespace Prisma {
     status?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PaymentCycleUncheckedUpdateManyInput = {
@@ -24031,6 +26070,7 @@ export namespace Prisma {
     status?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ScheduleCreateInput = {
@@ -24039,6 +26079,7 @@ export namespace Prisma {
     Batch_time: string
     Duration_time: string
     Car_id: string
+    systemID?: string | null
   }
 
   export type ScheduleUncheckedCreateInput = {
@@ -24047,6 +26088,7 @@ export namespace Prisma {
     Batch_time: string
     Duration_time: string
     Car_id: string
+    systemID?: string | null
   }
 
   export type ScheduleUpdateInput = {
@@ -24055,6 +26097,7 @@ export namespace Prisma {
     Batch_time?: StringFieldUpdateOperationsInput | string
     Duration_time?: StringFieldUpdateOperationsInput | string
     Car_id?: StringFieldUpdateOperationsInput | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ScheduleUncheckedUpdateInput = {
@@ -24063,6 +26106,7 @@ export namespace Prisma {
     Batch_time?: StringFieldUpdateOperationsInput | string
     Duration_time?: StringFieldUpdateOperationsInput | string
     Car_id?: StringFieldUpdateOperationsInput | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ScheduleCreateManyInput = {
@@ -24071,6 +26115,7 @@ export namespace Prisma {
     Batch_time: string
     Duration_time: string
     Car_id: string
+    systemID?: string | null
   }
 
   export type ScheduleUpdateManyMutationInput = {
@@ -24079,6 +26124,7 @@ export namespace Prisma {
     Batch_time?: StringFieldUpdateOperationsInput | string
     Duration_time?: StringFieldUpdateOperationsInput | string
     Car_id?: StringFieldUpdateOperationsInput | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ScheduleUncheckedUpdateManyInput = {
@@ -24087,83 +26133,147 @@ export namespace Prisma {
     Batch_time?: StringFieldUpdateOperationsInput | string
     Duration_time?: StringFieldUpdateOperationsInput | string
     Car_id?: StringFieldUpdateOperationsInput | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type SchoolSetUpCreateInput = {
     id?: string
-    systemID?: string | null
     school_name: string
     support_Email: string
     address: string
     contact_Number: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
+    reminderDays?: number
+    enableOnboardingMsg?: boolean
+    enableReminderMsg?: boolean
+    enableCompletionMsg?: boolean
+    workingStartTime?: string
+    workingEndTime?: string
+    enableAttendanceReminder?: boolean
+    reminderBeforeMinutes?: number
+    lastAttendanceReminderDate?: string | null
   }
 
   export type SchoolSetUpUncheckedCreateInput = {
     id?: string
-    systemID?: string | null
     school_name: string
     support_Email: string
     address: string
     contact_Number: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
+    reminderDays?: number
+    enableOnboardingMsg?: boolean
+    enableReminderMsg?: boolean
+    enableCompletionMsg?: boolean
+    workingStartTime?: string
+    workingEndTime?: string
+    enableAttendanceReminder?: boolean
+    reminderBeforeMinutes?: number
+    lastAttendanceReminderDate?: string | null
   }
 
   export type SchoolSetUpUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    systemID?: NullableStringFieldUpdateOperationsInput | string | null
     school_name?: StringFieldUpdateOperationsInput | string
     support_Email?: StringFieldUpdateOperationsInput | string
     address?: StringFieldUpdateOperationsInput | string
     contact_Number?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
+    reminderDays?: IntFieldUpdateOperationsInput | number
+    enableOnboardingMsg?: BoolFieldUpdateOperationsInput | boolean
+    enableReminderMsg?: BoolFieldUpdateOperationsInput | boolean
+    enableCompletionMsg?: BoolFieldUpdateOperationsInput | boolean
+    workingStartTime?: StringFieldUpdateOperationsInput | string
+    workingEndTime?: StringFieldUpdateOperationsInput | string
+    enableAttendanceReminder?: BoolFieldUpdateOperationsInput | boolean
+    reminderBeforeMinutes?: IntFieldUpdateOperationsInput | number
+    lastAttendanceReminderDate?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type SchoolSetUpUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    systemID?: NullableStringFieldUpdateOperationsInput | string | null
     school_name?: StringFieldUpdateOperationsInput | string
     support_Email?: StringFieldUpdateOperationsInput | string
     address?: StringFieldUpdateOperationsInput | string
     contact_Number?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
+    reminderDays?: IntFieldUpdateOperationsInput | number
+    enableOnboardingMsg?: BoolFieldUpdateOperationsInput | boolean
+    enableReminderMsg?: BoolFieldUpdateOperationsInput | boolean
+    enableCompletionMsg?: BoolFieldUpdateOperationsInput | boolean
+    workingStartTime?: StringFieldUpdateOperationsInput | string
+    workingEndTime?: StringFieldUpdateOperationsInput | string
+    enableAttendanceReminder?: BoolFieldUpdateOperationsInput | boolean
+    reminderBeforeMinutes?: IntFieldUpdateOperationsInput | number
+    lastAttendanceReminderDate?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type SchoolSetUpCreateManyInput = {
     id?: string
-    systemID?: string | null
     school_name: string
     support_Email: string
     address: string
     contact_Number: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
+    reminderDays?: number
+    enableOnboardingMsg?: boolean
+    enableReminderMsg?: boolean
+    enableCompletionMsg?: boolean
+    workingStartTime?: string
+    workingEndTime?: string
+    enableAttendanceReminder?: boolean
+    reminderBeforeMinutes?: number
+    lastAttendanceReminderDate?: string | null
   }
 
   export type SchoolSetUpUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    systemID?: NullableStringFieldUpdateOperationsInput | string | null
     school_name?: StringFieldUpdateOperationsInput | string
     support_Email?: StringFieldUpdateOperationsInput | string
     address?: StringFieldUpdateOperationsInput | string
     contact_Number?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
+    reminderDays?: IntFieldUpdateOperationsInput | number
+    enableOnboardingMsg?: BoolFieldUpdateOperationsInput | boolean
+    enableReminderMsg?: BoolFieldUpdateOperationsInput | boolean
+    enableCompletionMsg?: BoolFieldUpdateOperationsInput | boolean
+    workingStartTime?: StringFieldUpdateOperationsInput | string
+    workingEndTime?: StringFieldUpdateOperationsInput | string
+    enableAttendanceReminder?: BoolFieldUpdateOperationsInput | boolean
+    reminderBeforeMinutes?: IntFieldUpdateOperationsInput | number
+    lastAttendanceReminderDate?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type SchoolSetUpUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
-    systemID?: NullableStringFieldUpdateOperationsInput | string | null
     school_name?: StringFieldUpdateOperationsInput | string
     support_Email?: StringFieldUpdateOperationsInput | string
     address?: StringFieldUpdateOperationsInput | string
     contact_Number?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
+    reminderDays?: IntFieldUpdateOperationsInput | number
+    enableOnboardingMsg?: BoolFieldUpdateOperationsInput | boolean
+    enableReminderMsg?: BoolFieldUpdateOperationsInput | boolean
+    enableCompletionMsg?: BoolFieldUpdateOperationsInput | boolean
+    workingStartTime?: StringFieldUpdateOperationsInput | string
+    workingEndTime?: StringFieldUpdateOperationsInput | string
+    enableAttendanceReminder?: BoolFieldUpdateOperationsInput | boolean
+    reminderBeforeMinutes?: IntFieldUpdateOperationsInput | number
+    lastAttendanceReminderDate?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type StudentCreateInput = {
@@ -24181,6 +26291,12 @@ export namespace Prisma {
     remaining_amount: number
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
+    reminderDate?: Date | string | null
+    licenseTestDate?: Date | string | null
+    licenseTestTime?: string | null
+    licenseTestLocation?: string | null
+    licenseTestStatus?: string | null
     instructor?: InstructorCreateNestedOneWithoutStudentsInput
     car?: CarCreateNestedOneWithoutStudentsInput
   }
@@ -24202,6 +26318,12 @@ export namespace Prisma {
     Assigned_car_id?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
+    reminderDate?: Date | string | null
+    licenseTestDate?: Date | string | null
+    licenseTestTime?: string | null
+    licenseTestLocation?: string | null
+    licenseTestStatus?: string | null
   }
 
   export type StudentUpdateInput = {
@@ -24219,6 +26341,12 @@ export namespace Prisma {
     remaining_amount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
+    reminderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    licenseTestDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    licenseTestTime?: NullableStringFieldUpdateOperationsInput | string | null
+    licenseTestLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    licenseTestStatus?: NullableStringFieldUpdateOperationsInput | string | null
     instructor?: InstructorUpdateOneWithoutStudentsNestedInput
     car?: CarUpdateOneWithoutStudentsNestedInput
   }
@@ -24240,6 +26368,12 @@ export namespace Prisma {
     Assigned_car_id?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
+    reminderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    licenseTestDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    licenseTestTime?: NullableStringFieldUpdateOperationsInput | string | null
+    licenseTestLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    licenseTestStatus?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type StudentCreateManyInput = {
@@ -24259,6 +26393,12 @@ export namespace Prisma {
     Assigned_car_id?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
+    reminderDate?: Date | string | null
+    licenseTestDate?: Date | string | null
+    licenseTestTime?: string | null
+    licenseTestLocation?: string | null
+    licenseTestStatus?: string | null
   }
 
   export type StudentUpdateManyMutationInput = {
@@ -24276,6 +26416,12 @@ export namespace Prisma {
     remaining_amount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
+    reminderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    licenseTestDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    licenseTestTime?: NullableStringFieldUpdateOperationsInput | string | null
+    licenseTestLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    licenseTestStatus?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type StudentUncheckedUpdateManyInput = {
@@ -24295,6 +26441,89 @@ export namespace Prisma {
     Assigned_car_id?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
+    reminderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    licenseTestDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    licenseTestTime?: NullableStringFieldUpdateOperationsInput | string | null
+    licenseTestLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    licenseTestStatus?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type StudentAttendanceCreateInput = {
+    id?: string
+    studentId: string
+    date: Date | string
+    status?: string
+    note?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    systemID?: string | null
+  }
+
+  export type StudentAttendanceUncheckedCreateInput = {
+    id?: string
+    studentId: string
+    date: Date | string
+    status?: string
+    note?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    systemID?: string | null
+  }
+
+  export type StudentAttendanceUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    studentId?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: StringFieldUpdateOperationsInput | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type StudentAttendanceUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    studentId?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: StringFieldUpdateOperationsInput | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type StudentAttendanceCreateManyInput = {
+    id?: string
+    studentId: string
+    date: Date | string
+    status?: string
+    note?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    systemID?: string | null
+  }
+
+  export type StudentAttendanceUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    studentId?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: StringFieldUpdateOperationsInput | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type StudentAttendanceUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    studentId?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    status?: StringFieldUpdateOperationsInput | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type MessageQueueCreateInput = {
@@ -24311,6 +26540,7 @@ export namespace Prisma {
     lastError?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
     template: WhatsAppTemplateCreateNestedOneWithoutMessagesInput
   }
 
@@ -24329,6 +26559,7 @@ export namespace Prisma {
     lastError?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
   }
 
   export type MessageQueueUpdateInput = {
@@ -24345,6 +26576,7 @@ export namespace Prisma {
     lastError?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
     template?: WhatsAppTemplateUpdateOneRequiredWithoutMessagesNestedInput
   }
 
@@ -24363,6 +26595,7 @@ export namespace Prisma {
     lastError?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type MessageQueueCreateManyInput = {
@@ -24380,6 +26613,7 @@ export namespace Prisma {
     lastError?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
   }
 
   export type MessageQueueUpdateManyMutationInput = {
@@ -24396,6 +26630,7 @@ export namespace Prisma {
     lastError?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type MessageQueueUncheckedUpdateManyInput = {
@@ -24413,6 +26648,7 @@ export namespace Prisma {
     lastError?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type WhatsAppTemplateCreateInput = {
@@ -24427,6 +26663,7 @@ export namespace Prisma {
     variables?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
     messages?: MessageQueueCreateNestedManyWithoutTemplateInput
   }
 
@@ -24442,6 +26679,7 @@ export namespace Prisma {
     variables?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
     messages?: MessageQueueUncheckedCreateNestedManyWithoutTemplateInput
   }
 
@@ -24457,6 +26695,7 @@ export namespace Prisma {
     variables?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
     messages?: MessageQueueUpdateManyWithoutTemplateNestedInput
   }
 
@@ -24472,6 +26711,7 @@ export namespace Prisma {
     variables?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
     messages?: MessageQueueUncheckedUpdateManyWithoutTemplateNestedInput
   }
 
@@ -24487,6 +26727,7 @@ export namespace Prisma {
     variables?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
   }
 
   export type WhatsAppTemplateUpdateManyMutationInput = {
@@ -24501,6 +26742,7 @@ export namespace Prisma {
     variables?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type WhatsAppTemplateUncheckedUpdateManyInput = {
@@ -24515,6 +26757,7 @@ export namespace Prisma {
     variables?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type WhatsAppTokenCreateInput = {
@@ -24527,8 +26770,13 @@ export namespace Prisma {
     displayPhoneNumber?: string | null
     verifiedName?: string | null
     safeMode?: boolean
+    switchOffMode?: boolean
+    monthlyBudget?: number
+    utilityRate?: number
+    defaultLanguage?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
   }
 
   export type WhatsAppTokenUncheckedCreateInput = {
@@ -24541,8 +26789,13 @@ export namespace Prisma {
     displayPhoneNumber?: string | null
     verifiedName?: string | null
     safeMode?: boolean
+    switchOffMode?: boolean
+    monthlyBudget?: number
+    utilityRate?: number
+    defaultLanguage?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
   }
 
   export type WhatsAppTokenUpdateInput = {
@@ -24555,8 +26808,13 @@ export namespace Prisma {
     displayPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     verifiedName?: NullableStringFieldUpdateOperationsInput | string | null
     safeMode?: BoolFieldUpdateOperationsInput | boolean
+    switchOffMode?: BoolFieldUpdateOperationsInput | boolean
+    monthlyBudget?: FloatFieldUpdateOperationsInput | number
+    utilityRate?: FloatFieldUpdateOperationsInput | number
+    defaultLanguage?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type WhatsAppTokenUncheckedUpdateInput = {
@@ -24569,8 +26827,13 @@ export namespace Prisma {
     displayPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     verifiedName?: NullableStringFieldUpdateOperationsInput | string | null
     safeMode?: BoolFieldUpdateOperationsInput | boolean
+    switchOffMode?: BoolFieldUpdateOperationsInput | boolean
+    monthlyBudget?: FloatFieldUpdateOperationsInput | number
+    utilityRate?: FloatFieldUpdateOperationsInput | number
+    defaultLanguage?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type WhatsAppTokenCreateManyInput = {
@@ -24583,8 +26846,13 @@ export namespace Prisma {
     displayPhoneNumber?: string | null
     verifiedName?: string | null
     safeMode?: boolean
+    switchOffMode?: boolean
+    monthlyBudget?: number
+    utilityRate?: number
+    defaultLanguage?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
   }
 
   export type WhatsAppTokenUpdateManyMutationInput = {
@@ -24597,8 +26865,13 @@ export namespace Prisma {
     displayPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     verifiedName?: NullableStringFieldUpdateOperationsInput | string | null
     safeMode?: BoolFieldUpdateOperationsInput | boolean
+    switchOffMode?: BoolFieldUpdateOperationsInput | boolean
+    monthlyBudget?: FloatFieldUpdateOperationsInput | number
+    utilityRate?: FloatFieldUpdateOperationsInput | number
+    defaultLanguage?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type WhatsAppTokenUncheckedUpdateManyInput = {
@@ -24611,8 +26884,13 @@ export namespace Prisma {
     displayPhoneNumber?: NullableStringFieldUpdateOperationsInput | string | null
     verifiedName?: NullableStringFieldUpdateOperationsInput | string | null
     safeMode?: BoolFieldUpdateOperationsInput | boolean
+    switchOffMode?: BoolFieldUpdateOperationsInput | boolean
+    monthlyBudget?: FloatFieldUpdateOperationsInput | number
+    utilityRate?: FloatFieldUpdateOperationsInput | number
+    defaultLanguage?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -24651,9 +26929,28 @@ export namespace Prisma {
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
+  export type StringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | null
+    notIn?: string[] | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
   export type PaymentCycleScalarRelationFilter = {
     is?: PaymentCycleWhereInput
     isNot?: PaymentCycleWhereInput
+  }
+
+  export type SortOrderInput = {
+    sort: SortOrder
+    nulls?: NullsOrder
   }
 
   export type PaymentTakenCountOrderByAggregateInput = {
@@ -24662,6 +26959,7 @@ export namespace Prisma {
     amount?: SortOrder
     takenAt?: SortOrder
     note?: SortOrder
+    systemID?: SortOrder
   }
 
   export type PaymentTakenAvgOrderByAggregateInput = {
@@ -24674,6 +26972,7 @@ export namespace Prisma {
     amount?: SortOrder
     takenAt?: SortOrder
     note?: SortOrder
+    systemID?: SortOrder
   }
 
   export type PaymentTakenMinOrderByAggregateInput = {
@@ -24682,6 +26981,7 @@ export namespace Prisma {
     amount?: SortOrder
     takenAt?: SortOrder
     note?: SortOrder
+    systemID?: SortOrder
   }
 
   export type PaymentTakenSumOrderByAggregateInput = {
@@ -24735,6 +27035,23 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
+  export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | null
+    notIn?: string[] | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
   export type EnumAttendanceStatusFilter<$PrismaModel = never> = {
     equals?: $Enums.AttendanceStatus | EnumAttendanceStatusFieldRefInput<$PrismaModel>
     in?: $Enums.AttendanceStatus[]
@@ -24755,6 +27072,7 @@ export namespace Prisma {
     note?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    systemID?: SortOrder
   }
 
   export type AttendanceMaxOrderByAggregateInput = {
@@ -24765,6 +27083,7 @@ export namespace Prisma {
     note?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    systemID?: SortOrder
   }
 
   export type AttendanceMinOrderByAggregateInput = {
@@ -24775,6 +27094,7 @@ export namespace Prisma {
     note?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    systemID?: SortOrder
   }
 
   export type EnumAttendanceStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -24787,25 +27107,6 @@ export namespace Prisma {
     _max?: NestedEnumAttendanceStatusFilter<$PrismaModel>
   }
 
-  export type StringNullableFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | null
-    notIn?: string[] | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    contains?: string | StringFieldRefInput<$PrismaModel>
-    startsWith?: string | StringFieldRefInput<$PrismaModel>
-    endsWith?: string | StringFieldRefInput<$PrismaModel>
-    not?: NestedStringNullableFilter<$PrismaModel> | string | null
-  }
-
-  export type SortOrderInput = {
-    sort: SortOrder
-    nulls?: NullsOrder
-  }
-
   export type CalendarEventCountOrderByAggregateInput = {
     id?: SortOrder
     title?: SortOrder
@@ -24815,6 +27116,7 @@ export namespace Prisma {
     color?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    systemID?: SortOrder
   }
 
   export type CalendarEventMaxOrderByAggregateInput = {
@@ -24826,6 +27128,7 @@ export namespace Prisma {
     color?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    systemID?: SortOrder
   }
 
   export type CalendarEventMinOrderByAggregateInput = {
@@ -24837,23 +27140,7 @@ export namespace Prisma {
     color?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-  }
-
-  export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | null
-    notIn?: string[] | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    contains?: string | StringFieldRefInput<$PrismaModel>
-    startsWith?: string | StringFieldRefInput<$PrismaModel>
-    endsWith?: string | StringFieldRefInput<$PrismaModel>
-    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedStringNullableFilter<$PrismaModel>
-    _max?: NestedStringNullableFilter<$PrismaModel>
+    systemID?: SortOrder
   }
 
   export type StudentListRelationFilter = {
@@ -24905,6 +27192,7 @@ export namespace Prisma {
     car_year?: SortOrder
     updatedAt?: SortOrder
     createdAt?: SortOrder
+    systemID?: SortOrder
   }
 
   export type CarMaxOrderByAggregateInput = {
@@ -24916,6 +27204,7 @@ export namespace Prisma {
     car_year?: SortOrder
     updatedAt?: SortOrder
     createdAt?: SortOrder
+    systemID?: SortOrder
   }
 
   export type CarMinOrderByAggregateInput = {
@@ -24927,6 +27216,7 @@ export namespace Prisma {
     car_year?: SortOrder
     updatedAt?: SortOrder
     createdAt?: SortOrder
+    systemID?: SortOrder
   }
 
   export type BoolFilter<$PrismaModel = never> = {
@@ -24968,6 +27258,7 @@ export namespace Prisma {
     packageSetup?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    systemID?: SortOrder
   }
 
   export type SetupChecklistMaxOrderByAggregateInput = {
@@ -24978,6 +27269,7 @@ export namespace Prisma {
     packageSetup?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    systemID?: SortOrder
   }
 
   export type SetupChecklistMinOrderByAggregateInput = {
@@ -24988,6 +27280,7 @@ export namespace Prisma {
     packageSetup?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    systemID?: SortOrder
   }
 
   export type EnumJobTypeFilter<$PrismaModel = never> = {
@@ -25058,6 +27351,9 @@ export namespace Prisma {
     payment?: SortOrder
     paymentDate?: SortOrder
     assignedCarId?: SortOrder
+    systemID?: SortOrder
+    accessToken?: SortOrder
+    globalMongoId?: SortOrder
   }
 
   export type InstructorAvgOrderByAggregateInput = {
@@ -25078,6 +27374,9 @@ export namespace Prisma {
     payment?: SortOrder
     paymentDate?: SortOrder
     assignedCarId?: SortOrder
+    systemID?: SortOrder
+    accessToken?: SortOrder
+    globalMongoId?: SortOrder
   }
 
   export type InstructorMinOrderByAggregateInput = {
@@ -25093,6 +27392,9 @@ export namespace Prisma {
     payment?: SortOrder
     paymentDate?: SortOrder
     assignedCarId?: SortOrder
+    systemID?: SortOrder
+    accessToken?: SortOrder
+    globalMongoId?: SortOrder
   }
 
   export type InstructorSumOrderByAggregateInput = {
@@ -25168,6 +27470,7 @@ export namespace Prisma {
     notes?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    systemID?: SortOrder
   }
 
   export type MaintenanceScheduleMaxOrderByAggregateInput = {
@@ -25177,6 +27480,7 @@ export namespace Prisma {
     notes?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    systemID?: SortOrder
   }
 
   export type MaintenanceScheduleMinOrderByAggregateInput = {
@@ -25186,6 +27490,7 @@ export namespace Prisma {
     notes?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    systemID?: SortOrder
   }
 
   export type EnumMaintenanceTypeFilter<$PrismaModel = never> = {
@@ -25208,6 +27513,7 @@ export namespace Prisma {
     nextServiceDate?: SortOrder
     notes?: SortOrder
     carId?: SortOrder
+    systemID?: SortOrder
   }
 
   export type MaintenanceItemAvgOrderByAggregateInput = {
@@ -25222,6 +27528,7 @@ export namespace Prisma {
     nextServiceDate?: SortOrder
     notes?: SortOrder
     carId?: SortOrder
+    systemID?: SortOrder
   }
 
   export type MaintenanceItemMinOrderByAggregateInput = {
@@ -25232,6 +27539,7 @@ export namespace Prisma {
     nextServiceDate?: SortOrder
     notes?: SortOrder
     carId?: SortOrder
+    systemID?: SortOrder
   }
 
   export type MaintenanceItemSumOrderByAggregateInput = {
@@ -25265,6 +27573,7 @@ export namespace Prisma {
     price?: SortOrder
     duration?: SortOrder
     isActive?: SortOrder
+    systemID?: SortOrder
   }
 
   export type PackageAvgOrderByAggregateInput = {
@@ -25278,6 +27587,7 @@ export namespace Prisma {
     price?: SortOrder
     duration?: SortOrder
     isActive?: SortOrder
+    systemID?: SortOrder
   }
 
   export type PackageMinOrderByAggregateInput = {
@@ -25286,6 +27596,7 @@ export namespace Prisma {
     price?: SortOrder
     duration?: SortOrder
     isActive?: SortOrder
+    systemID?: SortOrder
   }
 
   export type PackageSumOrderByAggregateInput = {
@@ -25350,6 +27661,7 @@ export namespace Prisma {
     status?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    systemID?: SortOrder
   }
 
   export type PaymentCycleAvgOrderByAggregateInput = {
@@ -25374,6 +27686,7 @@ export namespace Prisma {
     status?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    systemID?: SortOrder
   }
 
   export type PaymentCycleMinOrderByAggregateInput = {
@@ -25390,6 +27703,7 @@ export namespace Prisma {
     status?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    systemID?: SortOrder
   }
 
   export type PaymentCycleSumOrderByAggregateInput = {
@@ -25416,6 +27730,7 @@ export namespace Prisma {
     Batch_time?: SortOrder
     Duration_time?: SortOrder
     Car_id?: SortOrder
+    systemID?: SortOrder
   }
 
   export type ScheduleMaxOrderByAggregateInput = {
@@ -25424,6 +27739,7 @@ export namespace Prisma {
     Batch_time?: SortOrder
     Duration_time?: SortOrder
     Car_id?: SortOrder
+    systemID?: SortOrder
   }
 
   export type ScheduleMinOrderByAggregateInput = {
@@ -25432,39 +27748,77 @@ export namespace Prisma {
     Batch_time?: SortOrder
     Duration_time?: SortOrder
     Car_id?: SortOrder
+    systemID?: SortOrder
   }
 
   export type SchoolSetUpCountOrderByAggregateInput = {
     id?: SortOrder
-    systemID?: SortOrder
     school_name?: SortOrder
     support_Email?: SortOrder
     address?: SortOrder
     contact_Number?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    systemID?: SortOrder
+    reminderDays?: SortOrder
+    enableOnboardingMsg?: SortOrder
+    enableReminderMsg?: SortOrder
+    enableCompletionMsg?: SortOrder
+    workingStartTime?: SortOrder
+    workingEndTime?: SortOrder
+    enableAttendanceReminder?: SortOrder
+    reminderBeforeMinutes?: SortOrder
+    lastAttendanceReminderDate?: SortOrder
+  }
+
+  export type SchoolSetUpAvgOrderByAggregateInput = {
+    reminderDays?: SortOrder
+    reminderBeforeMinutes?: SortOrder
   }
 
   export type SchoolSetUpMaxOrderByAggregateInput = {
     id?: SortOrder
-    systemID?: SortOrder
     school_name?: SortOrder
     support_Email?: SortOrder
     address?: SortOrder
     contact_Number?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    systemID?: SortOrder
+    reminderDays?: SortOrder
+    enableOnboardingMsg?: SortOrder
+    enableReminderMsg?: SortOrder
+    enableCompletionMsg?: SortOrder
+    workingStartTime?: SortOrder
+    workingEndTime?: SortOrder
+    enableAttendanceReminder?: SortOrder
+    reminderBeforeMinutes?: SortOrder
+    lastAttendanceReminderDate?: SortOrder
   }
 
   export type SchoolSetUpMinOrderByAggregateInput = {
     id?: SortOrder
-    systemID?: SortOrder
     school_name?: SortOrder
     support_Email?: SortOrder
     address?: SortOrder
     contact_Number?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    systemID?: SortOrder
+    reminderDays?: SortOrder
+    enableOnboardingMsg?: SortOrder
+    enableReminderMsg?: SortOrder
+    enableCompletionMsg?: SortOrder
+    workingStartTime?: SortOrder
+    workingEndTime?: SortOrder
+    enableAttendanceReminder?: SortOrder
+    reminderBeforeMinutes?: SortOrder
+    lastAttendanceReminderDate?: SortOrder
+  }
+
+  export type SchoolSetUpSumOrderByAggregateInput = {
+    reminderDays?: SortOrder
+    reminderBeforeMinutes?: SortOrder
   }
 
   export type InstructorNullableScalarRelationFilter = {
@@ -25489,6 +27843,12 @@ export namespace Prisma {
     Assigned_car_id?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    systemID?: SortOrder
+    reminderDate?: SortOrder
+    licenseTestDate?: SortOrder
+    licenseTestTime?: SortOrder
+    licenseTestLocation?: SortOrder
+    licenseTestStatus?: SortOrder
   }
 
   export type StudentAvgOrderByAggregateInput = {
@@ -25515,6 +27875,12 @@ export namespace Prisma {
     Assigned_car_id?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    systemID?: SortOrder
+    reminderDate?: SortOrder
+    licenseTestDate?: SortOrder
+    licenseTestTime?: SortOrder
+    licenseTestLocation?: SortOrder
+    licenseTestStatus?: SortOrder
   }
 
   export type StudentMinOrderByAggregateInput = {
@@ -25534,6 +27900,12 @@ export namespace Prisma {
     Assigned_car_id?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    systemID?: SortOrder
+    reminderDate?: SortOrder
+    licenseTestDate?: SortOrder
+    licenseTestTime?: SortOrder
+    licenseTestLocation?: SortOrder
+    licenseTestStatus?: SortOrder
   }
 
   export type StudentSumOrderByAggregateInput = {
@@ -25541,6 +27913,44 @@ export namespace Prisma {
     Amount_paid?: SortOrder
     Remaining_percentage?: SortOrder
     remaining_amount?: SortOrder
+  }
+
+  export type StudentAttendanceStudentIdDateCompoundUniqueInput = {
+    studentId: string
+    date: Date | string
+  }
+
+  export type StudentAttendanceCountOrderByAggregateInput = {
+    id?: SortOrder
+    studentId?: SortOrder
+    date?: SortOrder
+    status?: SortOrder
+    note?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    systemID?: SortOrder
+  }
+
+  export type StudentAttendanceMaxOrderByAggregateInput = {
+    id?: SortOrder
+    studentId?: SortOrder
+    date?: SortOrder
+    status?: SortOrder
+    note?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    systemID?: SortOrder
+  }
+
+  export type StudentAttendanceMinOrderByAggregateInput = {
+    id?: SortOrder
+    studentId?: SortOrder
+    date?: SortOrder
+    status?: SortOrder
+    note?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    systemID?: SortOrder
   }
   export type JsonFilter<$PrismaModel = never> =
     | PatchUndefined<
@@ -25588,6 +27998,7 @@ export namespace Prisma {
     lastError?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    systemID?: SortOrder
   }
 
   export type MessageQueueAvgOrderByAggregateInput = {
@@ -25609,6 +28020,7 @@ export namespace Prisma {
     lastError?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    systemID?: SortOrder
   }
 
   export type MessageQueueMinOrderByAggregateInput = {
@@ -25625,6 +28037,7 @@ export namespace Prisma {
     lastError?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    systemID?: SortOrder
   }
 
   export type MessageQueueSumOrderByAggregateInput = {
@@ -25691,6 +28104,11 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
+  export type WhatsAppTemplateNameLanguageCompoundUniqueInput = {
+    name: string
+    language: string
+  }
+
   export type WhatsAppTemplateCountOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
@@ -25703,6 +28121,7 @@ export namespace Prisma {
     variables?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    systemID?: SortOrder
   }
 
   export type WhatsAppTemplateMaxOrderByAggregateInput = {
@@ -25716,6 +28135,7 @@ export namespace Prisma {
     body?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    systemID?: SortOrder
   }
 
   export type WhatsAppTemplateMinOrderByAggregateInput = {
@@ -25729,6 +28149,7 @@ export namespace Prisma {
     body?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    systemID?: SortOrder
   }
   export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
     | PatchUndefined<
@@ -25752,6 +28173,17 @@ export namespace Prisma {
     _max?: NestedJsonNullableFilter<$PrismaModel>
   }
 
+  export type FloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[]
+    notIn?: number[]
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
   export type WhatsAppTokenCountOrderByAggregateInput = {
     id?: SortOrder
     wabaId?: SortOrder
@@ -25762,8 +28194,18 @@ export namespace Prisma {
     displayPhoneNumber?: SortOrder
     verifiedName?: SortOrder
     safeMode?: SortOrder
+    switchOffMode?: SortOrder
+    monthlyBudget?: SortOrder
+    utilityRate?: SortOrder
+    defaultLanguage?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    systemID?: SortOrder
+  }
+
+  export type WhatsAppTokenAvgOrderByAggregateInput = {
+    monthlyBudget?: SortOrder
+    utilityRate?: SortOrder
   }
 
   export type WhatsAppTokenMaxOrderByAggregateInput = {
@@ -25776,8 +28218,13 @@ export namespace Prisma {
     displayPhoneNumber?: SortOrder
     verifiedName?: SortOrder
     safeMode?: SortOrder
+    switchOffMode?: SortOrder
+    monthlyBudget?: SortOrder
+    utilityRate?: SortOrder
+    defaultLanguage?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    systemID?: SortOrder
   }
 
   export type WhatsAppTokenMinOrderByAggregateInput = {
@@ -25790,8 +28237,34 @@ export namespace Prisma {
     displayPhoneNumber?: SortOrder
     verifiedName?: SortOrder
     safeMode?: SortOrder
+    switchOffMode?: SortOrder
+    monthlyBudget?: SortOrder
+    utilityRate?: SortOrder
+    defaultLanguage?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    systemID?: SortOrder
+  }
+
+  export type WhatsAppTokenSumOrderByAggregateInput = {
+    monthlyBudget?: SortOrder
+    utilityRate?: SortOrder
+  }
+
+  export type FloatWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[]
+    notIn?: number[]
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedFloatFilter<$PrismaModel>
+    _min?: NestedFloatFilter<$PrismaModel>
+    _max?: NestedFloatFilter<$PrismaModel>
   }
 
   export type PaymentCycleCreateNestedOneWithoutPaymentsTakenInput = {
@@ -25816,6 +28289,10 @@ export namespace Prisma {
     set?: Date | string
   }
 
+  export type NullableStringFieldUpdateOperationsInput = {
+    set?: string | null
+  }
+
   export type PaymentCycleUpdateOneRequiredWithoutPaymentsTakenNestedInput = {
     create?: XOR<PaymentCycleCreateWithoutPaymentsTakenInput, PaymentCycleUncheckedCreateWithoutPaymentsTakenInput>
     connectOrCreate?: PaymentCycleCreateOrConnectWithoutPaymentsTakenInput
@@ -25826,10 +28303,6 @@ export namespace Prisma {
 
   export type EnumAttendanceStatusFieldUpdateOperationsInput = {
     set?: $Enums.AttendanceStatus
-  }
-
-  export type NullableStringFieldUpdateOperationsInput = {
-    set?: string | null
   }
 
   export type StudentCreateNestedManyWithoutCarInput = {
@@ -26378,6 +28851,14 @@ export namespace Prisma {
     deleteMany?: MessageQueueScalarWhereInput | MessageQueueScalarWhereInput[]
   }
 
+  export type FloatFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[]
@@ -26412,6 +28893,20 @@ export namespace Prisma {
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
+  }
+
+  export type NestedStringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | null
+    notIn?: string[] | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
 
   export type NestedStringWithAggregatesFilter<$PrismaModel = never> = {
@@ -26472,37 +28967,6 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
-  export type NestedEnumAttendanceStatusFilter<$PrismaModel = never> = {
-    equals?: $Enums.AttendanceStatus | EnumAttendanceStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.AttendanceStatus[]
-    notIn?: $Enums.AttendanceStatus[]
-    not?: NestedEnumAttendanceStatusFilter<$PrismaModel> | $Enums.AttendanceStatus
-  }
-
-  export type NestedEnumAttendanceStatusWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.AttendanceStatus | EnumAttendanceStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.AttendanceStatus[]
-    notIn?: $Enums.AttendanceStatus[]
-    not?: NestedEnumAttendanceStatusWithAggregatesFilter<$PrismaModel> | $Enums.AttendanceStatus
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumAttendanceStatusFilter<$PrismaModel>
-    _max?: NestedEnumAttendanceStatusFilter<$PrismaModel>
-  }
-
-  export type NestedStringNullableFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | null
-    notIn?: string[] | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    contains?: string | StringFieldRefInput<$PrismaModel>
-    startsWith?: string | StringFieldRefInput<$PrismaModel>
-    endsWith?: string | StringFieldRefInput<$PrismaModel>
-    not?: NestedStringNullableFilter<$PrismaModel> | string | null
-  }
-
   export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
     in?: string[] | null
@@ -26529,6 +28993,23 @@ export namespace Prisma {
     gt?: number | IntFieldRefInput<$PrismaModel>
     gte?: number | IntFieldRefInput<$PrismaModel>
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type NestedEnumAttendanceStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.AttendanceStatus | EnumAttendanceStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.AttendanceStatus[]
+    notIn?: $Enums.AttendanceStatus[]
+    not?: NestedEnumAttendanceStatusFilter<$PrismaModel> | $Enums.AttendanceStatus
+  }
+
+  export type NestedEnumAttendanceStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AttendanceStatus | EnumAttendanceStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.AttendanceStatus[]
+    notIn?: $Enums.AttendanceStatus[]
+    not?: NestedEnumAttendanceStatusWithAggregatesFilter<$PrismaModel> | $Enums.AttendanceStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAttendanceStatusFilter<$PrismaModel>
+    _max?: NestedEnumAttendanceStatusFilter<$PrismaModel>
   }
 
   export type NestedBoolFilter<$PrismaModel = never> = {
@@ -26743,6 +29224,22 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
+  export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[]
+    notIn?: number[]
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedFloatFilter<$PrismaModel>
+    _min?: NestedFloatFilter<$PrismaModel>
+    _max?: NestedFloatFilter<$PrismaModel>
+  }
+
   export type PaymentCycleCreateWithoutPaymentsTakenInput = {
     id?: string
     month: Date | string
@@ -26756,6 +29253,7 @@ export namespace Prisma {
     status?: $Enums.PaymentStatus
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
     instructor: InstructorCreateNestedOneWithoutPaymentCyclesInput
   }
 
@@ -26773,6 +29271,7 @@ export namespace Prisma {
     status?: $Enums.PaymentStatus
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
   }
 
   export type PaymentCycleCreateOrConnectWithoutPaymentsTakenInput = {
@@ -26804,6 +29303,7 @@ export namespace Prisma {
     status?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
     instructor?: InstructorUpdateOneRequiredWithoutPaymentCyclesNestedInput
   }
 
@@ -26821,6 +29321,7 @@ export namespace Prisma {
     status?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type StudentCreateWithoutCarInput = {
@@ -26838,6 +29339,12 @@ export namespace Prisma {
     remaining_amount: number
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
+    reminderDate?: Date | string | null
+    licenseTestDate?: Date | string | null
+    licenseTestTime?: string | null
+    licenseTestLocation?: string | null
+    licenseTestStatus?: string | null
     instructor?: InstructorCreateNestedOneWithoutStudentsInput
   }
 
@@ -26857,6 +29364,12 @@ export namespace Prisma {
     remaining_amount: number
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
+    reminderDate?: Date | string | null
+    licenseTestDate?: Date | string | null
+    licenseTestTime?: string | null
+    licenseTestLocation?: string | null
+    licenseTestStatus?: string | null
   }
 
   export type StudentCreateOrConnectWithoutCarInput = {
@@ -26880,6 +29393,9 @@ export namespace Prisma {
     updatedAt?: Date | string
     payment?: number | null
     paymentDate?: number | null
+    systemID?: string | null
+    accessToken?: string | null
+    globalMongoId?: string | null
     paymentCycles?: PaymentCycleCreateNestedManyWithoutInstructorInput
     students?: StudentCreateNestedManyWithoutInstructorInput
   }
@@ -26896,6 +29412,9 @@ export namespace Prisma {
     updatedAt?: Date | string
     payment?: number | null
     paymentDate?: number | null
+    systemID?: string | null
+    accessToken?: string | null
+    globalMongoId?: string | null
     paymentCycles?: PaymentCycleUncheckedCreateNestedManyWithoutInstructorInput
     students?: StudentUncheckedCreateNestedManyWithoutInstructorInput
   }
@@ -26915,6 +29434,7 @@ export namespace Prisma {
     intervalDays?: number | null
     nextServiceDate?: Date | string | null
     notes?: string | null
+    systemID?: string | null
     maintenanceSchedule: MaintenanceScheduleCreateNestedOneWithoutItemsInput
   }
 
@@ -26925,6 +29445,7 @@ export namespace Prisma {
     intervalDays?: number | null
     nextServiceDate?: Date | string | null
     notes?: string | null
+    systemID?: string | null
   }
 
   export type MaintenanceItemCreateOrConnectWithoutCarInput = {
@@ -26942,6 +29463,7 @@ export namespace Prisma {
     notes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
     items?: MaintenanceItemCreateNestedManyWithoutMaintenanceScheduleInput
   }
 
@@ -26951,6 +29473,7 @@ export namespace Prisma {
     notes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
     items?: MaintenanceItemUncheckedCreateNestedManyWithoutMaintenanceScheduleInput
   }
 
@@ -26999,6 +29522,12 @@ export namespace Prisma {
     Assigned_car_id?: StringNullableFilter<"Student"> | string | null
     createdAt?: DateTimeFilter<"Student"> | Date | string
     updatedAt?: DateTimeFilter<"Student"> | Date | string
+    systemID?: StringNullableFilter<"Student"> | string | null
+    reminderDate?: DateTimeNullableFilter<"Student"> | Date | string | null
+    licenseTestDate?: DateTimeNullableFilter<"Student"> | Date | string | null
+    licenseTestTime?: StringNullableFilter<"Student"> | string | null
+    licenseTestLocation?: StringNullableFilter<"Student"> | string | null
+    licenseTestStatus?: StringNullableFilter<"Student"> | string | null
   }
 
   export type InstructorUpsertWithWhereUniqueWithoutCarInput = {
@@ -27033,6 +29562,9 @@ export namespace Prisma {
     payment?: FloatNullableFilter<"Instructor"> | number | null
     paymentDate?: IntNullableFilter<"Instructor"> | number | null
     assignedCarId?: StringNullableFilter<"Instructor"> | string | null
+    systemID?: StringNullableFilter<"Instructor"> | string | null
+    accessToken?: StringNullableFilter<"Instructor"> | string | null
+    globalMongoId?: StringNullableFilter<"Instructor"> | string | null
   }
 
   export type MaintenanceItemUpsertWithWhereUniqueWithoutCarInput = {
@@ -27062,6 +29594,7 @@ export namespace Prisma {
     nextServiceDate?: DateTimeNullableFilter<"MaintenanceItem"> | Date | string | null
     notes?: StringNullableFilter<"MaintenanceItem"> | string | null
     carId?: StringNullableFilter<"MaintenanceItem"> | string | null
+    systemID?: StringNullableFilter<"MaintenanceItem"> | string | null
   }
 
   export type MaintenanceScheduleUpsertWithWhereUniqueWithoutCarInput = {
@@ -27090,6 +29623,7 @@ export namespace Prisma {
     notes?: StringNullableFilter<"MaintenanceSchedule"> | string | null
     createdAt?: DateTimeFilter<"MaintenanceSchedule"> | Date | string
     updatedAt?: DateTimeFilter<"MaintenanceSchedule"> | Date | string
+    systemID?: StringNullableFilter<"MaintenanceSchedule"> | string | null
   }
 
   export type CarCreateWithoutInstructorsInput = {
@@ -27101,6 +29635,7 @@ export namespace Prisma {
     car_year: string
     updatedAt?: Date | string
     createdAt?: Date | string
+    systemID?: string | null
     students?: StudentCreateNestedManyWithoutCarInput
     maintenanceItem?: MaintenanceItemCreateNestedManyWithoutCarInput
     maintenanceSchedules?: MaintenanceScheduleCreateNestedManyWithoutCarInput
@@ -27115,6 +29650,7 @@ export namespace Prisma {
     car_year: string
     updatedAt?: Date | string
     createdAt?: Date | string
+    systemID?: string | null
     students?: StudentUncheckedCreateNestedManyWithoutCarInput
     maintenanceItem?: MaintenanceItemUncheckedCreateNestedManyWithoutCarInput
     maintenanceSchedules?: MaintenanceScheduleUncheckedCreateNestedManyWithoutCarInput
@@ -27138,6 +29674,7 @@ export namespace Prisma {
     status?: $Enums.PaymentStatus
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
     paymentsTaken?: PaymentTakenCreateNestedManyWithoutPaymentCycleInput
   }
 
@@ -27154,6 +29691,7 @@ export namespace Prisma {
     status?: $Enums.PaymentStatus
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
     paymentsTaken?: PaymentTakenUncheckedCreateNestedManyWithoutPaymentCycleInput
   }
 
@@ -27181,6 +29719,12 @@ export namespace Prisma {
     remaining_amount: number
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
+    reminderDate?: Date | string | null
+    licenseTestDate?: Date | string | null
+    licenseTestTime?: string | null
+    licenseTestLocation?: string | null
+    licenseTestStatus?: string | null
     car?: CarCreateNestedOneWithoutStudentsInput
   }
 
@@ -27200,6 +29744,12 @@ export namespace Prisma {
     Assigned_car_id?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
+    reminderDate?: Date | string | null
+    licenseTestDate?: Date | string | null
+    licenseTestTime?: string | null
+    licenseTestLocation?: string | null
+    licenseTestStatus?: string | null
   }
 
   export type StudentCreateOrConnectWithoutInstructorInput = {
@@ -27231,6 +29781,7 @@ export namespace Prisma {
     car_year?: StringFieldUpdateOperationsInput | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
     students?: StudentUpdateManyWithoutCarNestedInput
     maintenanceItem?: MaintenanceItemUpdateManyWithoutCarNestedInput
     maintenanceSchedules?: MaintenanceScheduleUpdateManyWithoutCarNestedInput
@@ -27245,6 +29796,7 @@ export namespace Prisma {
     car_year?: StringFieldUpdateOperationsInput | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
     students?: StudentUncheckedUpdateManyWithoutCarNestedInput
     maintenanceItem?: MaintenanceItemUncheckedUpdateManyWithoutCarNestedInput
     maintenanceSchedules?: MaintenanceScheduleUncheckedUpdateManyWithoutCarNestedInput
@@ -27283,6 +29835,7 @@ export namespace Prisma {
     status?: EnumPaymentStatusFilter<"PaymentCycle"> | $Enums.PaymentStatus
     createdAt?: DateTimeFilter<"PaymentCycle"> | Date | string
     updatedAt?: DateTimeFilter<"PaymentCycle"> | Date | string
+    systemID?: StringNullableFilter<"PaymentCycle"> | string | null
   }
 
   export type StudentUpsertWithWhereUniqueWithoutInstructorInput = {
@@ -27310,6 +29863,7 @@ export namespace Prisma {
     car_year: string
     updatedAt?: Date | string
     createdAt?: Date | string
+    systemID?: string | null
     students?: StudentCreateNestedManyWithoutCarInput
     instructors?: InstructorCreateNestedManyWithoutCarInput
     maintenanceItem?: MaintenanceItemCreateNestedManyWithoutCarInput
@@ -27324,6 +29878,7 @@ export namespace Prisma {
     car_year: string
     updatedAt?: Date | string
     createdAt?: Date | string
+    systemID?: string | null
     students?: StudentUncheckedCreateNestedManyWithoutCarInput
     instructors?: InstructorUncheckedCreateNestedManyWithoutCarInput
     maintenanceItem?: MaintenanceItemUncheckedCreateNestedManyWithoutCarInput
@@ -27340,6 +29895,7 @@ export namespace Prisma {
     intervalDays?: number | null
     nextServiceDate?: Date | string | null
     notes?: string | null
+    systemID?: string | null
     car?: CarCreateNestedOneWithoutMaintenanceItemInput
   }
 
@@ -27350,6 +29906,7 @@ export namespace Prisma {
     nextServiceDate?: Date | string | null
     notes?: string | null
     carId?: string | null
+    systemID?: string | null
   }
 
   export type MaintenanceItemCreateOrConnectWithoutMaintenanceScheduleInput = {
@@ -27381,6 +29938,7 @@ export namespace Prisma {
     car_year?: StringFieldUpdateOperationsInput | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
     students?: StudentUpdateManyWithoutCarNestedInput
     instructors?: InstructorUpdateManyWithoutCarNestedInput
     maintenanceItem?: MaintenanceItemUpdateManyWithoutCarNestedInput
@@ -27395,6 +29953,7 @@ export namespace Prisma {
     car_year?: StringFieldUpdateOperationsInput | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
     students?: StudentUncheckedUpdateManyWithoutCarNestedInput
     instructors?: InstructorUncheckedUpdateManyWithoutCarNestedInput
     maintenanceItem?: MaintenanceItemUncheckedUpdateManyWithoutCarNestedInput
@@ -27422,6 +29981,7 @@ export namespace Prisma {
     notes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
     car: CarCreateNestedOneWithoutMaintenanceSchedulesInput
   }
 
@@ -27432,6 +29992,7 @@ export namespace Prisma {
     notes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
   }
 
   export type MaintenanceScheduleCreateOrConnectWithoutItemsInput = {
@@ -27448,6 +30009,7 @@ export namespace Prisma {
     car_year: string
     updatedAt?: Date | string
     createdAt?: Date | string
+    systemID?: string | null
     students?: StudentCreateNestedManyWithoutCarInput
     instructors?: InstructorCreateNestedManyWithoutCarInput
     maintenanceSchedules?: MaintenanceScheduleCreateNestedManyWithoutCarInput
@@ -27462,6 +30024,7 @@ export namespace Prisma {
     car_year: string
     updatedAt?: Date | string
     createdAt?: Date | string
+    systemID?: string | null
     students?: StudentUncheckedCreateNestedManyWithoutCarInput
     instructors?: InstructorUncheckedCreateNestedManyWithoutCarInput
     maintenanceSchedules?: MaintenanceScheduleUncheckedCreateNestedManyWithoutCarInput
@@ -27489,6 +30052,7 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
     car?: CarUpdateOneRequiredWithoutMaintenanceSchedulesNestedInput
   }
 
@@ -27499,6 +30063,7 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type CarUpsertWithoutMaintenanceItemInput = {
@@ -27521,6 +30086,7 @@ export namespace Prisma {
     car_year?: StringFieldUpdateOperationsInput | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
     students?: StudentUpdateManyWithoutCarNestedInput
     instructors?: InstructorUpdateManyWithoutCarNestedInput
     maintenanceSchedules?: MaintenanceScheduleUpdateManyWithoutCarNestedInput
@@ -27535,6 +30101,7 @@ export namespace Prisma {
     car_year?: StringFieldUpdateOperationsInput | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
     students?: StudentUncheckedUpdateManyWithoutCarNestedInput
     instructors?: InstructorUncheckedUpdateManyWithoutCarNestedInput
     maintenanceSchedules?: MaintenanceScheduleUncheckedUpdateManyWithoutCarNestedInput
@@ -27552,6 +30119,9 @@ export namespace Prisma {
     updatedAt?: Date | string
     payment?: number | null
     paymentDate?: number | null
+    systemID?: string | null
+    accessToken?: string | null
+    globalMongoId?: string | null
     car?: CarCreateNestedOneWithoutInstructorsInput
     students?: StudentCreateNestedManyWithoutInstructorInput
   }
@@ -27569,6 +30139,9 @@ export namespace Prisma {
     payment?: number | null
     paymentDate?: number | null
     assignedCarId?: string | null
+    systemID?: string | null
+    accessToken?: string | null
+    globalMongoId?: string | null
     students?: StudentUncheckedCreateNestedManyWithoutInstructorInput
   }
 
@@ -27582,6 +30155,7 @@ export namespace Prisma {
     amount: number
     takenAt?: Date | string
     note: string
+    systemID?: string | null
   }
 
   export type PaymentTakenUncheckedCreateWithoutPaymentCycleInput = {
@@ -27589,6 +30163,7 @@ export namespace Prisma {
     amount: number
     takenAt?: Date | string
     note: string
+    systemID?: string | null
   }
 
   export type PaymentTakenCreateOrConnectWithoutPaymentCycleInput = {
@@ -27623,6 +30198,9 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     payment?: NullableFloatFieldUpdateOperationsInput | number | null
     paymentDate?: NullableIntFieldUpdateOperationsInput | number | null
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
+    accessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    globalMongoId?: NullableStringFieldUpdateOperationsInput | string | null
     car?: CarUpdateOneWithoutInstructorsNestedInput
     students?: StudentUpdateManyWithoutInstructorNestedInput
   }
@@ -27640,6 +30218,9 @@ export namespace Prisma {
     payment?: NullableFloatFieldUpdateOperationsInput | number | null
     paymentDate?: NullableIntFieldUpdateOperationsInput | number | null
     assignedCarId?: NullableStringFieldUpdateOperationsInput | string | null
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
+    accessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    globalMongoId?: NullableStringFieldUpdateOperationsInput | string | null
     students?: StudentUncheckedUpdateManyWithoutInstructorNestedInput
   }
 
@@ -27668,6 +30249,7 @@ export namespace Prisma {
     amount?: IntFilter<"PaymentTaken"> | number
     takenAt?: DateTimeFilter<"PaymentTaken"> | Date | string
     note?: StringFilter<"PaymentTaken"> | string
+    systemID?: StringNullableFilter<"PaymentTaken"> | string | null
   }
 
   export type InstructorCreateWithoutStudentsInput = {
@@ -27682,6 +30264,9 @@ export namespace Prisma {
     updatedAt?: Date | string
     payment?: number | null
     paymentDate?: number | null
+    systemID?: string | null
+    accessToken?: string | null
+    globalMongoId?: string | null
     car?: CarCreateNestedOneWithoutInstructorsInput
     paymentCycles?: PaymentCycleCreateNestedManyWithoutInstructorInput
   }
@@ -27699,6 +30284,9 @@ export namespace Prisma {
     payment?: number | null
     paymentDate?: number | null
     assignedCarId?: string | null
+    systemID?: string | null
+    accessToken?: string | null
+    globalMongoId?: string | null
     paymentCycles?: PaymentCycleUncheckedCreateNestedManyWithoutInstructorInput
   }
 
@@ -27716,6 +30304,7 @@ export namespace Prisma {
     car_year: string
     updatedAt?: Date | string
     createdAt?: Date | string
+    systemID?: string | null
     instructors?: InstructorCreateNestedManyWithoutCarInput
     maintenanceItem?: MaintenanceItemCreateNestedManyWithoutCarInput
     maintenanceSchedules?: MaintenanceScheduleCreateNestedManyWithoutCarInput
@@ -27730,6 +30319,7 @@ export namespace Prisma {
     car_year: string
     updatedAt?: Date | string
     createdAt?: Date | string
+    systemID?: string | null
     instructors?: InstructorUncheckedCreateNestedManyWithoutCarInput
     maintenanceItem?: MaintenanceItemUncheckedCreateNestedManyWithoutCarInput
     maintenanceSchedules?: MaintenanceScheduleUncheckedCreateNestedManyWithoutCarInput
@@ -27763,6 +30353,9 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     payment?: NullableFloatFieldUpdateOperationsInput | number | null
     paymentDate?: NullableIntFieldUpdateOperationsInput | number | null
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
+    accessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    globalMongoId?: NullableStringFieldUpdateOperationsInput | string | null
     car?: CarUpdateOneWithoutInstructorsNestedInput
     paymentCycles?: PaymentCycleUpdateManyWithoutInstructorNestedInput
   }
@@ -27780,6 +30373,9 @@ export namespace Prisma {
     payment?: NullableFloatFieldUpdateOperationsInput | number | null
     paymentDate?: NullableIntFieldUpdateOperationsInput | number | null
     assignedCarId?: NullableStringFieldUpdateOperationsInput | string | null
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
+    accessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    globalMongoId?: NullableStringFieldUpdateOperationsInput | string | null
     paymentCycles?: PaymentCycleUncheckedUpdateManyWithoutInstructorNestedInput
   }
 
@@ -27803,6 +30399,7 @@ export namespace Prisma {
     car_year?: StringFieldUpdateOperationsInput | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
     instructors?: InstructorUpdateManyWithoutCarNestedInput
     maintenanceItem?: MaintenanceItemUpdateManyWithoutCarNestedInput
     maintenanceSchedules?: MaintenanceScheduleUpdateManyWithoutCarNestedInput
@@ -27817,6 +30414,7 @@ export namespace Prisma {
     car_year?: StringFieldUpdateOperationsInput | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
     instructors?: InstructorUncheckedUpdateManyWithoutCarNestedInput
     maintenanceItem?: MaintenanceItemUncheckedUpdateManyWithoutCarNestedInput
     maintenanceSchedules?: MaintenanceScheduleUncheckedUpdateManyWithoutCarNestedInput
@@ -27834,6 +30432,7 @@ export namespace Prisma {
     variables?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
   }
 
   export type WhatsAppTemplateUncheckedCreateWithoutMessagesInput = {
@@ -27848,6 +30447,7 @@ export namespace Prisma {
     variables?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
   }
 
   export type WhatsAppTemplateCreateOrConnectWithoutMessagesInput = {
@@ -27878,6 +30478,7 @@ export namespace Prisma {
     variables?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type WhatsAppTemplateUncheckedUpdateWithoutMessagesInput = {
@@ -27892,6 +30493,7 @@ export namespace Prisma {
     variables?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type MessageQueueCreateWithoutTemplateInput = {
@@ -27908,6 +30510,7 @@ export namespace Prisma {
     lastError?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
   }
 
   export type MessageQueueUncheckedCreateWithoutTemplateInput = {
@@ -27924,6 +30527,7 @@ export namespace Prisma {
     lastError?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
   }
 
   export type MessageQueueCreateOrConnectWithoutTemplateInput = {
@@ -27969,6 +30573,7 @@ export namespace Prisma {
     lastError?: StringNullableFilter<"MessageQueue"> | string | null
     createdAt?: DateTimeFilter<"MessageQueue"> | Date | string
     updatedAt?: DateTimeFilter<"MessageQueue"> | Date | string
+    systemID?: StringNullableFilter<"MessageQueue"> | string | null
   }
 
   export type StudentCreateManyCarInput = {
@@ -27987,6 +30592,12 @@ export namespace Prisma {
     remaining_amount: number
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
+    reminderDate?: Date | string | null
+    licenseTestDate?: Date | string | null
+    licenseTestTime?: string | null
+    licenseTestLocation?: string | null
+    licenseTestStatus?: string | null
   }
 
   export type InstructorCreateManyCarInput = {
@@ -28001,6 +30612,9 @@ export namespace Prisma {
     updatedAt?: Date | string
     payment?: number | null
     paymentDate?: number | null
+    systemID?: string | null
+    accessToken?: string | null
+    globalMongoId?: string | null
   }
 
   export type MaintenanceItemCreateManyCarInput = {
@@ -28010,6 +30624,7 @@ export namespace Prisma {
     intervalDays?: number | null
     nextServiceDate?: Date | string | null
     notes?: string | null
+    systemID?: string | null
   }
 
   export type MaintenanceScheduleCreateManyCarInput = {
@@ -28018,6 +30633,7 @@ export namespace Prisma {
     notes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
   }
 
   export type StudentUpdateWithoutCarInput = {
@@ -28035,6 +30651,12 @@ export namespace Prisma {
     remaining_amount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
+    reminderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    licenseTestDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    licenseTestTime?: NullableStringFieldUpdateOperationsInput | string | null
+    licenseTestLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    licenseTestStatus?: NullableStringFieldUpdateOperationsInput | string | null
     instructor?: InstructorUpdateOneWithoutStudentsNestedInput
   }
 
@@ -28054,6 +30676,12 @@ export namespace Prisma {
     remaining_amount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
+    reminderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    licenseTestDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    licenseTestTime?: NullableStringFieldUpdateOperationsInput | string | null
+    licenseTestLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    licenseTestStatus?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type StudentUncheckedUpdateManyWithoutCarInput = {
@@ -28072,6 +30700,12 @@ export namespace Prisma {
     remaining_amount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
+    reminderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    licenseTestDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    licenseTestTime?: NullableStringFieldUpdateOperationsInput | string | null
+    licenseTestLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    licenseTestStatus?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type InstructorUpdateWithoutCarInput = {
@@ -28086,6 +30720,9 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     payment?: NullableFloatFieldUpdateOperationsInput | number | null
     paymentDate?: NullableIntFieldUpdateOperationsInput | number | null
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
+    accessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    globalMongoId?: NullableStringFieldUpdateOperationsInput | string | null
     paymentCycles?: PaymentCycleUpdateManyWithoutInstructorNestedInput
     students?: StudentUpdateManyWithoutInstructorNestedInput
   }
@@ -28102,6 +30739,9 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     payment?: NullableFloatFieldUpdateOperationsInput | number | null
     paymentDate?: NullableIntFieldUpdateOperationsInput | number | null
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
+    accessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    globalMongoId?: NullableStringFieldUpdateOperationsInput | string | null
     paymentCycles?: PaymentCycleUncheckedUpdateManyWithoutInstructorNestedInput
     students?: StudentUncheckedUpdateManyWithoutInstructorNestedInput
   }
@@ -28118,6 +30758,9 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     payment?: NullableFloatFieldUpdateOperationsInput | number | null
     paymentDate?: NullableIntFieldUpdateOperationsInput | number | null
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
+    accessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    globalMongoId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type MaintenanceItemUpdateWithoutCarInput = {
@@ -28126,6 +30769,7 @@ export namespace Prisma {
     intervalDays?: NullableIntFieldUpdateOperationsInput | number | null
     nextServiceDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
     maintenanceSchedule?: MaintenanceScheduleUpdateOneRequiredWithoutItemsNestedInput
   }
 
@@ -28136,6 +30780,7 @@ export namespace Prisma {
     intervalDays?: NullableIntFieldUpdateOperationsInput | number | null
     nextServiceDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type MaintenanceItemUncheckedUpdateManyWithoutCarInput = {
@@ -28145,6 +30790,7 @@ export namespace Prisma {
     intervalDays?: NullableIntFieldUpdateOperationsInput | number | null
     nextServiceDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type MaintenanceScheduleUpdateWithoutCarInput = {
@@ -28153,6 +30799,7 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
     items?: MaintenanceItemUpdateManyWithoutMaintenanceScheduleNestedInput
   }
 
@@ -28162,6 +30809,7 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
     items?: MaintenanceItemUncheckedUpdateManyWithoutMaintenanceScheduleNestedInput
   }
 
@@ -28171,6 +30819,7 @@ export namespace Prisma {
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PaymentCycleCreateManyInstructorInput = {
@@ -28186,6 +30835,7 @@ export namespace Prisma {
     status?: $Enums.PaymentStatus
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
   }
 
   export type StudentCreateManyInstructorInput = {
@@ -28204,6 +30854,12 @@ export namespace Prisma {
     Assigned_car_id?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
+    reminderDate?: Date | string | null
+    licenseTestDate?: Date | string | null
+    licenseTestTime?: string | null
+    licenseTestLocation?: string | null
+    licenseTestStatus?: string | null
   }
 
   export type PaymentCycleUpdateWithoutInstructorInput = {
@@ -28219,6 +30875,7 @@ export namespace Prisma {
     status?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
     paymentsTaken?: PaymentTakenUpdateManyWithoutPaymentCycleNestedInput
   }
 
@@ -28235,6 +30892,7 @@ export namespace Prisma {
     status?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
     paymentsTaken?: PaymentTakenUncheckedUpdateManyWithoutPaymentCycleNestedInput
   }
 
@@ -28251,6 +30909,7 @@ export namespace Prisma {
     status?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type StudentUpdateWithoutInstructorInput = {
@@ -28268,6 +30927,12 @@ export namespace Prisma {
     remaining_amount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
+    reminderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    licenseTestDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    licenseTestTime?: NullableStringFieldUpdateOperationsInput | string | null
+    licenseTestLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    licenseTestStatus?: NullableStringFieldUpdateOperationsInput | string | null
     car?: CarUpdateOneWithoutStudentsNestedInput
   }
 
@@ -28287,6 +30952,12 @@ export namespace Prisma {
     Assigned_car_id?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
+    reminderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    licenseTestDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    licenseTestTime?: NullableStringFieldUpdateOperationsInput | string | null
+    licenseTestLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    licenseTestStatus?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type StudentUncheckedUpdateManyWithoutInstructorInput = {
@@ -28305,6 +30976,12 @@ export namespace Prisma {
     Assigned_car_id?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
+    reminderDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    licenseTestDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    licenseTestTime?: NullableStringFieldUpdateOperationsInput | string | null
+    licenseTestLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    licenseTestStatus?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type MaintenanceItemCreateManyMaintenanceScheduleInput = {
@@ -28314,6 +30991,7 @@ export namespace Prisma {
     nextServiceDate?: Date | string | null
     notes?: string | null
     carId?: string | null
+    systemID?: string | null
   }
 
   export type MaintenanceItemUpdateWithoutMaintenanceScheduleInput = {
@@ -28322,6 +31000,7 @@ export namespace Prisma {
     intervalDays?: NullableIntFieldUpdateOperationsInput | number | null
     nextServiceDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
     car?: CarUpdateOneWithoutMaintenanceItemNestedInput
   }
 
@@ -28332,6 +31011,7 @@ export namespace Prisma {
     nextServiceDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     carId?: NullableStringFieldUpdateOperationsInput | string | null
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type MaintenanceItemUncheckedUpdateManyWithoutMaintenanceScheduleInput = {
@@ -28341,6 +31021,7 @@ export namespace Prisma {
     nextServiceDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     carId?: NullableStringFieldUpdateOperationsInput | string | null
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PaymentTakenCreateManyPaymentCycleInput = {
@@ -28348,6 +31029,7 @@ export namespace Prisma {
     amount: number
     takenAt?: Date | string
     note: string
+    systemID?: string | null
   }
 
   export type PaymentTakenUpdateWithoutPaymentCycleInput = {
@@ -28355,6 +31037,7 @@ export namespace Prisma {
     amount?: IntFieldUpdateOperationsInput | number
     takenAt?: DateTimeFieldUpdateOperationsInput | Date | string
     note?: StringFieldUpdateOperationsInput | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PaymentTakenUncheckedUpdateWithoutPaymentCycleInput = {
@@ -28362,6 +31045,7 @@ export namespace Prisma {
     amount?: IntFieldUpdateOperationsInput | number
     takenAt?: DateTimeFieldUpdateOperationsInput | Date | string
     note?: StringFieldUpdateOperationsInput | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PaymentTakenUncheckedUpdateManyWithoutPaymentCycleInput = {
@@ -28369,6 +31053,7 @@ export namespace Prisma {
     amount?: IntFieldUpdateOperationsInput | number
     takenAt?: DateTimeFieldUpdateOperationsInput | Date | string
     note?: StringFieldUpdateOperationsInput | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type MessageQueueCreateManyTemplateInput = {
@@ -28385,6 +31070,7 @@ export namespace Prisma {
     lastError?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    systemID?: string | null
   }
 
   export type MessageQueueUpdateWithoutTemplateInput = {
@@ -28401,6 +31087,7 @@ export namespace Prisma {
     lastError?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type MessageQueueUncheckedUpdateWithoutTemplateInput = {
@@ -28417,6 +31104,7 @@ export namespace Prisma {
     lastError?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type MessageQueueUncheckedUpdateManyWithoutTemplateInput = {
@@ -28433,6 +31121,7 @@ export namespace Prisma {
     lastError?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    systemID?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
 

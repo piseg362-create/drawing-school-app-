@@ -5,6 +5,7 @@ model PaymentTaken {
   takenAt        DateTime     @default(now())
   note           String
   paymentCycle   PaymentCycle @relation(fields: [paymentCycleId], references: [id])
+  systemID       String?
 }
 
 model Attendance {
@@ -15,6 +16,7 @@ model Attendance {
   note         String
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
+  systemID     String?
 
   @@unique([instructorId, date])
   @@index([date])
@@ -37,6 +39,7 @@ model CalendarEvent {
   color       String? // Optional color for the UI
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  systemID    String?
 }
 
 model Car {
@@ -53,6 +56,7 @@ model Car {
   instructors          Instructor[]
   maintenanceItem      MaintenanceItem[]
   maintenanceSchedules MaintenanceSchedule[]
+  systemID             String?
 }
 
 model DemoStatus {
@@ -69,6 +73,7 @@ model SetupChecklist {
   packageSetup    Boolean  @default(false)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+  systemID        String?
 }
 
 model Instructor {
@@ -87,6 +92,9 @@ model Instructor {
   car           Car?           @relation(fields: [assignedCarId], references: [id])
   paymentCycles PaymentCycle[]
   students      Student[]
+  systemID      String?
+  accessToken   String?
+  globalMongoId String?
 }
 
 enum JobType {
@@ -107,6 +115,7 @@ model MaintenanceSchedule {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  systemID  String?
 }
 
 model MaintenanceItem {
@@ -119,9 +128,10 @@ model MaintenanceItem {
   intervalDays    Int?
   nextServiceDate DateTime?
 
-  notes String?
-  car   Car?    @relation(fields: [carId], references: [id])
-  carId String?
+  notes    String?
+  car      Car?    @relation(fields: [carId], references: [id])
+  carId    String?
+  systemID String?
 }
 
 enum MaintenanceType {
@@ -153,6 +163,7 @@ model Package {
   price    Decimal
   duration Int
   isActive Boolean @default(true)
+  systemID String?
 }
 
 model PaymentCycle {
@@ -171,6 +182,7 @@ model PaymentCycle {
   updatedAt     DateTime       @updatedAt
   instructor    Instructor     @relation(fields: [instructorId], references: [id])
   paymentsTaken PaymentTaken[]
+  systemID      String?
 
   @@unique([instructorId, month])
 }
@@ -183,11 +195,12 @@ enum PaymentStatus {
 }
 
 model Schedule {
-  id            String @id @default(uuid())
+  id            String  @id @default(uuid())
   student_id    String
   Batch_time    String
   Duration_time String
   Car_id        String
+  systemID      String?
 }
 
 generator client {
@@ -200,14 +213,23 @@ datasource db {
 }
 
 model SchoolSetUp {
-  id             String   @id @default(uuid())
-  systemID       String?
-  school_name    String
-  support_Email  String
-  address        String
-  contact_Number String
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id                         String   @id @default(uuid())
+  school_name                String
+  support_Email              String
+  address                    String
+  contact_Number             String
+  createdAt                  DateTime @default(now())
+  updatedAt                  DateTime @updatedAt
+  systemID                   String?
+  reminderDays               Int      @default(10)
+  enableOnboardingMsg        Boolean  @default(true)
+  enableReminderMsg          Boolean  @default(true)
+  enableCompletionMsg        Boolean  @default(true)
+  workingStartTime           String   @default("09:00")
+  workingEndTime             String   @default("19:00")
+  enableAttendanceReminder   Boolean  @default(true)
+  reminderBeforeMinutes      Int      @default(60)
+  lastAttendanceReminderDate String?
 }
 
 model Student {
@@ -229,9 +251,29 @@ model Student {
   Remaining_percentage Int
   remaining_amount     Int
 
-  Assigned_car_id String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  Assigned_car_id     String?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  systemID            String?
+  reminderDate        DateTime?
+  licenseTestDate     DateTime?
+  licenseTestTime     String?
+  licenseTestLocation String?
+  licenseTestStatus   String?   @default("SCHEDULED")
+}
+
+model StudentAttendance {
+  id        String   @id @default(uuid())
+  studentId String
+  date      DateTime
+  status    String   @default("PRESENT") // PRESENT, ABSENT
+  note      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  systemID  String?
+
+  @@unique([studentId, date])
+  @@index([date])
 }
 
 model MessageQueue {
@@ -257,6 +299,7 @@ model MessageQueue {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  systemID  String?
 
   @@index([status])
   @@index([scheduledAt])
@@ -272,7 +315,7 @@ enum MessageQueueStatus {
 model WhatsAppTemplate {
   id String @id @default(uuid())
 
-  name     String  @unique
+  name     String
   clientId String?
 
   templateId String?
@@ -287,6 +330,9 @@ model WhatsAppTemplate {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  systemID  String?
+
+  @@unique([name, language])
 }
 
 model WhatsAppToken {
@@ -299,6 +345,11 @@ model WhatsAppToken {
   displayPhoneNumber String?
   verifiedName       String?
   safeMode           Boolean  @default(false)
+  switchOffMode      Boolean  @default(false)
+  monthlyBudget      Float    @default(150.0)
+  utilityRate        Float    @default(0.15)
+  defaultLanguage    String?  @default("en")
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
+  systemID           String?
 }

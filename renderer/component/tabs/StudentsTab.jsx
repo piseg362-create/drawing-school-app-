@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Table,
   TableBody,
@@ -35,14 +36,22 @@ import {
 } from "../../components/ui/alert-dialog";
 import { Button } from "../../components/ui/button";
 import { Calendar } from "../../components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "../../components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "../../components/ui/popover";
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Car, Send } from "lucide-react";
 import { fetchApi } from "@/lib/api";
 import { toast } from "sonner";
 import { StudentProfile } from "./StudentProfile";
+import { SendLicenseTestModal } from "./SendLicenseTestModal";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 export function StudentsTab() {
+  const { t } = useTranslation();
+
   // Step State
   const [step, setStep] = useState(1);
   const totalSteps = 3;
@@ -50,6 +59,8 @@ export function StudentsTab() {
   // Dialog Open/Close State
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editId, setEditId] = useState(null);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [alertInfo, setAlertInfo] = useState({
     open: false,
@@ -70,18 +81,48 @@ export function StudentsTab() {
     Enrollment_status: "Pending",
     startDate: "",
     batch_time: "",
+    reminderDate: "",
   });
 
-  // Updated state to handle data and pagination structure
-  const [student, setStudent] = useState({
-    data: [],
-    pagination: {
-      currentPage: 1,
-      limit: 10,
-      totalStudents: 0,
-      totalPages: 1,
-      hasNextPage: false,
-      hasPreviousPage: false,
+  const [isReminderCalendarOpen, setIsReminderCalendarOpen] = useState(false);
+  const [licenseTestStudent, setLicenseTestStudent] = useState(null);
+  const [searchInput, setSearchInput] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setSearchTerm(searchInput);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [searchInput]);
+
+  const queryClient = useQueryClient();
+
+  // Updated state to handle data and pagination structure using TanStack Query
+  const {
+    data: student = {
+      data: [],
+      pagination: {
+        currentPage: 1,
+        limit: 10,
+        totalStudents: 0,
+        totalPages: 1,
+        hasNextPage: false,
+        hasPreviousPage: false,
+      },
+    },
+    isLoading: isStudentLoading,
+  } = useQuery({
+    queryKey: ["students", searchTerm],
+    queryFn: async () => {
+      const queryParams = new URLSearchParams();
+      if (searchTerm) queryParams.append("search", searchTerm);
+      const res = await fetchApi(`/get-student-data?${queryParams.toString()}`);
+      const data = await res.json();
+      return {
+        data: data.data || [],
+        pagination: data.pagination || {},
+      };
     },
   });
 
@@ -119,6 +160,23 @@ export function StudentsTab() {
     setIsOpen(open);
     if (!open) {
       setTimeout(() => setStep(1), 300); // slight delay to allow closing animation
+      setIsEditing(false);
+      setEditId(null);
+      setFormData({
+        name: "",
+        mobile: "",
+        package_name: "",
+        packageId: "",
+        Assigned_Instructor: "",
+        instructorId: "",
+        Assigned_car_name: "",
+        Assigned_car_id: "",
+        Total_amount: "",
+        Amount_paid: "",
+        Enrollment_status: "Pending",
+        startDate: "",
+        batch_time: "",
+      });
     }
   };
 
@@ -169,23 +227,28 @@ export function StudentsTab() {
     }
   }, [isOpen]);
 
-  // Handle final submission
-  const handleSaveStudent = async () => {
-    try {
-      const res = await fetchApi("/create-student", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
+  // Handle final submission using TanStack Mutation
+  const addStudentMutation = useMutation({
+    mutationFn: async (newStudent) => {
+      const url = isEditing ? `/update-student/${editId}` : "/create-student";
+      const method = isEditing ? "PUT" : "POST";
+      const res = await fetchApi(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newStudent),
       });
-
       if (!res.ok) {
-        toast.error(res.message || "Failed to create student");
-        return;
+        throw new Error(
+          res.message || `Failed to ${isEditing ? "update" : "create"} student`,
+        );
       }
-      toast.success(res.message || "Student created successfully");
-      // Close dialog and reset form
+      return res.json();
+    },
+    onSuccess: (data) => {
+      toast.success(
+        data.message ||
+          `Student ${isEditing ? "updated" : "created"} successfully`,
+      );
       handleOpenChange(false);
       setFormData({
         name: "",
@@ -201,35 +264,70 @@ export function StudentsTab() {
         Enrollment_status: "Pending",
         startDate: "",
         batch_time: "",
+        reminderDate: "",
       });
-      // Refresh the table after adding a new student
-      fetchStudentData();
-    } catch (error) {
-      console.error("Failed to save student:", error);
-    }
+      // Invalidate queries to automatically refetch student and schedule data
+      queryClient.invalidateQueries({ queryKey: ["students"] });
+      queryClient.invalidateQueries({ queryKey: ["schedules"] });
+      queryClient.invalidateQueries({ queryKey: ["instructors"] });
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const handleEditStudent = (item) => {
+    setFormData({
+      name: item.name || "",
+      mobile: item.mobile || "",
+      package_name: item.package_name || "",
+      packageId: item.packageId || "",
+      Assigned_Instructor:
+        item.instructor?.name || item.Assigned_Instructor || "",
+      instructorId: item.instructorId || "",
+      Assigned_car_name: item.car?.name || "",
+      Assigned_car_id: item.Assigned_car_id || "",
+      Total_amount: item.Total_amount || "",
+      Amount_paid: item.Amount_paid || "",
+      Enrollment_status: item.Enrollment_status || "Pending",
+      startDate: item.Course_Start_date
+        ? new Date(item.Course_Start_date).toISOString().split("T")[0]
+        : "",
+      batch_time: item.batch_time || "",
+    });
+    setEditId(item.id);
+    setIsEditing(true);
+    setStep(1);
+    setIsOpen(true);
   };
 
-  const fetchStudentData = async () => {
-    try {
-      const res = await fetchApi("/get-student-data");
-      const data = await res.json();
-      console.log("Fetched API Data:", data);
-
-      // Map API response to component state
-      if (data && data.status) {
-        setStudent({
-          data: data.data || [],
-          pagination: data.pagination || {},
+  const handleDeleteStudent = async (id) => {
+    if (confirm("Are you sure you want to delete this student?")) {
+      try {
+        const res = await fetchApi(`/delete-student/${id}`, {
+          method: "DELETE",
         });
+        const data = await res.json();
+        if (data.success) {
+          toast.success("Student deleted successfully");
+          queryClient.invalidateQueries({ queryKey: ["students"] });
+        } else {
+          toast.error(data.message || "Failed to delete student");
+        }
+      } catch (err) {
+        toast.error("Error deleting student");
       }
-    } catch (error) {
-      console.log(error);
     }
   };
 
-  useEffect(() => {
-    fetchStudentData();
-  }, []);
+  const str = localStorage.getItem("user");
+  const parse = JSON.parse(str);
+
+  const systemId = parse.userId;
+
+  const handleSaveStudent = () => {
+    addStudentMutation.mutate({ ...formData, systemId });
+  };
 
   // Helpers for dynamic styling
   const avatarColors = [
@@ -270,14 +368,16 @@ export function StudentsTab() {
 
   if (selectedStudent) {
     return (
-      <StudentProfile 
-        student={selectedStudent} 
-        onBack={() => setSelectedStudent(null)} 
+      <StudentProfile
+        student={selectedStudent}
+        onBack={() => setSelectedStudent(null)}
         onUpdate={(updatedStudent) => {
           setSelectedStudent(updatedStudent);
-          setStudent(prev => ({
+          setStudent((prev) => ({
             ...prev,
-            data: prev.data.map(s => s.id === updatedStudent.id ? updatedStudent : s)
+            data: prev.data.map((s) =>
+              s.id === updatedStudent.id ? updatedStudent : s,
+            ),
           }));
         }}
       />
@@ -291,34 +391,24 @@ export function StudentsTab() {
         <div className="flex items-center space-x-4 w-full sm:w-auto">
           <input
             type="text"
-            placeholder="Search students..."
+            placeholder={t("Search students...")}
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
             className="w-full sm:w-64 bg-gray-50 dark:bg-[#171a22] border border-gray-300 dark:border-[#3a3d45] rounded-lg px-4 py-2 text-gray-900 dark:text-[#f2e9de] placeholder-gray-400 dark:placeholder-[#5a5f6e] focus:outline-none focus:border-[#c1552c] focus:ring-1 focus:ring-[#c1552c] transition-colors"
           />
-          <div className="w-40 hidden sm:block">
-            <Select defaultValue="All Status">
-              <SelectTrigger className="bg-gray-50 dark:bg-[#171a22]">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="All Status">All Status</SelectItem>
-                <SelectItem value="Active">Active</SelectItem>
-                <SelectItem value="Completed">Completed</SelectItem>
-                <SelectItem value="Pending">Pending</SelectItem>
-                <SelectItem value="Chosen">Chosen</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
         </div>
 
         <Dialog open={isOpen} onOpenChange={handleOpenChange}>
           <DialogTrigger asChild>
             <button className="bg-[#c1552c] hover:bg-[#a64724] text-white font-medium rounded-lg px-5 py-2 transition-colors duration-200 shadow-md shadow-[#c1552c]/20 flex items-center space-x-2">
-              <span>+ Add Student</span>
+              <span>+ {t("Add Student")}</span>
             </button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl transition-all duration-300">
             <DialogHeader>
-              <DialogTitle>Add New Student</DialogTitle>
+              <DialogTitle>
+                {isEditing ? "Edit Student" : "Add New Student"}
+              </DialogTitle>
               <DialogDescription>
                 Step {step} of {totalSteps}:{" "}
                 {step === 1
@@ -529,25 +619,43 @@ export function StudentsTab() {
                     >
                       Course Starting Date
                     </label>
-                    <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+                    <Popover
+                      open={isCalendarOpen}
+                      onOpenChange={setIsCalendarOpen}
+                    >
                       <PopoverTrigger asChild>
                         <Button
                           variant="outline"
                           className={`w-full justify-start text-left font-normal border-gray-300 dark:border-[#3a3d45] bg-transparent text-gray-900 dark:text-[#f2e9de] hover:bg-gray-50 dark:hover:bg-[#2c3242] focus:ring-2 focus:ring-[#c1552c] ${!formData.startDate && "text-gray-400 dark:text-gray-500"}`}
                         >
                           <CalendarIcon className="mr-2 h-4 w-4" />
-                          {formData.startDate ? format(new Date(formData.startDate), "PPP") : <span>Pick a date</span>}
+                          {formData.startDate ? (
+                            format(new Date(formData.startDate), "PPP")
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
                         <Calendar
                           mode="single"
-                          selected={formData.startDate ? new Date(formData.startDate) : undefined}
+                          selected={
+                            formData.startDate
+                              ? new Date(formData.startDate)
+                              : undefined
+                          }
                           onSelect={(date) => {
-                            handleChange({ target: { name: 'startDate', value: date ? format(date, 'yyyy-MM-dd') : '' } });
+                            handleChange({
+                              target: {
+                                name: "startDate",
+                                value: date ? format(date, "yyyy-MM-dd") : "",
+                              },
+                            });
                             setIsCalendarOpen(false);
                           }}
-                          disabled={(date) => date < new Date(new Date().setHours(0,0,0,0))}
+                          disabled={(date) =>
+                            date < new Date(new Date().setHours(0, 0, 0, 0))
+                          }
                           initialFocus
                         />
                       </PopoverContent>
@@ -624,7 +732,7 @@ export function StudentsTab() {
                     onClick={handleSaveStudent}
                     className="px-6 py-2 bg-[#c1552c] text-white rounded-lg hover:bg-[#a64724] transition-colors shadow-sm shadow-[#c1552c]/20 text-sm font-medium"
                   >
-                    Save Student
+                    {isEditing ? "Update Student" : "Save Student"}
                   </button>
                 )}
               </div>
@@ -638,19 +746,23 @@ export function StudentsTab() {
         <Table>
           <TableHeader>
             <TableRow className="bg-gray-50/50 dark:bg-[#171a22]/50 hover:bg-gray-50/50 dark:hover:bg-[#171a22]/50">
-              <TableHead>Student Name</TableHead>
-              <TableHead>Contact (Mobile)</TableHead>
-              <TableHead>Package Info</TableHead>
-              <TableHead>Instructor & Car</TableHead>
-              <TableHead>Fees / Payments</TableHead>
-              <TableHead>Enrollment Status</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>{t("Student Name")}</TableHead>
+              <TableHead>{t("Contact (Mobile)")}</TableHead>
+              <TableHead>{t("Package Info")}</TableHead>
+              <TableHead>{t("Instructor & Car")}</TableHead>
+              <TableHead>{t("Fees / Payments")}</TableHead>
+              <TableHead>{t("Enrollment Status")}</TableHead>
+              <TableHead className="text-right">{t("Actions")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {student.data.length > 0 ? (
               student.data.map((item, i) => (
-                <TableRow key={item.id || i} className="group cursor-pointer hover:bg-gray-50/50 dark:hover:bg-[#252a38]/50" onClick={() => setSelectedStudent(item)}>
+                <TableRow
+                  key={item.id || i}
+                  className="group cursor-pointer hover:bg-gray-50/50 dark:hover:bg-[#252a38]/50"
+                  onClick={() => setSelectedStudent(item)}
+                >
                   {/* Name & Dynamic Initial/Color */}
                   <TableCell>
                     <div className="flex items-center space-x-3">
@@ -698,7 +810,7 @@ export function StudentsTab() {
                         {item.instructor?.name || "Not Assigned"}
                       </span>
                       <span className="text-xs text-gray-500 dark:text-[#8a8d96]">
-                        Car:{" "}
+                        {t("Car")}:{" "}
                         {item.car?.name || item.Assigned_car_id || "Pending"}
                       </span>
                     </div>
@@ -708,20 +820,20 @@ export function StudentsTab() {
                   <TableCell>
                     <div className="flex flex-col gap-0.5">
                       <div className="text-xs text-gray-500 dark:text-[#8a8d96]">
-                        Total:{" "}
+                        {t("Total")}:{" "}
                         <span className="font-medium text-gray-900 dark:text-[#f2e9de]">
                           ₹{item.Total_amount ?? "0"}
                         </span>
                       </div>
                       <div className="text-sm font-bold text-[#c1552c]">
-                        Paid: ₹
+                        {t("Paid")}: ₹
                         {item.Amount_paid
                           ? Number(item.Amount_paid).toFixed(2)
                           : "0.00"}
                       </div>
                       {item.remaining_amount !== undefined && (
                         <div className="text-xs text-gray-500 dark:text-[#8a8d96]">
-                          Due:{" "}
+                          {t("Due")}:{" "}
                           <span className="font-medium text-gray-900 dark:text-[#f2e9de]">
                             ₹{item.remaining_amount}
                           </span>
@@ -733,23 +845,78 @@ export function StudentsTab() {
                   {/* Dynamic Enrollment Status */}
                   <TableCell>
                     <span
-                      className={`px-2.5 py-1 text-xs font-semibold rounded-full border capitalize ${getStatusColor(item.Enrollment_status)}`}
+                      className={`px-2.5 py-1 text-xs font-semibold rounded-full border uppercase ${getStatusColor(item.Enrollment_status)}`}
                     >
-                      {item.Enrollment_status || "Pending"}
+                      {item.Enrollment_status
+                        ? t(item.Enrollment_status.toUpperCase())
+                        : t("PENDING")}
                     </span>
                   </TableCell>
 
                   {/* Actions */}
                   <TableCell className="text-right">
-                    <button className="p-2 text-gray-400 hover:text-[#c1552c] dark:text-[#8a8d96] dark:hover:text-[#c1552c] rounded-lg hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-all focus:outline-none">
-                      <svg
-                        className="w-5 h-5"
-                        fill="currentColor"
-                        viewBox="0 0 24 24"
+                    <div className="flex items-center justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
+                      <button
+                        type="button"
+                        onClick={() => setLicenseTestStudent(item)}
+                        title={item.licenseTestDate ? `License Test: ${new Date(item.licenseTestDate).toLocaleDateString()}` : "Schedule & Send License Test Date"}
+                        className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
+                          item.licenseTestDate
+                            ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800"
+                            : "bg-orange-50 hover:bg-orange-100 text-[#c1552c] dark:bg-[#c1552c]/15 dark:hover:bg-[#c1552c]/30 border border-orange-200/60 dark:border-[#c1552c]/40"
+                        }`}
                       >
-                        <path d="M12 13a1 1 0 100-2 1 1 0 000 2zm0-5a1 1 0 100-2 1 1 0 000 2zm0 10a1 1 0 100-2 1 1 0 000 2z"></path>
-                      </svg>
-                    </button>
+                        <Car className="w-3.5 h-3.5" />
+                        <span className="hidden xl:inline">{item.licenseTestDate ? "Test Set" : "Test Date"}</span>
+                      </button>
+
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button
+                            onClick={(e) => e.stopPropagation()}
+                            className="p-2 text-gray-400 hover:text-[#c1552c] dark:text-[#8a8d96] dark:hover:text-[#c1552c] rounded-lg hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-all focus:outline-none"
+                          >
+                            <svg
+                              className="w-5 h-5"
+                              fill="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path d="M12 13a1 1 0 100-2 1 1 0 000 2zm0-5a1 1 0 100-2 1 1 0 000 2zm0 10a1 1 0 100-2 1 1 0 000 2z"></path>
+                            </svg>
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-40 p-1" align="end">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setLicenseTestStudent(item);
+                            }}
+                            className="w-full text-left px-3 py-2 text-sm text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 rounded-md transition-colors flex items-center gap-2"
+                          >
+                            <Car className="w-4 h-4" />
+                            <span>License Test</span>
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEditStudent(item);
+                            }}
+                            className="w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-[#cfd3da] hover:bg-gray-100 dark:hover:bg-[#2c3242] rounded-md transition-colors"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteStudent(item.id);
+                            }}
+                            className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"
+                          >
+                            Delete
+                          </button>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
@@ -799,6 +966,18 @@ export function StudentsTab() {
           </div>
         </div>
       </div>
+
+      {/* License Test Notification Modal */}
+      {licenseTestStudent && (
+        <SendLicenseTestModal
+          isOpen={Boolean(licenseTestStudent)}
+          student={licenseTestStudent}
+          onClose={() => setLicenseTestStudent(null)}
+          onSent={() => {
+            queryClient.invalidateQueries({ queryKey: ["students"] });
+          }}
+        />
+      )}
 
       <AlertDialog
         open={alertInfo.open}

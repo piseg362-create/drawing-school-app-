@@ -1,4 +1,4 @@
-import prisma from "../server/config/database.js";
+import prisma, { als } from "../server/config/database.js";
 
 // ---------------------------------------------------------
 // CONFIG
@@ -43,13 +43,21 @@ async function sendWhatsAppMessage(
   recipient,
   templateName,
   languageCode,
-  variables
+  variables,
+  systemId
 ) {
-  // Fetch credentials dynamically from the database
-  const tokenRecord = await prisma.whatsAppToken.findFirst();
+  // Fetch credentials dynamically from the database for this specific tenant
+  const tokenRecord = await prisma.whatsAppToken.findFirst({
+    where: systemId ? { systemID: systemId } : undefined,
+  });
 
   if (!tokenRecord || !tokenRecord.accessToken || !tokenRecord.phoneNumberId) {
     throw new Error("Missing WhatsApp API credentials in database. Please complete WhatsApp Setup.");
+  }
+
+  // 🛑 KILL-SWITCH: Check if Switch Off Mode is active
+  if (tokenRecord.switchOffMode) {
+    throw new Error("WhatsApp Switch Off Mode is active. Message sending is paused to prevent exceeding budget.");
   }
 
   const ACCESS_TOKEN = tokenRecord.accessToken;
@@ -111,6 +119,19 @@ async function sendWhatsAppMessage(
     }
   }
 
+  // Ensure onboarding template always has all 7 expected parameters
+  if (templateName === "onboarding" && payload.template?.components) {
+    const bodyComp = payload.template.components.find((c) => c.type === "body");
+    if (bodyComp && Array.isArray(bodyComp.parameters) && bodyComp.parameters.length === 6) {
+      const schoolNameParam = bodyComp.parameters[0] || { type: "text", text: "School" };
+      bodyComp.parameters.push({
+        type: "text",
+        text: schoolNameParam.text || "School",
+      });
+      console.log("ℹ️ Auto-appended 7th parameter (schoolName) to onboarding template payload.");
+    }
+  }
+
   console.log("📤 Dynamic WhatsApp Payload:");
   console.dir(payload, { depth: null });
 
@@ -127,9 +148,72 @@ async function sendWhatsAppMessage(
     const data = await response.json();
 
     console.log("📡 Meta API Response Status:", response.status);
+    console.log("📥 Raw Meta Response:", JSON.stringify(data, null, 2));
+    
     if (!response.ok) {
       console.dir(data, { depth: null });
-      throw new Error(data.error?.message || "Unknown Meta API Error");
+
+      const isUnregistered = 
+        data.error?.code === 133010 || 
+        data.error?.message?.includes("133010") || 
+        data.error?.message?.toLowerCase().includes("not registered");
+
+      if (isUnregistered) {
+        console.warn("⚠️ Phone number not registered with WhatsApp Cloud API (#133010). Attempting automatic registration with Meta...");
+        try {
+          const regUrl = `https://graph.facebook.com/${API_VERSION}/${PHONE_NUMBER_ID}/register`;
+          const regRes = await fetch(regUrl, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${ACCESS_TOKEN}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              messaging_product: "whatsapp",
+              pin: "123456",
+            }),
+          });
+          const regData = await regRes.json();
+          console.log("📲 Meta Auto-Registration Response:", regData);
+
+          if (regRes.ok || regData.success) {
+            console.log("✅ Auto-registration successful! Retrying message send...");
+            const retryResponse = await fetch(url, {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${ACCESS_TOKEN}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(payload),
+            });
+            const retryData = await retryResponse.json();
+            if (retryResponse.ok) {
+              return {
+                messageId: retryData.messages?.[0]?.id,
+                status: retryData.messages?.[0]?.message_status,
+              };
+            }
+          }
+        } catch (regErr) {
+          console.error("Failed auto-registering phone number with Meta:", regErr);
+        }
+      }
+
+      const metaErrorObj = {
+        message: data.error?.message || "Unknown Meta API Error",
+        code: data.error?.code,
+        subcode: data.error?.error_subcode,
+        type: data.error?.type,
+        details: data.error?.error_data?.details,
+        fbtrace_id: data.error?.fbtrace_id,
+        status: response.status,
+      };
+      const formattedMsg = data.error?.error_data?.details
+        ? `${data.error.message} (${data.error.error_data.details})`
+        : (data.error?.message || "Unknown Meta API Error");
+      const err = new Error(formattedMsg);
+      err.metaError = metaErrorObj;
+      throw err;
     }
 
     return {
@@ -154,6 +238,7 @@ async function processSingleMessage(message) {
       message.template.name,
       message.template.language,
       message.variables,
+      message.systemID
     );
 
     // SUCCESS
@@ -187,7 +272,9 @@ async function processSingleMessage(message) {
       data: {
         status: isRetriable ? "PENDING" : "FAILED",
 
-        lastError: error.message,
+        lastError: error.metaError
+          ? JSON.stringify(error.metaError)
+          : (error.message || String(error)),
 
         attempts: attemptsMade,
 
@@ -261,12 +348,13 @@ function calculateWorkerCount(pendingCount) {
 // ---------------------------------------------------------
 
 async function runQueueManager() {
-  try {
-    // 1. Recover old PROCESSING messages
-    await recoverStuckMessages();
+  als.run('__BYPASS_TENANT__', async () => {
+    try {
+      // 1. Recover old PROCESSING messages
+      await recoverStuckMessages();
 
-    // 2. Count pending messages
-    const now = new Date();
+      // 2. Count pending messages
+      const now = new Date();
 
     const pendingCount = await prisma.messageQueue.count({
       where: {
@@ -289,6 +377,52 @@ async function runQueueManager() {
       setTimeout(runQueueManager, POLL_INTERVAL);
 
       return;
+    }
+
+    // 3.4 🛑 SWITCH OFF MODE: Master Kill-Switch / Do Not Send Messages Mode
+    const token = await prisma.whatsAppToken.findFirst();
+    if (token && token.switchOffMode) {
+      console.log("🛑 Switch Off Mode is ON! Master kill-switch active. Queue paused - no messages will be dispatched.");
+      queueStatus.isProcessing = false;
+      queueStatus.activeWorkers = 0;
+      setTimeout(runQueueManager, POLL_INTERVAL * 5); // Poll slower when switch off is active
+      return;
+    }
+
+    // 3.5 🛡️ SAFE MODE: Monthly Budget Limit (e.g. ₹150, ₹300, etc.)
+    if (token && token.safeMode) {
+      const budget = Number(token.monthlyBudget) || 150.0;
+      const startOfMonth = new Date();
+      startOfMonth.setDate(1);
+      startOfMonth.setHours(0, 0, 0, 0);
+      
+      const monthMessages = await prisma.messageQueue.findMany({
+        where: {
+          status: "SENT",
+          sentAt: { gte: startOfMonth }
+        },
+        select: {
+          template: {
+            select: { category: true }
+          }
+        }
+      });
+
+      const utilityRate = token.utilityRate != null ? Number(token.utilityRate) : 0.15;
+      const MARKETING_RATE = 0.80;
+      let monthSpend = 0;
+      for (const msg of monthMessages) {
+        if (msg.template?.category === "MARKETING") monthSpend += MARKETING_RATE;
+        else monthSpend += utilityRate;
+      }
+
+      if (monthSpend >= budget) {
+        console.log(`🛑 Safe Mode active! Monthly budget of ₹${budget} reached (Current Spend: ₹${monthSpend.toFixed(2)}). Queue paused.`);
+        queueStatus.isProcessing = false;
+        queueStatus.activeWorkers = 0;
+        setTimeout(runQueueManager, POLL_INTERVAL * 10); // Poll slower when budget reached
+        return;
+      }
     }
 
     // 4. Calculate workers
@@ -352,11 +486,12 @@ async function runQueueManager() {
 
     // 8. Continue queue
     setTimeout(runQueueManager, BATCH_WAIT);
-  } catch (error) {
-    console.error("🚨 Queue Manager Error:", error);
+    } catch (error) {
+      console.error("🚨 Queue Manager Error:", error);
 
-    setTimeout(runQueueManager, 5000);
-  }
+      setTimeout(runQueueManager, 5000);
+    }
+  });
 }
 
 // ---------------------------------------------------------
@@ -364,40 +499,42 @@ async function runQueueManager() {
 // ---------------------------------------------------------
 
 export async function initMessageWorker() {
-  console.log("\n======================================");
+  als.run('__BYPASS_TENANT__', async () => {
+    console.log("\n======================================");
 
-  console.log("🚀 WhatsApp Node Worker Starting...");
+    console.log("🚀 WhatsApp Node Worker Starting...");
 
-  console.log("======================================\n");
+    console.log("======================================\n");
 
-  try {
-    // Test database connection
-    await prisma.$queryRaw`SELECT 1`;
+    try {
+      // Test database connection
+      await prisma.$queryRaw`SELECT 1`;
 
-    console.log("✅ Database connection successful");
+      console.log("✅ Database connection successful");
 
-    // Check pending messages
-    const pendingCount = await prisma.messageQueue.count({
-      where: {
-        status: "PENDING",
+      // Check pending messages
+      const pendingCount = await prisma.messageQueue.count({
+        where: {
+          status: "PENDING",
 
-        scheduledAt: {
-          lte: new Date(),
+          scheduledAt: {
+            lte: new Date(),
+          },
         },
-      },
-    });
+      });
 
-    console.log(`📦 Pending messages: ${pendingCount}`);
+      console.log(`📦 Pending messages: ${pendingCount}`);
 
-    // Start Queue Manager immediately
-    console.log("\n🚀 Queue Manager Started\n");
-    runQueueManager();
-  } catch (error) {
-    console.error("❌ Worker startup failed:", error);
+      // Start Queue Manager immediately
+      console.log("\n🚀 Queue Manager Started\n");
+      runQueueManager();
+    } catch (error) {
+      console.error("❌ Worker startup failed:", error);
 
-    // Try again after 10 seconds
-    setTimeout(initMessageWorker, 10000);
-  }
+      // Try again after 10 seconds
+      setTimeout(initMessageWorker, 10000);
+    }
+  });
 }
 
 // ---------------------------------------------------------

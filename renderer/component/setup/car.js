@@ -10,17 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { fetchApi } from "@/lib/api";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+
 
 // Pre-defined list of popular Indian cars
 const INDIAN_CARS = [
@@ -230,38 +220,7 @@ const Car = ({ onComplete }) => {
       </div>
 
       <div className="pt-4 flex gap-3">
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button
-              type="button"
-              variant="outline"
-              className="flex-1 border-gray-300 dark:border-[#2c3242] text-gray-700 dark:text-[#a8967b] hover:bg-gray-50 dark:hover:bg-[#232734]"
-            >
-              Skip
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Are you sure you want to skip?</AlertDialogTitle>
-              <AlertDialogDescription>
-                To provide the best services, please fill all data. You can always add this information later.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel className="border-gray-300 dark:border-[#2c3242] text-gray-700 dark:text-[#a8967b] hover:bg-gray-50 dark:hover:bg-[#232734]">
-                Cancel
-              </AlertDialogCancel>
-              <AlertDialogAction
-                onClick={() => {
-                  if (onComplete) onComplete();
-                }}
-                className="bg-[#c1552c] text-white hover:bg-[#a84a26]"
-              >
-                Skip Anyway
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        
         <Button
           type="submit"
           className="flex-1 bg-[#c1552c] text-white hover:bg-[#a84a26]"

@@ -107,28 +107,6 @@ export const enqueueMessage = async (req, res) => {
       return res.status(400).json({ status: false, message: "Missing recipient or templateName" });
     }
 
-    // 🛡️ SAFE MODE CHECK: Limit to 950 messages per month
-    const token = await prisma.whatsAppToken.findFirst();
-    if (token && token.safeMode) {
-      const startOfMonth = new Date();
-      startOfMonth.setDate(1);
-      startOfMonth.setHours(0, 0, 0, 0);
-      
-      const sentCount = await prisma.messageQueue.count({
-        where: {
-          status: "SENT",
-          sentAt: { gte: startOfMonth }
-        }
-      });
-      
-      if (sentCount >= 950) {
-        return res.status(403).json({ 
-          status: false, 
-          message: `Safe Mode Active: You have reached the 950 messages limit for this month to stay in Meta's free tier. Disable Safe Mode to send more.` 
-        });
-      }
-    }
-
     // Upsert template if it doesn't exist just to satisfy foreign key (or assume it exists)
     let template = await prisma.whatsAppTemplate.findFirst({ where: { name: templateName } });
     if (!template) {
@@ -155,5 +133,41 @@ export const enqueueMessage = async (req, res) => {
   } catch (error) {
     console.error("Error queuing message:", error);
     return res.status(500).json({ status: false, message: "Failed to queue message" });
+  }
+};
+
+export const retryMessage = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const message = await prisma.messageQueue.findUnique({
+      where: { id },
+    });
+
+    if (!message) {
+      return res.status(404).json({ status: false, message: "Message not found" });
+    }
+
+    const updated = await prisma.messageQueue.update({
+      where: { id },
+      data: {
+        status: "PENDING",
+        attempts: 0,
+        scheduledAt: new Date(),
+        processingAt: null,
+        lastError: null,
+      },
+      include: {
+        template: true,
+      },
+    });
+
+    return res.status(200).json({
+      status: true,
+      message: "Message requeued successfully for immediate sending",
+      data: updated,
+    });
+  } catch (error) {
+    console.error("Error retrying message:", error);
+    return res.status(500).json({ status: false, message: "Failed to retry message" });
   }
 };

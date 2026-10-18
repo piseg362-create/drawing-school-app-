@@ -1,3 +1,4 @@
+try { process.loadEnvFile(); } catch (e) {}
 import express from 'express'
 import cors from 'cors'
 
@@ -11,9 +12,14 @@ import demo from "../server/routes/demo.route/demo.route.js"
 import messageRoute from "../server/routes/message.route/message.route.js"
 import whatsappRoute from "../server/routes/whatsapp.route/whatsapp.route.js"
 import calendarRoute from "../server/routes/calendar.route/calendar.route.js"
+import paymentRoute from "../server/routes/payment.route/payment.route.js"
+import backupRoute from "../server/routes/backup.route/backup.route.js"
+import dashboardRoute from "../server/routes/dashboard.route.js"
 import { initMessageWorker } from '../worker/messageWorker.js'
 import { initPayrollWorker } from '../worker/payrollWorker.js'
-// ✅ CORRECT
+import { initAttendanceReminderWorker } from '../worker/attendanceReminderWorker.js'
+import { als } from './config/database.js'
+
 export function startExpressServer() {
   try {
     const expressApp = express()
@@ -28,6 +34,18 @@ export function startExpressServer() {
     // Parse form data
     expressApp.use(express.urlencoded({ extended: true }))
 
+    // Multi-tenant Middleware
+    expressApp.use((req, res, next) => {
+      const rawSystemId = req.headers['x-system-id'] || req.headers['systemid'] || req.body?.systemID || req.query?.systemID;
+      const systemId = typeof rawSystemId === 'string' ? rawSystemId.trim() : null;
+      if (systemId && systemId !== 'undefined' && systemId !== 'null' && systemId !== '') {
+        als.run(systemId, () => {
+          next();
+        });
+      } else {
+        next();
+      }
+    });
 
     // Test API
     expressApp.get('/api', (req, res) => {
@@ -48,6 +66,9 @@ export function startExpressServer() {
     expressApp.use("/api", messageRoute)
     expressApp.use("/api", whatsappRoute)
     expressApp.use("/api", calendarRoute)
+    expressApp.use("/api/payment", paymentRoute)
+    expressApp.use("/api/backup", backupRoute)
+    expressApp.use("/api", dashboardRoute)
 
 
 
@@ -59,6 +80,7 @@ export function startExpressServer() {
     // Start Background Workers
     initMessageWorker();
     initPayrollWorker();
+    initAttendanceReminderWorker();
 
 
 

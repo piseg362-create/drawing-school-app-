@@ -12,4 +12,5 @@ model Car {
   instructors          Instructor[]
   maintenanceItem      MaintenanceItem[]
   maintenanceSchedules MaintenanceSchedule[]
+  systemID       String?
 }

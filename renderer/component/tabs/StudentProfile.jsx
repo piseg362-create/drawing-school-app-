@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { ArrowLeft, User, Phone, Calendar, CreditCard, Car, UserCheck, Clock, MapPin, Receipt, CheckCircle, CircleDashed } from "lucide-react";
+import { ArrowLeft, User, Phone, Calendar, CreditCard, Car, UserCheck, Clock, MapPin, Receipt, CheckCircle, CircleDashed, Send } from "lucide-react";
 import { fetchApi } from "../../lib/api";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { toast } from "sonner";
+import { SendLicenseTestModal } from "./SendLicenseTestModal";
 
 export function StudentProfile({ student: initialStudent, onBack, onUpdate }) {
   const [student, setStudent] = useState(initialStudent);
   const [schedules, setSchedules] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isMarkingPaid, setIsMarkingPaid] = useState(false);
+  const [isLicenseModalOpen, setIsLicenseModalOpen] = useState(false);
 
   // Sync state if initialStudent changes (e.g. parent refreshes)
   useEffect(() => {
@@ -263,7 +265,23 @@ export function StudentProfile({ student: initialStudent, onBack, onUpdate }) {
               {student.Enrollment_status}
             </span>
             <div className="hidden sm:flex items-center space-x-2 border-l border-gray-200 dark:border-[#3c445a] pl-3 ml-1">
-              <button className="flex items-center space-x-1.5 px-3 py-1.5 bg-green-50 hover:bg-green-100 dark:bg-green-900/20 dark:hover:bg-green-900/40 text-green-700 dark:text-green-400 rounded-lg text-xs font-semibold transition-colors">
+              <button
+                type="button"
+                onClick={() => setIsLicenseModalOpen(true)}
+                className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                  student.licenseTestDate
+                    ? "bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800"
+                    : "bg-orange-50 hover:bg-orange-100 dark:bg-[#c1552c]/15 dark:hover:bg-[#c1552c]/25 text-[#c1552c] border border-orange-200/60 dark:border-[#c1552c]/30"
+                }`}
+              >
+                <Car className="w-3.5 h-3.5" />
+                <span>{student.licenseTestDate ? "Test: " + new Date(student.licenseTestDate).toLocaleDateString() : "Schedule License Test"}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsLicenseModalOpen(true)}
+                className="flex items-center space-x-1.5 px-3 py-1.5 bg-green-50 hover:bg-green-100 dark:bg-green-900/20 dark:hover:bg-green-900/40 text-green-700 dark:text-green-400 rounded-lg text-xs font-semibold transition-colors"
+              >
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
                 <span>WhatsApp</span>
               </button>
@@ -358,6 +376,58 @@ export function StudentProfile({ student: initialStudent, onBack, onUpdate }) {
             </div>
           </div>
           
+          {/* Driving License & RTO Test Card */}
+          <div className="bg-white dark:bg-[#1e222d] p-5 rounded-xl border border-gray-200 dark:border-[#2c3242] shadow-sm">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-xs font-bold text-gray-900 dark:text-[#f2e9de] flex items-center uppercase tracking-wider">
+                <Car className="w-4 h-4 mr-1.5 text-[#c1552c]" /> Driving License Test
+              </h3>
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                student.licenseTestDate
+                  ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-300/40"
+                  : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400"
+              }`}>
+                {student.licenseTestDate ? "SCHEDULED" : "NOT SET"}
+              </span>
+            </div>
+
+            {student.licenseTestDate ? (
+              <div className="space-y-2 text-xs">
+                <div className="flex justify-between py-1 border-b border-gray-100 dark:border-[#2c3242]">
+                  <span className="text-gray-500">Test Date:</span>
+                  <span className="font-bold text-gray-900 dark:text-white">
+                    {new Date(student.licenseTestDate).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
+                  </span>
+                </div>
+                <div className="flex justify-between py-1 border-b border-gray-100 dark:border-[#2c3242]">
+                  <span className="text-gray-500">Reporting Time:</span>
+                  <span className="font-semibold text-gray-800 dark:text-gray-200">
+                    {student.licenseTestTime || "10:00 AM"}
+                  </span>
+                </div>
+                <div className="flex justify-between py-1">
+                  <span className="text-gray-500">Location:</span>
+                  <span className="font-semibold text-gray-800 dark:text-gray-200 max-w-[140px] truncate" title={student.licenseTestLocation}>
+                    {student.licenseTestLocation || "RTO Driving Track"}
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <p className="text-xs text-gray-500 dark:text-[#8a8d96] mb-2">
+                No driving license test date has been scheduled yet.
+              </p>
+            )}
+
+            <button
+              type="button"
+              onClick={() => setIsLicenseModalOpen(true)}
+              className="w-full mt-3 flex items-center justify-center gap-1.5 py-2 px-3 text-xs font-semibold rounded-lg bg-[#c1552c]/10 hover:bg-[#c1552c]/20 text-[#c1552c] border border-[#c1552c]/30 transition-colors"
+            >
+              <Send className="w-3.5 h-3.5" />
+              <span>{student.licenseTestDate ? "Resend Test Date Alert" : "Schedule & Send Test Date"}</span>
+            </button>
+          </div>
+
           {/* Documents Checklist (Mock UI) */}
           <div className="bg-white dark:bg-[#1e222d] p-6 rounded-xl border border-gray-200 dark:border-[#2c3242] shadow-sm">
             <h3 className="text-sm font-bold text-gray-900 dark:text-[#f2e9de] mb-4 flex items-center uppercase tracking-wider text-xs">
@@ -488,6 +558,19 @@ export function StudentProfile({ student: initialStudent, onBack, onUpdate }) {
 
         </div>
       </div>
+
+      {/* License Test Notification Modal */}
+      {isLicenseModalOpen && (
+        <SendLicenseTestModal
+          isOpen={isLicenseModalOpen}
+          student={student}
+          onClose={() => setIsLicenseModalOpen(false)}
+          onSent={(updated) => {
+            setStudent(updated);
+            if (onUpdate) onUpdate(updated);
+          }}
+        />
+      )}
     </div>
   );
 }

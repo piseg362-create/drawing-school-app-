@@ -14,6 +14,9 @@ model Instructor {
   car           Car?           @relation(fields: [assignedCarId], references: [id])
   paymentCycles PaymentCycle[]
   students      Student[]
+  systemID       String?
+  accessToken    String?
+  globalMongoId  String?
 }
 
 enum JobType {

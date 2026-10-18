@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "../ui/button";
@@ -35,6 +35,31 @@ export function AuthPage({ mode = "login" }) {
   const [handlerName, setHandlerName] = useState("");
   const [mobileNumber, setMobileNumber] = useState("");
   const [language, setLanguage] = useState("");
+  const [storedBusinessName, setStoredBusinessName] = useState("Driving School Pro");
+
+  useEffect(() => {
+    try {
+      const userStr = localStorage.getItem("user");
+      if (userStr) {
+        const userObj = JSON.parse(userStr);
+        if (userObj && userObj.businessName) {
+          setStoredBusinessName(userObj.businessName);
+        }
+      }
+    } catch (e) {
+      console.error("Error reading businessName from localStorage", e);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!document.getElementById("razorpay-script")) {
+      const script = document.createElement("script");
+      script.id = "razorpay-script";
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.async = true;
+      document.body.appendChild(script);
+    }
+  }, []);
 
   const handleAuthenticate = (isDemo = false) => {
     // Save authentication state so the dashboard knows we are logged in
@@ -42,11 +67,17 @@ export function AuthPage({ mode = "login" }) {
     if (isDemo) {
       localStorage.setItem("isDemoMode", "true");
       localStorage.setItem("demoStartDate", new Date().toISOString());
+      const demoUser = {
+        businessName: "Demo Driving School",
+        systemUserId: "demo-school-tenant",
+        mobileNumber: "9999999999"
+      };
+      localStorage.setItem("user", JSON.stringify(demoUser));
     } else {
       localStorage.removeItem("isDemoMode");
       localStorage.removeItem("demoStartDate");
     }
-    router.push("/");
+    window.location.href = "/";
   };
 
   const handleSubmit = async (e) => {
@@ -63,7 +94,7 @@ export function AuthPage({ mode = "login" }) {
           payload.businessName = businessOrMobile;
         }
 
-        const apiUrl = "https://backend-for-drawing-school.vercel.app/api/auth/login";
+        const apiUrl = "https://backend-for-drawing-school.vercel.app/api/auth/login/";
            
 
         const response = await fetch(apiUrl, {
@@ -77,7 +108,9 @@ export function AuthPage({ mode = "login" }) {
         if (response.ok) {
           const result = await response.json();
           if (result.success && result.data) {
-            localStorage.setItem("user", JSON.stringify(result.data));
+            const systemUserId = result.data.systemUserId || result.data.systemId || result.data.userId || result.data._id || result.data.id;
+            const userData = { ...result.data, systemUserId };
+            localStorage.setItem("user", JSON.stringify(userData));
             if (result.data.accessToken) {
               localStorage.setItem("token", result.data.accessToken);
             }
@@ -85,18 +118,133 @@ export function AuthPage({ mode = "login" }) {
             // Background sync with local database
             fetch("http://localhost:49215/api/school-setup", {
               method: "POST",
-              headers: { "Content-Type": "application/json" },
+              headers: { 
+                "Content-Type": "application/json",
+                "x-system-id": systemUserId
+              },
               body: JSON.stringify({
                 name: result.data.businessName || "My School",
                 mobile: result.data.mobileNumber || "0000000000",
-                systemID: result.data.systemUserId
-              }),
+                systemID: systemUserId
+              })
             }).catch(err => console.error("Local sync error:", err));
 
-          } else if (result.token) {
-            localStorage.setItem("token", result.token);
+            // Check payment verification
+            if (result.data.isPaymentVerified) {
+              // Automatically unlock the app locally
+              fetch("http://localhost:49215/api/payment/license", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ simulate: true })
+              }).catch(() => {});
+              
+              if (result.token) {
+                localStorage.setItem("token", result.token);
+              }
+              handleAuthenticate(false);
+            } else {
+              // Force payment right now!
+              setIsLoading(true);
+              try {
+                const orderRes = await fetch("http://localhost:49215/api/payment/create-order", { method: "POST" });
+                const orderData = await orderRes.json();
+                
+                if (!orderData.success) {
+                  setErrorMsg("Failed to initialize payment for login.");
+                  setIsLoading(false);
+                  return;
+                }
+
+                const options = {
+                  key: orderData.key_id,
+                  amount: orderData.order.amount,
+                  currency: orderData.order.currency,
+                  name: result.data.businessName || "Drawing School",
+                  description: "Software License Activation",
+                  order_id: orderData.order.id,
+                  handler: async function (response) {
+                    // Payment successful!
+                    try {
+                      // 1. Verify payment with the central server
+                      const verifyApiUrl = "https://backend-for-drawing-school.vercel.app/api/payment/verify";
+                      const verifyRes = await fetch(verifyApiUrl, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          userId: result.data.userId || result.data.systemUserId,
+                          razorpayPaymentData: {
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_signature: response.razorpay_signature
+                          }
+                        })
+                      });
+                      
+                      const verifyData = await verifyRes.json();
+
+                      // 2. Update local storage with the new token
+                      if (verifyData.success && verifyData.data && verifyData.data.accessToken) {
+                        localStorage.setItem("token", verifyData.data.accessToken);
+                        
+                        // Update the locally cached user object so the app knows they paid
+                        const updatedUser = { ...result.data, isPaymentVerified: true };
+                        localStorage.setItem("user", JSON.stringify(updatedUser));
+                      } else if (result.token) {
+                        localStorage.setItem("token", result.token);
+                      }
+
+                      // 3. Permanently unlock the local SQLite DB
+                      await fetch("http://localhost:49215/api/payment/license", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ simulate: true }) // Force unlock
+                      }).catch(() => {});
+                      
+                      // 4. Log them in!
+                      handleAuthenticate(false);
+
+                    } catch (error) {
+                      console.error("Central Verification Error:", error);
+                      setErrorMsg("Failed to sync payment with server. Please try logging in again.");
+                      setIsLoading(false);
+                    }
+                  },
+                  prefill: {
+                    name: result.data.handlerName || "",
+                    contact: result.data.mobileNumber || ""
+                  },
+                  theme: { color: "#c1552c" },
+                  modal: {
+                    ondismiss: function() {
+                      setIsLoading(false);
+                      setErrorMsg("Payment is required to access the dashboard.");
+                    }
+                  }
+                };
+
+                if (!window.Razorpay) {
+                  setErrorMsg("Razorpay SDK failed to load.");
+                  setIsLoading(false);
+                  return;
+                }
+
+                const rzp = new window.Razorpay(options);
+                rzp.on('payment.failed', function (response){
+                   setErrorMsg(response.error.description || "Payment failed");
+                   setIsLoading(false);
+                });
+                rzp.open();
+                return; // Wait for Razorpay modal
+              } catch (err) {
+                setErrorMsg("Error opening payment screen.");
+                setIsLoading(false);
+              }
+            }
+          } else if (result.token && !result.data) {
+             // Fallback if data is missing but token exists
+             localStorage.setItem("token", result.token);
+             handleAuthenticate(false);
           }
-          handleAuthenticate(false);
         } else {
           const errorData = await response.json().catch(() => null);
           setErrorMsg(
@@ -112,53 +260,146 @@ export function AuthPage({ mode = "login" }) {
           language,
         };
 
-        const apiUrl =
-          process.env.NODE_ENV === "production"
-            ? "https://backend-for-drawing-school.vercel.app/api/auth/register"
-            : "/api/auth/register";
+        const apiUrl = "https://backend-for-drawing-school.vercel.app/api/auth/register/";
 
-        const response = await fetch(apiUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        });
-
-        if (response.ok) {
-          const result = await response.json();
-          if (result.success && result.data) {
-            localStorage.setItem("user", JSON.stringify(result.data));
-            if (result.data.accessToken) {
-              localStorage.setItem("token", result.data.accessToken);
-            }
-
-            // Background sync with local database
-            fetch("http://localhost:49215/api/school-setup", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                name: result.data.businessName || "My School",
-                mobile: result.data.mobileNumber || "0000000000",
-                systemID: result.data.systemUserId
-              }),
-            }).catch(err => console.error("Local sync error:", err));
-
-          } else if (result.token) {
-            localStorage.setItem("token", result.token);
-          }
-          handleAuthenticate(false);
-        } else {
-          const errorData = await response.json().catch(() => null);
-          setErrorMsg(
-            errorData?.message || "Registration failed. Please try again.",
-          );
+        // 1. Create a Razorpay order from local backend
+        let orderRes;
+        try {
+          orderRes = await fetch("http://localhost:49215/api/payment/create-order", { method: "POST" });
+        } catch (err) {
+          setErrorMsg("Local backend not running. Please restart the app.");
+          setIsLoading(false);
+          return;
         }
+
+        let orderData;
+        try {
+          orderData = await orderRes.json();
+        } catch (err) {
+          setErrorMsg("Failed to parse order API response. Did you restart the server?");
+          setIsLoading(false);
+          return;
+        }
+
+        if (!orderData.success) {
+          setErrorMsg(orderData.message || "Failed to initialize payment");
+          setIsLoading(false);
+          return;
+        }
+
+        // 2. Open Razorpay Checkout Modal
+        try {
+          const options = {
+            key: orderData.key_id,
+            amount: orderData.order.amount,
+            currency: orderData.order.currency,
+            name: businessName || "Drawing School",
+            description: "Software License Registration",
+            order_id: orderData.order.id,
+            handler: async function (response) {
+              // 3. Inject payment data into payload
+              payload.razorpayPaymentData = {
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_signature: response.razorpay_signature
+              };
+              payload.isPaymentVerified = true;
+
+              // 4. Send Registration API request
+              try {
+                const regResponse = await fetch(apiUrl, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify(payload)
+                });
+
+                if (regResponse.ok) {
+                  const result = await regResponse.json();
+                  if (result.success && result.data) {
+                    const systemUserId = result.data.systemUserId || result.data.systemId || result.data.userId || result.data._id || result.data.id;
+                    const userData = { ...result.data, systemUserId };
+                    localStorage.setItem("user", JSON.stringify(userData));
+                    if (result.data.accessToken) {
+                      localStorage.setItem("token", result.data.accessToken);
+                    }
+
+                    // Background sync with local database
+                    await fetch("http://localhost:49215/api/school-setup", {
+                      method: "POST",
+                      headers: { 
+                        "Content-Type": "application/json",
+                        "x-system-id": systemUserId
+                      },
+                      body: JSON.stringify({
+                        name: result.data.businessName || "My School",
+                        mobile: result.data.mobileNumber || "0000000000",
+                        systemID: systemUserId
+                      }),
+                    }).catch(err => console.error("Local sync error:", err));
+                    
+                    // Unlock the local PC software automatically
+                    await fetch("http://localhost:49215/api/payment/license", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ simulate: true }) // Force unlock
+                    }).catch(() => {});
+
+                  } else if (result.token) {
+                    localStorage.setItem("token", result.token);
+                  }
+                  
+                  handleAuthenticate(false);
+                } else {
+                  const errorData = await regResponse.json().catch(() => null);
+                  setErrorMsg(errorData?.message || "Registration failed. Please try again.");
+                  setIsLoading(false);
+                }
+              } catch (err) {
+                console.error(err);
+                setErrorMsg("Network error during registration.");
+                setIsLoading(false);
+              }
+            },
+            prefill: {
+              name: handlerName || "",
+              contact: mobileNumber || ""
+            },
+            theme: { color: "#c1552c" },
+            modal: {
+              ondismiss: function() {
+                setIsLoading(false);
+              }
+            }
+          };
+
+          if (!window.Razorpay) {
+            setErrorMsg("Razorpay SDK failed to load. Check your internet connection.");
+            setIsLoading(false);
+            return;
+          }
+
+          const rzp = new window.Razorpay(options);
+          rzp.on('payment.failed', function (response){
+             setErrorMsg(response.error.description || "Payment failed");
+             setIsLoading(false);
+          });
+          rzp.open();
+        } catch (rzpErr) {
+          console.error("Razorpay Init Error:", rzpErr);
+          setErrorMsg(rzpErr.message || "Failed to open Razorpay modal");
+          setIsLoading(false);
+        }
+        
+        // Return here so we don't hit the finally block immediately while modal is open
+        return;
       }
     } catch (error) {
       console.error("Auth Error:", error);
-      setErrorMsg("Failed to connect to the server.");
-    } finally {
+      setErrorMsg(error.message || "An unexpected error occurred.");
+      setIsLoading(false);
+    }
+    
+    if (isLogin) {
       setIsLoading(false);
     }
   };
@@ -448,6 +689,11 @@ export function AuthPage({ mode = "login" }) {
                 </defs>
               </svg>
             </div>
+            <div className="mt-8 text-center z-10">
+              <h2 className="text-4xl font-extrabold tracking-tight text-white drop-shadow-xl bg-zinc-950/30 px-6 py-2 rounded-2xl backdrop-blur-sm border border-white/10">
+                {storedBusinessName}
+              </h2>
+            </div>
           </div>
         </div>
 
@@ -457,14 +703,14 @@ export function AuthPage({ mode = "login" }) {
             <Car className="w-6 h-6 text-white" />
           </div>
           <span className="text-2xl font-bold tracking-tight text-white">
-            Driving School Pro
+            {storedBusinessName}
           </span>
         </div>
 
 
         <div className="relative z-10 self-start bg-zinc-950/40 px-4 py-2 rounded-full backdrop-blur-sm border border-white/5">
           <p className="text-sm font-medium text-zinc-400">
-            &copy; {new Date().getFullYear()} Driving School Pro. All rights
+            &copy; {new Date().getFullYear()} {storedBusinessName}. All rights
             reserved.
           </p>
         </div>
@@ -479,7 +725,7 @@ export function AuthPage({ mode = "login" }) {
               <Car className="w-6 h-6 text-white" />
             </div>
             <span className="text-xl font-bold tracking-tight text-foreground">
-              Driving School Pro
+              {storedBusinessName}
             </span>
           </div>
 

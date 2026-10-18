@@ -1,4 +1,4 @@
-import prisma from "../../config/database.js";
+import prisma, { als } from "../../config/database.js";
 
 export async function createCar(req, res) {
   try {
@@ -10,6 +10,8 @@ export async function createCar(req, res) {
         message: "Missing required input values",
       });
     }
+
+    const currentTenantId = als.getStore() || req.headers['x-system-id'] || null;
 
     const isCarExist = await prisma.car.findFirst({
       where: {
@@ -29,16 +31,19 @@ export async function createCar(req, res) {
       transmission,
       car_Number,
       car_year,
+      systemID: currentTenantId,
     };
 
     if (maintenanceTypes && maintenanceTypes.length > 0) {
       carData.maintenanceSchedules = {
         create: {
           serviceDate: new Date(), // Defaulting to today
+          systemID: currentTenantId,
           items: {
             create: maintenanceTypes.map((item) => ({
               type: item.type,
               intervalDays: item.intervalDays ? parseInt(item.intervalDays, 10) : null,
+              systemID: currentTenantId,
             }))
           }
         }

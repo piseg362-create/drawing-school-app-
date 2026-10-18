@@ -9,6 +9,7 @@ model Attendance {
 
   @@unique([instructorId, date])
   @@index([date])
+  systemID       String?
 }
 
 enum AttendanceStatus {

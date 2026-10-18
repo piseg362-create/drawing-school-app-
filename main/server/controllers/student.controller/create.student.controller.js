@@ -1,4 +1,4 @@
-import prisma from "../../config/database.js";
+import prisma, { als } from "../../config/database.js";
 
 export async function createStudent(req, res) {
   try {
@@ -14,7 +14,11 @@ export async function createStudent(req, res) {
       Assigned_car_id,
       startDate,
       batch_time,
+      reminderDate,
+      systemId,
     } = req.body;
+
+    const currentTenantId = als.getStore() || req.headers['x-system-id'] || systemId || null;
 
     // Basic validation
     if (
@@ -95,11 +99,43 @@ export async function createStudent(req, res) {
       });
     }
 
+
     // Course end date
     const Course_End_Date = new Date(Course_Start_date);
     Course_End_Date.setDate(
       Course_End_Date.getDate() + Number(findPackage.duration)
     );
+
+    // Fetch Instructor to get the name for the WhatsApp template
+    let instructorName = "Assigned Instructor";
+    if (instructorId) {
+      const instructor = await prisma.instructor.findUnique({
+        where: { id: instructorId }
+      });
+      if (instructor && instructor.name) {
+        instructorName = instructor.name;
+      }
+    }
+    
+    // Fetch School SetUp to get the school name and settings
+    let schoolName = "Driving School";
+    let reminderDays = 10;
+    let enableOnboardingMsg = true;
+    let enableReminderMsg = true;
+    let enableCompletionMsg = true;
+    const schoolSetup = await prisma.schoolSetUp.findFirst();
+    if (schoolSetup) {
+      if (schoolSetup.school_name) schoolName = schoolSetup.school_name;
+      if (schoolSetup.reminderDays !== undefined) reminderDays = schoolSetup.reminderDays;
+      if (schoolSetup.enableOnboardingMsg !== undefined) enableOnboardingMsg = schoolSetup.enableOnboardingMsg;
+      if (schoolSetup.enableReminderMsg !== undefined) enableReminderMsg = schoolSetup.enableReminderMsg;
+      if (schoolSetup.enableCompletionMsg !== undefined) enableCompletionMsg = schoolSetup.enableCompletionMsg;
+    }
+
+    // Automatically calculate reminderDate using reminderDays from Course_Start_date
+    const calculatedReminderDate = new Date(Course_Start_date);
+    calculatedReminderDate.setDate(calculatedReminderDate.getDate() + reminderDays);
+
 
     // Create everything in ONE transaction
     const result = await prisma.$transaction(async (tx) => {
@@ -123,6 +159,8 @@ export async function createStudent(req, res) {
           
           Course_Start_date,
           Course_End_Date,
+          reminderDate: calculatedReminderDate,
+          systemID: currentTenantId,
         },
       });
 
@@ -133,44 +171,190 @@ export async function createStudent(req, res) {
           Batch_time: batch_time,
           Duration_time: "1h",
           Car_id: Assigned_car_id,
+          systemID: currentTenantId,
         },
       });
 
-      // 3. Find WhatsApp template
+      const tokenRecord = await tx.whatsAppToken.findFirst();
+      const preferredLanguage = tokenRecord?.defaultLanguage || req.body.whatsappLanguage || req.body.language || "mr";
+
+      // 3. Find WhatsApp template (Approved Onboarding)
       let template = await tx.whatsAppTemplate.findFirst({
         where: {
-          name: "student_welcome",
+          name: "onboarding",
+          language: preferredLanguage,
         },
       });
 
-      // 4. If template doesn't exist, create it
+      if (!template) {
+        template = await tx.whatsAppTemplate.findFirst({
+          where: { name: "onboarding", language: "en" }
+        }) || await tx.whatsAppTemplate.findFirst({
+          where: { name: "onboarding" }
+        });
+      }
+
+      // 4. If template doesn't exist, create it locally for DB reference
       if (!template) {
         template = await tx.whatsAppTemplate.create({
           data: {
-            name: "student_welcome",
-            templateId: "DEV_STUDENT_WELCOME",
-            language: "en",
+            name: "onboarding",
+            templateId: "onboarding",
+            language: preferredLanguage,
             category: "UTILITY",
             status: "APPROVED",
-            body: "Hello {{studentName}}, welcome to Drawing School. Your package is {{packageName}}.",
-            variables: ["studentName", "packageName"],
+            body: "🎉 Welcome to {{1}}!\n\nHello {{2}}, your driving course enrollment has been successfully completed. 🚗\n\n📅 Course Start Date: {{3}}\n👨🏫 Instructor: {{4}}\n💰 Amount Paid: ₹{{5}}\n💳 Remaining Amount: ₹{{6}}\n\nWe’re happy to have you with us. Please be ready for your first driving session on the scheduled date.\n\nIf you have any questions, feel free to contact us.\n\nThank you for choosing {{7}}! 🙏",
+            variables: [],
           },
         });
       }
 
-      // 5. Add WhatsApp message to queue
-      await tx.messageQueue.create({
-        data: {
-          templateId: template.id,
-          recipient: mobile,
-          variables: {
-            studentName: name,
-            packageName: package_name,
+      // 5. Add WhatsApp message to queue with exact positional variables
+      const formattedDate = Course_Start_date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }); // e.g., 12 Oct 2026
+      
+
+      // Ensure the mobile number has the country code for WhatsApp (default to 91 for India if exactly 10 digits)
+      let formattedMobile = mobile;
+      if (formattedMobile.length === 10) {
+        formattedMobile = "91" + formattedMobile;
+      }
+      
+      if (enableOnboardingMsg) {
+        await tx.messageQueue.create({
+          data: {
+            templateId: template.id,
+            recipient: formattedMobile,
+            systemID: currentTenantId,
+            variables: {
+              components: [
+                {
+                  type: "body",
+                  parameters: [
+                    { type: "text", text: schoolName },
+                    { type: "text", text: name },
+                    { type: "text", text: formattedDate },
+                    { type: "text", text: instructorName },
+                    { type: "text", text: amountPaid.toString() },
+                    { type: "text", text: payment_remaining.toString() },
+                    { type: "text", text: schoolName },
+                  ]
+                }
+              ]
+            },
+            status: "PENDING",
+            scheduledAt: new Date(),
           },
-          status: "PENDING",
-          scheduledAt: new Date(),
-        },
-      });
+        });
+      }
+
+      // 6. Schedule Reminder Message automatically
+      if (calculatedReminderDate && enableReminderMsg) {
+        let reminderTemplate = await tx.whatsAppTemplate.findFirst({
+          where: { name: "reminder", language: preferredLanguage },
+        });
+
+        if (!reminderTemplate) {
+          reminderTemplate = await tx.whatsAppTemplate.findFirst({
+            where: { name: "reminder", language: "en" }
+          }) || await tx.whatsAppTemplate.findFirst({
+            where: { name: "reminder" }
+          });
+        }
+
+        if (!reminderTemplate) {
+          reminderTemplate = await tx.whatsAppTemplate.create({
+            data: {
+              name: "reminder",
+              templateId: "reminder",
+              language: preferredLanguage,
+              category: "UTILITY",
+              status: "APPROVED",
+              body: "Hello {{1}},\n\nThis is a friendly reminder from {{2}} regarding your pending payment.\n\n💰 Total Amount: ₹{{3}}\n✅ Amount Paid: ₹{{4}}\n⏳ Pending Amount: ₹{{5}}\n📅 Payment Due Date: {{6}}\n\nPlease complete the pending payment by the due date to continue your driving course without interruption.\n\nIf you have already made the payment, please ignore this message.\n\nThank you,\nThe {{2}} Team.",
+              variables: [],
+              systemID: currentTenantId,
+            },
+          });
+        }
+
+        const formattedRemDate = calculatedReminderDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+
+        await tx.messageQueue.create({
+          data: {
+            templateId: reminderTemplate.id,
+            recipient: formattedMobile,
+            systemID: currentTenantId,
+            variables: {
+              components: [
+                {
+                  type: "body",
+                  parameters: [
+                    { type: "text", text: name },
+                    { type: "text", text: schoolName },
+                    { type: "text", text: packagePrice.toString() },
+                    { type: "text", text: amountPaid.toString() },
+                    { type: "text", text: payment_remaining.toString() },
+                    { type: "text", text: formattedRemDate },
+                  ]
+                }
+              ]
+            },
+            status: "PENDING",
+            scheduledAt: calculatedReminderDate, // Uses Global Payment Reminder Delay (Days)
+          },
+        });
+      }
+
+      // 7. Schedule Course Completion Message
+      if (enableCompletionMsg) {
+        let completionTemplate = await tx.whatsAppTemplate.findFirst({
+          where: { name: "completion", language: preferredLanguage },
+        });
+
+        if (!completionTemplate) {
+          completionTemplate = await tx.whatsAppTemplate.findFirst({
+            where: { name: "completion", language: "en" }
+          }) || await tx.whatsAppTemplate.findFirst({
+            where: { name: "completion" }
+          });
+        }
+
+        if (!completionTemplate) {
+          completionTemplate = await tx.whatsAppTemplate.create({
+            data: {
+              name: "completion",
+              templateId: "completion",
+              language: preferredLanguage,
+              category: "UTILITY",
+              status: "APPROVED",
+              body: "Hello {{1}},\n\n🎉 Congratulations on completing your driving course with {{2}}!\n\nThis is a reminder that your course has been completed, but an outstanding payment of ₹{{3}} is still pending.\n\nPlease clear the remaining amount at your earliest convenience.\n\nThank you for choosing {{2}}. We wish you safe and confident driving! 🚗\n\nThe {{2}} Team.",
+              variables: [],
+              systemID: currentTenantId,
+            },
+          });
+        }
+
+        await tx.messageQueue.create({
+          data: {
+            templateId: completionTemplate.id,
+            recipient: formattedMobile,
+            systemID: currentTenantId,
+            variables: {
+              components: [
+                {
+                  type: "body",
+                  parameters: [
+                    { type: "text", text: name },
+                    { type: "text", text: schoolName },
+                    { type: "text", text: payment_remaining.toString() },
+                  ]
+                }
+              ]
+            },
+            status: "PENDING",
+            scheduledAt: Course_End_Date, // Scheduled to send when student completes course
+          },
+        });
+      }
 
       return {
         student,

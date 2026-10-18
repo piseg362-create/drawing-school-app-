@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Table,
   TableBody,
@@ -45,6 +46,24 @@ import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { fetchApi } from "@/lib/api";
 
+const INDIAN_CARS = [
+  "Maruti Suzuki Swift",
+  "Maruti Suzuki Alto",
+  "Maruti Suzuki WagonR",
+  "Maruti Suzuki Baleno",
+  "Hyundai i10",
+  "Hyundai i20",
+  "Hyundai Creta",
+  "Tata Tiago",
+  "Tata Punch",
+  "Tata Nexon",
+  "Mahindra Bolero",
+  "Mahindra XUV300",
+  "Kia Seltos",
+  "Toyota Innova",
+  "Honda City",
+];
+
 const maintenanceTypes = [
   "OIL_CHANGE", "OIL_FILTER", "AIR_FILTER", "TYRE_CHECK", "TYRE_REPLACEMENT", 
   "BRAKE_CHECK", "BRAKE_PAD_REPLACEMENT", "BATTERY_CHECK", "BATTERY_REPLACEMENT", 
@@ -53,10 +72,25 @@ const maintenanceTypes = [
 ];
 
 export function VehiclesTab() {
+  const { t } = useTranslation();
   const [step, setStep] = useState(1);
   const totalSteps = 2;
   const [isOpen, setIsOpen] = useState(false);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  
+  const [carSelection, setCarSelection] = useState("");
+  const [isCustomCar, setIsCustomCar] = useState(false);
+
+  const handleCarSelect = (value) => {
+    setCarSelection(value);
+    if (value === "Other") {
+      setIsCustomCar(true);
+      setFormData((prev) => ({ ...prev, name: "" }));
+    } else {
+      setIsCustomCar(false);
+      setFormData((prev) => ({ ...prev, name: value }));
+    }
+  };
   
   const [alertInfo, setAlertInfo] = useState({
     open: false,
@@ -131,6 +165,8 @@ export function VehiclesTab() {
         serviceDate: "",
         intervalDays: "",
       });
+      setCarSelection("");
+      setIsCustomCar(false);
     }
   };
 
@@ -246,7 +282,7 @@ export function VehiclesTab() {
         <div className="flex items-center space-x-4 w-full sm:w-auto">
           <input 
             type="text" 
-            placeholder="Search vehicles (make, plate)..." 
+            placeholder={t("Search vehicles (make, plate)...")} 
             className="w-full sm:w-64 bg-gray-50 dark:bg-[#171a22] border border-gray-300 dark:border-[#3a3d45] rounded-lg px-4 py-2 text-gray-900 dark:text-[#f2e9de] placeholder-gray-400 dark:placeholder-[#5a5f6e] focus:outline-none focus:border-[#c1552c] focus:ring-1 focus:ring-[#c1552c] transition-colors"
           />
         </div>
@@ -254,7 +290,7 @@ export function VehiclesTab() {
         <Dialog open={isOpen} onOpenChange={handleOpenChange}>
           <DialogTrigger asChild>
             <button className="bg-[#c1552c] hover:bg-[#a64724] text-white font-medium rounded-lg px-5 py-2 transition-colors duration-200 shadow-md shadow-[#c1552c]/20 flex items-center space-x-2">
-              <span>+ Add Vehicle</span>
+              <span>+ {t("Add Vehicle")}</span>
             </button>
           </DialogTrigger>
           <DialogContent className="max-w-md transition-all duration-300">
@@ -275,17 +311,43 @@ export function VehiclesTab() {
             <div className="min-h-[250px] py-2 relative">
               {step === 1 && (
                 <div className="space-y-4 animate-in slide-in-from-right-4 fade-in duration-300">
-                  <div className="space-y-2">
+                  <div className="space-y-2 relative z-50">
                     <label className="text-sm font-medium text-gray-700 dark:text-[#cfd3da]">
-                      Vehicle Name
+                      Vehicle Name / Model
                     </label>
-                    <input
-                      name="name"
-                      placeholder="E.g. Toyota Corolla"
-                      onChange={handleChange}
-                      value={formData.name}
-                      className="flex h-10 w-full rounded-md border border-gray-300 dark:border-[#3a3d45] bg-transparent px-3 py-2 text-sm text-gray-900 dark:text-[#f2e9de] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#c1552c]"
-                    />
+                    <Select onValueChange={handleCarSelect} value={carSelection}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select a car model" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <div className="grid grid-cols-2 gap-1 p-1 max-h-60 overflow-y-auto">
+                          {INDIAN_CARS.map((car) => (
+                            <SelectItem key={car} value={car}>
+                              {car}
+                            </SelectItem>
+                          ))}
+                          <SelectItem
+                            value="Other"
+                            className="col-span-2 font-medium border-t border-gray-200 dark:border-[#2c3242] mt-1 pt-2"
+                          >
+                            Other (Enter manually)
+                          </SelectItem>
+                        </div>
+                      </SelectContent>
+                    </Select>
+                    
+                    {isCustomCar && (
+                      <div className="pt-2">
+                        <input
+                          name="name"
+                          placeholder="E.g. Toyota Corolla"
+                          onChange={handleChange}
+                          value={formData.name}
+                          required
+                          className="flex h-10 w-full rounded-md border border-gray-300 dark:border-[#3a3d45] bg-transparent px-3 py-2 text-sm text-gray-900 dark:text-[#f2e9de] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#c1552c]"
+                        />
+                      </div>
+                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -434,15 +496,15 @@ export function VehiclesTab() {
               </TableHead>
               <TableHead className="cursor-pointer hover:text-gray-900 dark:hover:text-[#cfd3da]">
                 <div className="flex items-center space-x-1">
-                  <span>Vehicle Model</span>
+                  <span>{t("Vehicle Model")}</span>
                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
                 </div>
               </TableHead>
-              <TableHead>License Plate</TableHead>
-              <TableHead>Transmission</TableHead>
-              <TableHead>Current Mileage</TableHead>
-              <TableHead>Assigned To</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead>{t("License Plate")}</TableHead>
+              <TableHead>{t("Transmission")}</TableHead>
+              <TableHead>{t("Current Mileage")}</TableHead>
+              <TableHead>{t("Assigned To")}</TableHead>
+              <TableHead>{t("Status")}</TableHead>
               <TableHead className="text-right"></TableHead>
             </TableRow>
           </TableHeader>

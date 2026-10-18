@@ -2,6 +2,13 @@ import prisma from "../../config/database.js";
 
 export async function getSchedules(req, res) {
   try {
+    const queryDateStr = req.query.date;
+    const targetDate = queryDateStr ? new Date(queryDateStr) : new Date();
+    const startOfDay = new Date(targetDate);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(targetDate);
+    endOfDay.setHours(23, 59, 59, 999);
+
     const schedules = await prisma.schedule.findMany();
 
     // Fetch related students and cars
@@ -17,6 +24,22 @@ export async function getSchedules(req, res) {
 
     const cars = await prisma.car.findMany({
       where: { id: { in: carIds } },
+    });
+
+    // Fetch attendance for these students on the selected date
+    const attendances = await prisma.studentAttendance.findMany({
+      where: {
+        studentId: { in: studentIds },
+        date: {
+          gte: startOfDay,
+          lte: endOfDay,
+        },
+      },
+    });
+
+    const attendanceMap = {};
+    attendances.forEach(a => {
+      attendanceMap[a.studentId] = a;
     });
 
     const studentMap = {};
@@ -85,8 +108,13 @@ export async function getSchedules(req, res) {
         }
       }
 
+      const attRecord = attendanceMap[student.id];
+      const attStatus = attRecord ? attRecord.status : "NOT_MARKED";
+
       acc.push({
         id: schedule.id,
+        studentId: student.id,
+        studentMobile: student.mobile,
         time: schedule.Batch_time,
         duration: schedule.Duration_time,
         student: student.name,
@@ -95,6 +123,9 @@ export async function getSchedules(req, res) {
         type: student.package_name || "General Course",
         status: status,
         color: color,
+        attendanceStatus: attStatus,
+        attendanceNote: attRecord?.note || "",
+        attendanceId: attRecord?.id || null,
       });
 
       return acc;

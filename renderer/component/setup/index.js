@@ -37,8 +37,13 @@ const Index = () => {
 
   useEffect(() => {
     async function checkStatus() {
+      const userStr = localStorage.getItem("user");
+      const userObj = userStr ? JSON.parse(userStr) : null;
+      const sysId = userObj?.systemUserId || userObj?.systemId || userObj?.id || "default";
+      const storageKey = `isSetupCompleted_${sysId}`;
+
       // 1. Check local storage first to avoid unnecessary API calls
-      const localSetupStatus = localStorage.getItem("isSetupCompleted");
+      const localSetupStatus = localStorage.getItem(storageKey);
       if (localSetupStatus === "true") {
         setIsCompleted(true);
         setOpen(false);
@@ -63,10 +68,11 @@ const Index = () => {
 
         // 3. Save to local storage ONLY if setupComplete is true AND no checklist data is false
         if (data.setupComplete && areAllStepsTrue) {
-          localStorage.setItem("isSetupCompleted", "true");
+          localStorage.setItem(storageKey, "true");
           setOpen(false);
         } else {
           // Ensure local storage is cleared if anything is false (prevents stale true states)
+          localStorage.removeItem(storageKey);
           localStorage.removeItem("isSetupCompleted");
           setOpen(true);
         }
@@ -154,7 +160,10 @@ const Index = () => {
 
               <Button
                 onClick={() => {
-                  localStorage.setItem("isSetupCompleted", "true");
+                  const userStr = localStorage.getItem("user");
+                  const userObj = userStr ? JSON.parse(userStr) : null;
+                  const sysId = userObj?.systemUserId || userObj?.systemId || userObj?.id || "default";
+                  localStorage.setItem(`isSetupCompleted_${sysId}`, "true");
                   setIsCompleted(true);
                   setOpen(false);
                 }}

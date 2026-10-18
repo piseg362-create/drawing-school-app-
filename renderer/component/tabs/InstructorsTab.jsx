@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Table,
   TableBody,
@@ -46,12 +47,16 @@ import {
 import { format } from "date-fns";
 import { fetchApi } from "@/lib/api";
 import { InstructorProfile } from "./InstructorProfile";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 export function InstructorsTab() {
+  const { t } = useTranslation();
   const [step, setStep] = useState(1);
   const totalSteps = 3;
   const [selectedInstructor, setSelectedInstructor] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editId, setEditId] = useState(null);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [alertInfo, setAlertInfo] = useState({
     open: false,
@@ -70,7 +75,19 @@ export function InstructorsTab() {
     Assigned_car_name: "",
   });
 
-  const [instructor, setInstructor] = useState({
+  const queryClient = useQueryClient();
+
+  const [searchInput, setSearchInput] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setSearchTerm(searchInput);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [searchInput]);
+
+  const { data: instructor = {
     data: [],
     pagination: {
       currentPage: 1,
@@ -79,7 +96,19 @@ export function InstructorsTab() {
       totalPages: 1,
       hasNextPage: false,
       hasPreviousPage: false,
-    },
+    }
+  }, isLoading: isInstructorLoading } = useQuery({
+    queryKey: ["instructors", searchTerm],
+    queryFn: async () => {
+      const queryParams = new URLSearchParams();
+      if (searchTerm) queryParams.append("search", searchTerm);
+      const res = await fetchApi(`/get-instructor-data?${queryParams.toString()}`);
+      const data = await res.json();
+      return {
+        data: data.data || [],
+        pagination: data.pagination || {},
+      };
+    }
   });
 
   const [supportData, setSupportData] = useState({
@@ -121,6 +150,20 @@ export function InstructorsTab() {
     setIsOpen(open);
     if (!open) {
       setTimeout(() => setStep(1), 300);
+      setIsEditing(false);
+      setEditId(null);
+      setFormData({
+        name: "",
+        mobile: "",
+        licenseNumber: "",
+        jobType: "",
+        joiningDate: "",
+        payment: "",
+        paymentDate: "",
+        Assigned_car_id: "",
+        Assigned_car_name: "",
+        status: "Available",
+      });
     }
   };
 
@@ -132,32 +175,22 @@ export function InstructorsTab() {
     }));
   };
 
-  const handleSaveInstructor = async () => {
-    if (!formData.payment || !formData.paymentDate) {
-      setAlertInfo({
-        open: true,
-        title: "Missing Details",
-        message: "Please enter the Decided Amount and select a Payment Date.",
+  const addInstructorMutation = useMutation({
+    mutationFn: async (newInstructor) => {
+      const url = isEditing ? `/update-instructor/${editId}` : "/create-instructor";
+      const method = isEditing ? "PUT" : "POST";
+      const res = await fetchApi(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newInstructor),
       });
-      return;
-    }
-
-    try {
-      const res = await fetchApi("/create-instructor", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-
       if (!res.ok) {
-        toast.error(res.message || "Failed to create instructor");
-        return;
+        throw new Error(res.message || `Failed to ${isEditing ? 'update' : 'create'} instructor`);
       }
-
-      toast.success(res.message || "Instructor created successfully");
-
+      return res.json();
+    },
+    onSuccess: (data) => {
+      toast.success(data.message || `Instructor ${isEditing ? 'updated' : 'created'} successfully`);
       handleOpenChange(false);
       setFormData({
         name: "",
@@ -170,28 +203,73 @@ export function InstructorsTab() {
         Assigned_car_id: "",
         Assigned_car_name: "",
       });
-
-      fetchInstructorData();
-    } catch (error) {
+      queryClient.invalidateQueries({ queryKey: ["instructors"] });
+      queryClient.invalidateQueries({ queryKey: ["schedules"] }); // Refetch schedules in case they are affected
+    },
+    onError: (error) => {
       console.error("Failed to save instructor:", error);
-      toast.error("An unexpected error occurred.");
+      toast.error(error.message || "An unexpected error occurred.");
+    }
+  });
+
+  const handleEditInstructor = (instructor) => {
+    setFormData({
+      name: instructor.name || "",
+      mobile: instructor.mobile || "",
+      licenseNumber: instructor.licenseNumber || "",
+      jobType: instructor.jobType || "",
+      joiningDate: instructor.joiningDate ? new Date(instructor.joiningDate).toISOString().split('T')[0] : "",
+      payment: instructor.payment || "",
+      paymentDate: instructor.paymentDate ? new Date(instructor.paymentDate).toISOString().split('T')[0] : "",
+      Assigned_car_id: instructor.Assigned_car_id || "",
+      Assigned_car_name: instructor.car?.name || "",
+      status: instructor.status || "Available",
+    });
+    setEditId(instructor.id);
+    setIsEditing(true);
+    setStep(1);
+    setIsOpen(true);
+  };
+
+  const handleDeleteInstructor = async (id) => {
+    if (confirm("Are you sure you want to delete this instructor?")) {
+      try {
+        const res = await fetchApi(`/delete-instructor/${id}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.success) {
+          toast.success("Instructor deleted successfully");
+          queryClient.invalidateQueries({ queryKey: ["instructors"] });
+        } else {
+          toast.error(data.message || "Failed to delete instructor");
+        }
+      } catch (err) {
+        toast.error("Error deleting instructor");
+      }
     }
   };
 
-  const fetchInstructorData = async () => {
-    try {
-      const res = await fetchApi("/get-instructor-data");
-      const data = await res.json();
-
-      if (data && data.status) {
-        setInstructor({
-          data: data.data || [],
-          pagination: data.pagination || {},
-        });
-      }
-    } catch (error) {
-      console.log(error);
+  const handleSaveInstructor = () => {
+    if (!formData.payment || !formData.paymentDate) {
+      setAlertInfo({
+        open: true,
+        title: "Missing Details",
+        message: "Please enter the Decided Amount and select a Payment Date.",
+      });
+      return;
     }
+    
+    let systemId = "";
+    try {
+      const userStr = localStorage.getItem("user");
+      if (userStr) {
+        const userObj = JSON.parse(userStr);
+        systemId = userObj.userId || "";
+      }
+    } catch (e) {
+      console.error("Failed to parse user from localStorage", e);
+    }
+
+    addInstructorMutation.mutate({ ...formData, systemId });
   };
 
   useEffect(() => {
@@ -214,10 +292,6 @@ export function InstructorsTab() {
       loadSupportData();
     }
   }, [isOpen]);
-
-  useEffect(() => {
-    fetchInstructorData();
-  }, []);
 
   // Helpers for dynamic styling
   const avatarColors = [
@@ -258,7 +332,9 @@ export function InstructorsTab() {
         <div className="flex items-center space-x-4 w-full sm:w-auto">
           <input
             type="text"
-            placeholder="Search instructors..."
+            placeholder={t("Search instructors...")}
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
             className="w-full sm:w-64 bg-gray-50 dark:bg-[#171a22] border border-gray-300 dark:border-[#3a3d45] rounded-lg px-4 py-2 text-gray-900 dark:text-[#f2e9de] placeholder-gray-400 dark:placeholder-[#5a5f6e] focus:outline-none focus:border-[#c1552c] focus:ring-1 focus:ring-[#c1552c] transition-colors"
           />
           <div className="w-40 hidden sm:block">
@@ -279,12 +355,12 @@ export function InstructorsTab() {
         <Dialog open={isOpen} onOpenChange={handleOpenChange}>
           <DialogTrigger asChild>
             <button className="bg-[#c1552c] hover:bg-[#a64724] text-white font-medium rounded-lg px-5 py-2 transition-colors duration-200 shadow-md shadow-[#c1552c]/20 flex items-center space-x-2">
-              <span>+ Add Instructor</span>
+              <span>+ {t("Add Instructor")}</span>
             </button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl transition-all duration-300">
             <DialogHeader>
-              <DialogTitle>Add Instructor</DialogTitle>
+              <DialogTitle>{isEditing ? "Edit Instructor" : "Add Instructor"}</DialogTitle>
               <DialogDescription>
                 Step {step} of {totalSteps}:{" "}
                 {step === 1
@@ -542,7 +618,7 @@ export function InstructorsTab() {
                     onClick={handleSaveInstructor}
                     className="px-6 py-2 bg-[#c1552c] text-white rounded-lg hover:bg-[#a64724] transition-colors shadow-sm shadow-[#c1552c]/20 text-sm font-medium"
                   >
-                    Save Instructor
+                    {isEditing ? "Update Instructor" : "Save Instructor"}
                   </button>
                 )}
               </div>
@@ -558,7 +634,7 @@ export function InstructorsTab() {
             <TableRow className="bg-gray-50/50 dark:bg-[#171a22]/50 hover:bg-gray-50/50 dark:hover:bg-[#171a22]/50">
               <TableHead className="cursor-pointer hover:text-gray-900 dark:hover:text-[#cfd3da]">
                 <div className="flex items-center space-x-1">
-                  <span>Instructor</span>
+                  <span>{t("Instructor")}</span>
                   <svg
                     className="w-3 h-3"
                     fill="none"
@@ -574,12 +650,12 @@ export function InstructorsTab() {
                   </svg>
                 </div>
               </TableHead>
-              <TableHead>Contact</TableHead>
-              <TableHead>Assigned Vehicle</TableHead>
-              <TableHead>Students</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Payment</TableHead>
-              <TableHead>Joined At</TableHead>
+              <TableHead>{t("Contact")}</TableHead>
+              <TableHead>{t("Assigned Vehicle")}</TableHead>
+              <TableHead>{t("Students")}</TableHead>
+              <TableHead>{t("Status")}</TableHead>
+              <TableHead>{t("Payment")}</TableHead>
+              <TableHead>{t("Joined At")}</TableHead>
               <TableHead className="text-right"></TableHead>
             </TableRow>
           </TableHeader>
@@ -649,15 +725,23 @@ export function InstructorsTab() {
                   </div>
                 </TableCell>
                 <TableCell className="text-right">
-                  <button className="p-2 text-gray-400 hover:text-[#c1552c] dark:text-[#8a8d96] dark:hover:text-[#c1552c] rounded-lg hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-all focus:outline-none">
-                    <svg
-                      className="w-5 h-5"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M12 13a1 1 0 100-2 1 1 0 000 2zm0-5a1 1 0 100-2 1 1 0 000 2zm0 10a1 1 0 100-2 1 1 0 000 2z"></path>
-                    </svg>
-                  </button>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button onClick={(e) => e.stopPropagation()} className="p-2 text-gray-400 hover:text-[#c1552c] dark:text-[#8a8d96] dark:hover:text-[#c1552c] rounded-lg hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-all focus:outline-none">
+                        <svg
+                          className="w-5 h-5"
+                          fill="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M12 13a1 1 0 100-2 1 1 0 000 2zm0-5a1 1 0 100-2 1 1 0 000 2zm0 10a1 1 0 100-2 1 1 0 000 2z"></path>
+                        </svg>
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-32 p-1" align="end">
+                      <button onClick={(e) => { e.stopPropagation(); handleEditInstructor(instructor); }} className="w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-[#cfd3da] hover:bg-gray-100 dark:hover:bg-[#2c3242] rounded-md transition-colors">Edit</button>
+                      <button onClick={(e) => { e.stopPropagation(); handleDeleteInstructor(instructor.id); }} className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors">Delete</button>
+                    </PopoverContent>
+                  </Popover>
                 </TableCell>
               </TableRow>
             ))}

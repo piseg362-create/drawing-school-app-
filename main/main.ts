@@ -1,14 +1,17 @@
 import path from 'path'
-import { app, ipcMain, powerSaveBlocker, net, dialog, Notification, shell } from 'electron'
+import { app, ipcMain, powerSaveBlocker, net, Notification, shell } from 'electron'
 import serve from 'electron-serve'
 import { createWindow } from './helpers/create-window'
 import fs from 'fs'
 import os from 'os'
-import express from 'express'
-import cors from 'cors'
-import { execSync } from 'child_process' // <-- Added for database sync
 
 const isProd = process.env.NODE_ENV === 'production'
+
+const dbPath = isProd 
+  ? path.join(app.getPath('userData'), 'dev.db')
+  : path.join(process.cwd(), 'dev.db')
+
+process.env.DATABASE_PATH = dbPath
 
 // --- Express API Server ---
 import { startExpressServer } from './server/server.js'
@@ -17,9 +20,30 @@ import { startExpressServer } from './server/server.js'
 // --- Database Initialization ---
 function initializeDatabase() {
   try {
-    console.log("Database initialized on startup.");
-    // NOTE: You cannot run `npx prisma db push` in a production Electron app.
-    // The database tables must already be created, and the dev.db file should be bundled.
+    if (isProd) {
+      const destPath = process.env.DATABASE_PATH!
+      const userDataDir = path.dirname(destPath)
+      if (!fs.existsSync(userDataDir)) {
+        fs.mkdirSync(userDataDir, { recursive: true })
+      }
+      if (!fs.existsSync(destPath)) {
+        const candidatePaths = [
+          path.join(process.resourcesPath, 'dev.db'),
+          path.join(process.resourcesPath, 'prod-empty.db'),
+          path.join(process.resourcesPath, 'app.asar.unpacked', 'dev.db'),
+          path.join(import.meta.dirname, '..', 'dev.db'),
+          path.join(import.meta.dirname, 'dev.db')
+        ]
+        const srcPath = candidatePaths.find(p => fs.existsSync(p))
+        if (srcPath) {
+          fs.copyFileSync(srcPath, destPath)
+          console.log(`Database initialized from ${srcPath} to ${destPath}`)
+        } else {
+          console.warn(`Template database not found in candidate paths:`, candidatePaths)
+        }
+      }
+    }
+    console.log("Database initialized on startup at:", process.env.DATABASE_PATH);
   } catch (error) {
     console.error("Failed to initialize database tables:", error);
   }
@@ -113,6 +137,7 @@ if (isProd) {
     height: 600,
     webPreferences: {
       preload: path.join(import.meta.dirname, 'preload.js'),
+      webSecurity: false,
     },
   })
 
@@ -154,6 +179,24 @@ ipcMain.on('open-external-url', (event, url) => {
   if (url) {
     shell.openExternal(url)
   }
+})
+
+ipcMain.on('show-notification', (_event, data: { title?: string; body?: string }) => {
+  try {
+    if (Notification.isSupported()) {
+      new Notification({
+        title: data?.title || '⏰ School Desk Reminder',
+        body: data?.body || '',
+      }).show()
+    }
+  } catch (err) {
+    console.error('Failed to show notification via IPC:', err)
+  }
+})
+
+ipcMain.on('restart-app', () => {
+  app.relaunch()
+  app.quit()
 })
 
 app.on('window-all-closed', () => {

@@ -8,6 +8,11 @@ model WhatsAppToken {
   displayPhoneNumber String?
   verifiedName       String?
   safeMode           Boolean  @default(false)
+  switchOffMode      Boolean  @default(false)
+  monthlyBudget      Float    @default(150.0)
+  utilityRate        Float    @default(0.15)
+  defaultLanguage    String?  @default("en")
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
+  systemID       String?
 }

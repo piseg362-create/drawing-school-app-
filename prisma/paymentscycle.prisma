@@ -16,6 +16,7 @@ model PaymentCycle {
   paymentsTaken PaymentTaken[]
 
   @@unique([instructorId, month])
+  systemID       String?
 }
 
 enum PaymentStatus {

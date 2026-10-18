@@ -4,4 +4,5 @@ model Package {
   price    Decimal
   duration Int
   isActive Boolean @default(true)
+  systemID       String?
 }

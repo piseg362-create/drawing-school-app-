@@ -1,5 +1,4 @@
-// Make sure to import your Prisma client at the top!
-// import prisma from '@/lib/prisma';
+import prisma from "../../config/database.js";
 
 export async function createInstructor(req, res) {
   // 1. Only allow POST requests (optional, but good practice if using Next.js Pages router)
@@ -14,6 +13,7 @@ export async function createInstructor(req, res) {
       payment,
       paymentDate,
       Assigned_car_id,
+      systemId,
     } = req.body;
 
     // Basic validation
@@ -47,7 +47,7 @@ export async function createInstructor(req, res) {
     }
 
     // Create the Instructor
-    const result = await prisma.instructor.create({
+    let result = await prisma.instructor.create({
       data: {
         name,
         mobile,

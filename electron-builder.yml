@@ -9,4 +9,7 @@ files:
     filter:
       - package.json
       - app
+extraResources:
+  - from: resources/prod-empty.db
+    to: dev.db
 publish: null

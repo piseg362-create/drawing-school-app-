@@ -5,4 +5,5 @@ model PaymentTaken {
   takenAt        DateTime     @default(now())
   note           String
   paymentCycle   PaymentCycle @relation(fields: [paymentCycleId], references: [id])
+  systemID       String?
 }

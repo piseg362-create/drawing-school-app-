@@ -3,7 +3,11 @@ import prisma from "../../config/database.js";
 
 export async function saveSchoolData(req, res) {
   try {
-    const { name, mobile, address = "", email = "", systemID } = req.body;
+    const { 
+      name, mobile, address = "", email = "", systemID, reminderDays,
+      enableOnboardingMsg, enableReminderMsg, enableCompletionMsg,
+      workingStartTime, workingEndTime, enableAttendanceReminder, reminderBeforeMinutes
+    } = req.body;
 
     // 1. Basic Validation
     if (!name || !mobile) {
@@ -35,6 +39,14 @@ export async function saveSchoolData(req, res) {
           address: address || existingSchool.address,
           support_Email: email || existingSchool.support_Email,
           ...(systemID && { systemID }),
+          ...(reminderDays !== undefined && { reminderDays: parseInt(reminderDays, 10) }),
+          ...(enableOnboardingMsg !== undefined && { enableOnboardingMsg: Boolean(enableOnboardingMsg) }),
+          ...(enableReminderMsg !== undefined && { enableReminderMsg: Boolean(enableReminderMsg) }),
+          ...(enableCompletionMsg !== undefined && { enableCompletionMsg: Boolean(enableCompletionMsg) }),
+          ...(workingStartTime !== undefined && { workingStartTime: String(workingStartTime) }),
+          ...(workingEndTime !== undefined && { workingEndTime: String(workingEndTime) }),
+          ...(enableAttendanceReminder !== undefined && { enableAttendanceReminder: Boolean(enableAttendanceReminder) }),
+          ...(reminderBeforeMinutes !== undefined && { reminderBeforeMinutes: parseInt(reminderBeforeMinutes, 10) }),
         },
       });
     } else {
@@ -46,6 +58,14 @@ export async function saveSchoolData(req, res) {
           address: address,
           support_Email: email,
           systemID: systemID || null,
+          ...(reminderDays !== undefined && { reminderDays: parseInt(reminderDays, 10) }),
+          ...(enableOnboardingMsg !== undefined && { enableOnboardingMsg: Boolean(enableOnboardingMsg) }),
+          ...(enableReminderMsg !== undefined && { enableReminderMsg: Boolean(enableReminderMsg) }),
+          ...(enableCompletionMsg !== undefined && { enableCompletionMsg: Boolean(enableCompletionMsg) }),
+          ...(workingStartTime !== undefined && { workingStartTime: String(workingStartTime) }),
+          ...(workingEndTime !== undefined && { workingEndTime: String(workingEndTime) }),
+          ...(enableAttendanceReminder !== undefined && { enableAttendanceReminder: Boolean(enableAttendanceReminder) }),
+          ...(reminderBeforeMinutes !== undefined && { reminderBeforeMinutes: parseInt(reminderBeforeMinutes, 10) }),
         },
       });
     }
@@ -73,5 +93,14 @@ export async function saveSchoolData(req, res) {
       message: "An internal server error occurred while saving the data.",
       error: error.message,
     });
+  }
+}
+
+export async function getSchoolData(req, res) {
+  try {
+    const schoolRecord = await prisma.schoolSetUp.findFirst();
+    return res.status(200).json({ success: true, data: schoolRecord });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: error.message });
   }
 }

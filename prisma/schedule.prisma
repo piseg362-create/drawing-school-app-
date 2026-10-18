@@ -4,4 +4,5 @@ model Schedule {
   Batch_time    String
   Duration_time String
   Car_id        String
+  systemID       String?
 }

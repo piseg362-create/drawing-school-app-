@@ -1,10 +1,19 @@
 model SchoolSetUp {
   id             String   @id @default(uuid())
-  systemID       String?
   school_name    String
   support_Email  String
   address        String
   contact_Number String
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+  systemID       String?
+  reminderDays   Int      @default(10)
+  enableOnboardingMsg Boolean @default(true)
+  enableReminderMsg Boolean @default(true)
+  enableCompletionMsg Boolean @default(true)
+  workingStartTime String @default("09:00")
+  workingEndTime String @default("19:00")
+  enableAttendanceReminder Boolean @default(true)
+  reminderBeforeMinutes Int @default(60)
+  lastAttendanceReminderDate String?
 }

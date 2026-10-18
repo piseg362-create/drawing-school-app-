@@ -1,5 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { fetchApi } from "@/lib/api";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { format, addDays, subDays, isToday } from "date-fns";
+import { toast } from "sonner";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "../../components/ui/popover";
+import { ChevronDown, Check, X, User, Car, Calendar as CalendarIcon } from "lucide-react";
 
 const STATUS_STYLES = {
   Upcoming:
@@ -19,27 +29,69 @@ const getStatusStyle = (status) =>
   STATUS_STYLES[status] || DEFAULT_STATUS_STYLE;
 
 export function ScheduleTab() {
-  const [schedule, setSchedule] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { t } = useTranslation();
+  const queryClient = useQueryClient();
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
-  useEffect(() => {
-    const fetchSchedules = async () => {
-      try {
-        const res = await fetchApi("/get-schedules");
-        const data = await res.json();
-        if (data && data.status) {
-          setSchedule(data.data || []);
-        }
-      } catch (error) {
-        console.error("Failed to fetch schedules:", error);
-      } finally {
-        setLoading(false);
+  const dateKey = format(selectedDate, "yyyy-MM-dd");
+
+  const { data: schedule = [], isLoading: loading } = useQuery({
+    queryKey: ["schedules", dateKey],
+    queryFn: async () => {
+      const res = await fetchApi(`/get-schedules?date=${dateKey}`);
+      const data = await res.json();
+      if (data && data.status) {
+        return data.data || [];
       }
-    };
+      return [];
+    },
+  });
 
-    fetchSchedules();
-  }, []);
-  const { groupedSchedules, standaloneLineIndex } = React.useMemo(() => {
+  const markAttendanceMutation = useMutation({
+    mutationFn: async ({ studentId, status, studentName }) => {
+      const res = await fetchApi("/mark-student-attendance", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          studentId,
+          date: dateKey,
+          status,
+        }),
+      });
+      const data = await res.json();
+      if (!data.status) {
+        throw new Error(data.message || "Failed to mark attendance");
+      }
+      return { data, studentName, status };
+    },
+    onSuccess: ({ studentName, status }) => {
+      queryClient.invalidateQueries({ queryKey: ["schedules", dateKey] });
+      if (status === "PRESENT") {
+        toast.success(`✓ Marked Present: ${studentName}`);
+      } else if (status === "ABSENT") {
+        toast.error(`✗ Marked Absent: ${studentName}`);
+      } else {
+        toast.info(`Attendance reset: ${studentName}`);
+      }
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to update attendance");
+    },
+  });
+
+  const attendanceStats = useMemo(() => {
+    let present = 0;
+    let absent = 0;
+    let notMarked = 0;
+    schedule.forEach((s) => {
+      if (s.attendanceStatus === "PRESENT") present++;
+      else if (s.attendanceStatus === "ABSENT") absent++;
+      else notMarked++;
+    });
+    return { total: schedule.length, present, absent, notMarked };
+  }, [schedule]);
+
+  const { groupedSchedules, standaloneLineIndex } = useMemo(() => {
     const groups = {};
     schedule.forEach((lesson) => {
       const key = lesson.time;
@@ -71,12 +123,10 @@ export function ScheduleTab() {
     let lineIdx = -1;
 
     if (!hasRunning && sorted.length > 0) {
-      // Find first upcoming
       lineIdx = sorted.findIndex((g) =>
         g.lessons.some((l) => l.status === "Upcoming"),
       );
       if (lineIdx === -1) {
-        // All completed, place at very end
         lineIdx = sorted.length;
       }
     }
@@ -88,28 +138,61 @@ export function ScheduleTab() {
     <div className="space-y-6">
       {/* Header Actions */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white dark:bg-[#1e222d] p-4 rounded-xl border border-gray-200 dark:border-[#2c3242] shadow-sm transition-colors duration-300">
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center justify-between w-48 bg-gray-50 dark:bg-[#171a22] border border-gray-300 dark:border-[#3a3d45] rounded-lg px-4 py-2 text-gray-900 dark:text-[#f2e9de] transition-colors">
-            <button className="text-gray-400 hover:text-[#c1552c] transition-colors">
+        <div className="flex flex-wrap items-center gap-4">
+          {/* Date Navigator */}
+          <div className="flex items-center justify-between w-56 bg-gray-50 dark:bg-[#171a22] border border-gray-300 dark:border-[#3a3d45] rounded-lg px-3 py-1.5 text-gray-900 dark:text-[#f2e9de] transition-colors shadow-xs">
+            <button
+              type="button"
+              onClick={() => setSelectedDate((prev) => subDays(prev, 1))}
+              className="p-1 text-gray-400 hover:text-[#c1552c] rounded transition-colors"
+              title="Previous Day"
+            >
               &lt;
             </button>
-            <span className="font-medium text-sm">Today, Oct 24</span>
-            <button className="text-gray-400 hover:text-[#c1552c] transition-colors">
+            <button
+              type="button"
+              onClick={() => setSelectedDate(new Date())}
+              className="font-semibold text-sm hover:text-[#c1552c] transition-colors flex items-center gap-1.5"
+              title="Click to jump to Today"
+            >
+              <CalendarIcon className="w-3.5 h-3.5 text-[#c1552c]" />
+              <span>
+                {isToday(selectedDate)
+                  ? `Today, ${format(selectedDate, "MMM d")}`
+                  : format(selectedDate, "EEE, MMM d")}
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setSelectedDate((prev) => addDays(prev, 1))}
+              className="p-1 text-gray-400 hover:text-[#c1552c] rounded transition-colors"
+              title="Next Day"
+            >
               &gt;
             </button>
           </div>
 
-          <div className="hidden sm:flex bg-gray-100 dark:bg-[#171a22] p-1 rounded-lg border border-gray-200 dark:border-[#3a3d45]">
-            <button className="px-4 py-1.5 rounded-md bg-white dark:bg-[#2c3242] text-gray-900 dark:text-[#f2e9de] shadow-sm text-sm font-medium transition-colors">
-              Agenda
-            </button>
-            <button className="px-4 py-1.5 rounded-md text-gray-500 dark:text-[#8a8d96] hover:text-gray-900 dark:hover:text-[#f2e9de] text-sm font-medium transition-colors">
-              Week
-            </button>
-            <button className="px-4 py-1.5 rounded-md text-gray-500 dark:text-[#8a8d96] hover:text-gray-900 dark:hover:text-[#f2e9de] text-sm font-medium transition-colors">
-              Month
-            </button>
-          </div>
+          {/* Quick Attendance Stats */}
+          {schedule.length > 0 && (
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-md bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/80">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                {attendanceStats.present} {t("Present")}
+              </span>
+              {attendanceStats.absent > 0 && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-md bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300 border border-rose-200 dark:border-rose-800/80">
+                  <span className="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                  {attendanceStats.absent} {t("Absent")}
+                </span>
+              )}
+              {attendanceStats.notMarked > 0 && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md bg-gray-100 text-gray-600 dark:bg-gray-800/80 dark:text-gray-400 border border-gray-200 dark:border-gray-700">
+                  <span className="w-1.5 h-1.5 rounded-full bg-gray-400"></span>
+                  {attendanceStats.notMarked} {t("Pending")}
+                </span>
+              )}
+            </div>
+          )}
         </div>
 
         <button className="bg-[#c1552c] hover:bg-[#a64724] text-white font-medium rounded-lg px-5 py-2 transition-colors duration-200 shadow-md shadow-[#c1552c]/20 flex items-center space-x-2">
@@ -126,7 +209,7 @@ export function ScheduleTab() {
             </div>
           ) : groupedSchedules.length === 0 ? (
             <div className="text-gray-500 py-8 text-center w-full">
-              No schedules found.
+              No schedules found for this date.
             </div>
           ) : (
             groupedSchedules.map((group, groupIdx) => {
@@ -137,7 +220,7 @@ export function ScheduleTab() {
 
               return (
                 <div key={groupIdx} className="relative pl-8 sm:pl-12 group">
-                  {/* Standalone Current Time Line (Renders in the gap before this group) */}
+                  {/* Standalone Current Time Line */}
                   {showStandaloneLineHere && (
                     <div className="absolute -top-6 -left-[9px] right-0 flex items-center z-10 pointer-events-none">
                       <div className="w-4 h-4 rounded-full bg-[#c1552c] shadow-md shadow-[#c1552c]/60 flex-shrink-0 animate-pulse border-2 border-white dark:border-[#1e222d]"></div>
@@ -145,7 +228,7 @@ export function ScheduleTab() {
                     </div>
                   )}
 
-                  {/* Timeline Dot & Dynamic Line (For actively running batches) */}
+                  {/* Timeline Dot & Dynamic Line */}
                   {isRunning ? (
                     <div className="absolute top-1.5 -left-[9px] right-0 flex items-center z-10 pointer-events-none">
                       <div className="w-4 h-4 rounded-full bg-[#c1552c] shadow-md shadow-[#c1552c]/80 flex-shrink-0 animate-pulse border-2 border-white dark:border-[#1e222d]"></div>
@@ -166,7 +249,7 @@ export function ScheduleTab() {
                       </div>
                     </div>
 
-                    {/* Batch card: all students at this time share one div, laid out inline */}
+                    {/* Batch card: all students at this time */}
                     <div className="flex-1 rounded-xl border border-gray-100 dark:border-[#2c3242] bg-gray-50/60 dark:bg-[#171a22]/40 p-3">
                       {group.lessons.length > 1 && (
                         <div className="flex items-center gap-1.5 mb-2 px-1">
@@ -192,92 +275,177 @@ export function ScheduleTab() {
                           </span>
                         </div>
                       )}
-                      <div className="flex flex-wrap gap-2.5">
-                        {group.lessons.map((lesson) => (
-                          <div
-                            key={lesson.id}
-                            className={`w-[240px] h-[104px] shrink-0 p-2.5 flex flex-col justify-between rounded-lg border-l-4 border-t border-r border-b border-t-gray-100 border-r-gray-100 border-b-gray-100 dark:border-t-[#2c3242] dark:border-r-[#2c3242] dark:border-b-[#2c3242] shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer ${lesson.color}`}
-                          >
-                            <div className="flex justify-between items-start gap-1">
-                              <h3 className="font-medium text-sm text-gray-900 dark:text-[#f2e9de] truncate leading-tight">
-                                {lesson.student}
-                              </h3>
-                              <span
-                                className={`px-1.5 py-0.5 text-[9px] uppercase font-bold tracking-wider rounded-full border shrink-0 leading-none ${getStatusStyle(lesson.status)}`}
-                              >
-                                {lesson.status}
-                              </span>
-                            </div>
 
-                            <div className="flex flex-col space-y-1">
-                              <div className="flex items-center text-[11px] text-gray-600 dark:text-[#cfd3da] truncate">
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  width="12"
-                                  height="12"
-                                  viewBox="0 0 24 24"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  strokeWidth="2"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  className="mr-1 shrink-0 text-gray-400 dark:text-[#8a8d96]"
-                                >
-                                  <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-                                  <circle cx="12" cy="7" r="4" />
-                                </svg>
-                                <span className="truncate">
-                                  {lesson.instructor}
-                                </span>
+                      <div className="flex flex-wrap gap-2.5">
+                        {group.lessons.map((lesson) => {
+                          const isPresent = lesson.attendanceStatus === "PRESENT";
+                          const isAbsent = lesson.attendanceStatus === "ABSENT";
+
+                          // Determine card border styling based on attendance
+                          let borderClass = "border-l-4 border-l-[#c1552c]";
+                          let cardBg = "bg-white dark:bg-[#1b1f2b]";
+                          if (isPresent) {
+                            borderClass = "border-l-4 border-l-emerald-500";
+                            cardBg = "bg-white dark:bg-[#162024]/40";
+                          } else if (isAbsent) {
+                            borderClass = "border-l-4 border-l-rose-500";
+                            cardBg = "bg-white dark:bg-[#25171e]/40";
+                          }
+
+                          return (
+                            <div
+                              key={lesson.id}
+                              onClick={() => {
+                                // One-click mark as Present if not already Present
+                                if (!isPresent) {
+                                  markAttendanceMutation.mutate({
+                                    studentId: lesson.studentId,
+                                    status: "PRESENT",
+                                    studentName: lesson.student,
+                                  });
+                                } else {
+                                  toast.info(`${lesson.student} is already marked Present. Use the badge dropdown to change to Absent.`);
+                                }
+                              }}
+                              className={`w-[260px] min-h-[112px] shrink-0 p-2.5 flex flex-col justify-between rounded-lg border-t border-r border-b border-t-gray-100 border-r-gray-100 border-b-gray-100 dark:border-t-[#2c3242] dark:border-r-[#2c3242] dark:border-b-[#2c3242] shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer ${borderClass} ${cardBg}`}
+                              title={
+                                isPresent
+                                  ? "Marked Present (Click badge to change)"
+                                  : isAbsent
+                                  ? "Marked Absent (Click card to mark Present)"
+                                  : "Click card to mark attendance as Present"
+                              }
+                            >
+                              {/* Top Row: Student Name & Attendance Badge Dropdown */}
+                              <div className="flex justify-between items-start gap-1">
+                                <h3 className="font-semibold text-sm text-gray-900 dark:text-[#f2e9de] truncate leading-tight max-w-[145px]">
+                                  {lesson.student}
+                                </h3>
+
+                                <Popover>
+                                  <PopoverTrigger asChild>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => e.stopPropagation()}
+                                      className={`inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-semibold rounded-full border transition-all shadow-xs ${
+                                        isPresent
+                                          ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700"
+                                          : isAbsent
+                                          ? "bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-300 dark:border-rose-700"
+                                          : "bg-gray-100 text-gray-500 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700 hover:border-[#c1552c]"
+                                      }`}
+                                      title="Change Attendance Status"
+                                    >
+                                      {isPresent ? (
+                                        <>
+                                          <Check className="w-2.5 h-2.5 text-emerald-600 dark:text-emerald-400 stroke-[3]" />
+                                          <span>Present</span>
+                                        </>
+                                      ) : isAbsent ? (
+                                        <>
+                                          <X className="w-2.5 h-2.5 text-rose-600 dark:text-rose-400 stroke-[3]" />
+                                          <span>Absent</span>
+                                        </>
+                                      ) : (
+                                        <>
+                                          <span className="w-1.5 h-1.5 rounded-full bg-gray-400"></span>
+                                          <span>Unmarked</span>
+                                        </>
+                                      )}
+                                      <ChevronDown className="w-2.5 h-2.5 opacity-60 ml-0.5" />
+                                    </button>
+                                  </PopoverTrigger>
+                                  <PopoverContent
+                                    className="w-40 p-1.5 z-50 bg-white dark:bg-[#1f2330] border border-gray-200 dark:border-[#2c3242] shadow-xl rounded-lg"
+                                    align="end"
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:text-[#8a8d96] border-b border-gray-100 dark:border-gray-800 mb-1">
+                                      Attendance
+                                    </div>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        markAttendanceMutation.mutate({
+                                          studentId: lesson.studentId,
+                                          status: "PRESENT",
+                                          studentName: lesson.student,
+                                        });
+                                      }}
+                                      className="w-full flex items-center justify-between px-2 py-1.5 text-xs text-left rounded-md font-medium text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 transition-colors"
+                                    >
+                                      <span className="flex items-center gap-1.5">
+                                        <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                        <span>Present</span>
+                                      </span>
+                                      {isPresent && <Check className="w-3.5 h-3.5 text-emerald-600" />}
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        markAttendanceMutation.mutate({
+                                          studentId: lesson.studentId,
+                                          status: "ABSENT",
+                                          studentName: lesson.student,
+                                        });
+                                      }}
+                                      className="w-full flex items-center justify-between px-2 py-1.5 text-xs text-left rounded-md font-medium text-rose-700 dark:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-colors"
+                                    >
+                                      <span className="flex items-center gap-1.5">
+                                        <span className="w-2 h-2 rounded-full bg-rose-500"></span>
+                                        <span>Absent</span>
+                                      </span>
+                                      {isAbsent && <Check className="w-3.5 h-3.5 text-rose-600" />}
+                                    </button>
+                                    {(isPresent || isAbsent) && (
+                                      <button
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          markAttendanceMutation.mutate({
+                                            studentId: lesson.studentId,
+                                            status: "NOT_MARKED",
+                                            studentName: lesson.student,
+                                          });
+                                        }}
+                                        className="w-full flex items-center gap-1.5 px-2 py-1.5 text-xs text-left rounded-md text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors mt-1 border-t border-gray-100 dark:border-gray-800"
+                                      >
+                                        <span className="w-2 h-2 rounded-full bg-gray-400"></span>
+                                        <span>Reset Unmarked</span>
+                                      </button>
+                                    )}
+                                  </PopoverContent>
+                                </Popover>
                               </div>
-                              <div className="flex items-center text-[11px] text-gray-600 dark:text-[#cfd3da] truncate">
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  width="12"
-                                  height="12"
-                                  viewBox="0 0 24 24"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  strokeWidth="2"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  className="mr-1 shrink-0 text-gray-400 dark:text-[#8a8d96]"
-                                >
-                                  <rect
-                                    x="2"
-                                    y="7"
-                                    width="20"
-                                    height="15"
-                                    rx="2"
-                                    ry="2"
-                                  />
-                                  <polyline points="17 2 12 7 7 2" />
-                                </svg>
-                                <span className="truncate">
-                                  {lesson.vehicle}
-                                </span>
+
+                              {/* Middle: Instructor & Vehicle */}
+                              <div className="flex flex-col space-y-1 my-1">
+                                <div className="flex items-center text-[11px] text-gray-600 dark:text-[#cfd3da] truncate">
+                                  <User className="w-3 h-3 mr-1 shrink-0 text-gray-400 dark:text-[#8a8d96]" />
+                                  <span className="truncate">{lesson.instructor}</span>
+                                </div>
+                                <div className="flex items-center text-[11px] text-gray-600 dark:text-[#cfd3da] truncate">
+                                  <Car className="w-3 h-3 mr-1 shrink-0 text-gray-400 dark:text-[#8a8d96]" />
+                                  <span className="truncate">{lesson.vehicle}</span>
+                                </div>
                               </div>
-                              <div className="flex items-center text-[11px] font-medium text-[#c1552c] truncate">
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  width="12"
-                                  height="12"
-                                  viewBox="0 0 24 24"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  strokeWidth="2"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  className="mr-1 shrink-0"
+
+                              {/* Bottom Row: Course Type & Lesson Status */}
+                              <div className="flex items-center justify-between pt-1 border-t border-gray-100/80 dark:border-[#2c3242]/80 text-[10px]">
+                                <span className="text-[#c1552c] font-medium truncate max-w-[150px]">
+                                  {lesson.type}
+                                </span>
+                                <span
+                                  className={`px-1.5 py-0.5 uppercase font-bold tracking-wider rounded-sm border shrink-0 leading-none ${getStatusStyle(lesson.status)}`}
                                 >
-                                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                                  <polyline points="22 4 12 14.01 9 11.01" />
-                                </svg>
-                                <span className="truncate">{lesson.type}</span>
+                                  {lesson.status}
+                                </span>
                               </div>
                             </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     </div>
                   </div>

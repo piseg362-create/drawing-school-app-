@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Table,
   TableBody,
@@ -14,25 +15,80 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../component/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "../../component/ui/dialog";
 import { fetchApi } from "@/lib/api";
+import {
+  CheckCircle2,
+  XCircle,
+  AlertCircle,
+  Clock,
+  RefreshCw,
+  Copy,
+  Check,
+  FileText,
+  User,
+  Phone,
+  Code,
+  AlertTriangle,
+  Eye,
+  Download,
+} from "lucide-react";
+
+const LANGUAGE_NAMES = {
+  mr: "मराठी (Marathi)",
+  hi: "हिन्दी (Hindi)",
+  kn: "ಕನ್ನಡ (Kannada)",
+  te: "తెలుగు (Telugu)",
+  ta: "தமிழ் (Tamil)",
+  en: "English (en)",
+};
+
+const VARIABLE_LABELS = {
+  name: "Student Name",
+  schoolName: "School Name",
+  totalFees: "Total Fees (₹)",
+  paidFees: "Paid Fees (₹)",
+  dueFees: "Due Fees (₹)",
+  fees: "Total Fees (₹)",
+  dueDate: "Due Date",
+  courseName: "Course / Package",
+  joiningDate: "Joining Date",
+  date: "Date",
+};
 
 export function MessagesTab() {
+  const { t } = useTranslation();
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [queueStatus, setQueueStatus] = useState({ isRunning: false, isProcessing: false });
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All Status");
 
+  // View modal state
+  const [selectedMessage, setSelectedMessage] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [copiedField, setCopiedField] = useState(null);
+  const [showRawPayload, setShowRawPayload] = useState(false);
+  const [retryingId, setRetryingId] = useState(null);
+  const [retryResult, setRetryResult] = useState({ status: null, message: null });
+
   useEffect(() => {
     fetchMessages();
     fetchQueueStatus();
-    
+
     // Poll for queue status and refresh messages every 3 seconds
     const interval = setInterval(() => {
       fetchQueueStatus();
       fetchMessages(true); // pass true to avoid resetting loading spinner to true
     }, 3000);
-    
+
     return () => clearInterval(interval);
   }, []);
 
@@ -53,8 +109,7 @@ export function MessagesTab() {
       const res = await fetchApi("/messages");
       const data = await res.json();
       if (data.status) {
-        setMessages(data.data);
-        console.log("🖥️ Frontend Messages State Updated:", data.data);
+        setMessages(data.data || []);
       }
     } catch (error) {
       console.error("Failed to fetch messages:", error);
@@ -74,14 +129,123 @@ export function MessagesTab() {
     return statusStr.charAt(0).toUpperCase() + statusStr.slice(1).toLowerCase();
   };
 
+  const copyToClipboard = (text, fieldName) => {
+    if (!text) return;
+    navigator.clipboard.writeText(String(text));
+    setCopiedField(fieldName);
+    setTimeout(() => setCopiedField(null), 2000);
+  };
+
+  const parseMetaError = (lastError) => {
+    if (!lastError) return null;
+    if (typeof lastError === "object") return lastError;
+    try {
+      const parsed = JSON.parse(lastError);
+      if (parsed && typeof parsed === "object") return parsed;
+    } catch (e) {
+      // Not JSON
+    }
+    return { message: String(lastError) };
+  };
+
+  const getErrorDiagnosis = (errorObj) => {
+    if (!errorObj) return null;
+    const code = errorObj.code;
+    const subcode = errorObj.subcode;
+    const msg = (errorObj.message || "").toLowerCase();
+
+    if (code === 132000 || msg.includes("localizable_params") || msg.includes("number of parameters")) {
+      return {
+        title: "Parameter Count Mismatch (#132000)",
+        description: "The variables passed to this template do not match Meta's approved template placeholder count.",
+        tip: errorObj.details || "Verify template placeholders {{1}}, {{2}}... match the sent parameters.",
+      };
+    }
+    if (code === 133010 || msg.includes("not registered") || msg.includes("133010")) {
+      return {
+        title: "Phone Number Not Registered (#133010)",
+        description: "The WhatsApp Phone Number ID is not registered on WhatsApp Cloud API.",
+        tip: "Our system has an auto-registration hook. Clicking 'Retry' will register and dispatch.",
+      };
+    }
+    if (code === 100 && (subcode === 33 || msg.includes("does not exist"))) {
+      return {
+        title: "Invalid Phone ID or Permission Error (Code 100)",
+        description: "Meta reported that the Phone Number ID does not exist or lacks permissions.",
+        tip: "Check your Meta Business Manager to ensure the Phone Number ID matches your active WhatsApp WABA account.",
+      };
+    }
+    if (code === 190 || msg.includes("access token") || msg.includes("session has expired")) {
+      return {
+        title: "Access Token Expired (Code 190)",
+        description: "The Meta User or System User Access Token has expired or was revoked.",
+        tip: "Please re-generate or update your Permanent Access Token under the WhatsApp setup tab.",
+      };
+    }
+    return null;
+  };
+
+  const handleViewMessage = (msg) => {
+    setSelectedMessage(msg);
+    setIsModalOpen(true);
+    setShowRawPayload(false);
+    setRetryResult({ status: null, message: null });
+  };
+
+  const handleRetryMessage = async (msgId) => {
+    try {
+      setRetryingId(msgId);
+      setRetryResult({ status: null, message: null });
+      const res = await fetchApi(`/messages/${msgId}/retry`, {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (data.status) {
+        setRetryResult({ status: "success", message: "Message requeued successfully! Worker will dispatch immediately." });
+        setSelectedMessage((prev) =>
+          prev
+            ? {
+                ...prev,
+                status: "PENDING",
+                attempts: 0,
+                lastError: null,
+                scheduledAt: new Date().toISOString(),
+              }
+            : null
+        );
+        fetchMessages(true);
+      } else {
+        setRetryResult({ status: "error", message: data.message || "Retry failed" });
+      }
+    } catch (err) {
+      setRetryResult({ status: "error", message: err.message || "Failed to contact server" });
+    } finally {
+      setRetryingId(null);
+    }
+  };
+
+  const exportLogs = () => {
+    try {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(messages, null, 2));
+      const downloadAnchor = document.createElement("a");
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `whatsapp-message-logs-${new Date().toISOString().slice(0, 10)}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    } catch (e) {
+      console.error("Export failed:", e);
+    }
+  };
+
   // Filter messages based on search query and status filter
   const filteredMessages = messages.filter((msg) => {
     const searchLower = searchQuery.toLowerCase();
-    const studentName = msg.variables?.name?.toLowerCase() || '';
-    const phone = msg.recipient?.toLowerCase() || '';
-    
+    const studentName = msg.variables?.name?.toLowerCase() || "";
+    const phone = msg.recipient?.toLowerCase() || "";
+
     const matchesSearch = !searchQuery || studentName.includes(searchLower) || phone.includes(searchLower);
-    
+
     const formattedStatus = getStatusFormat(msg.status);
     const matchesStatus = statusFilter === "All Status" || formattedStatus === statusFilter;
 
@@ -101,18 +265,19 @@ export function MessagesTab() {
             </div>
             <div className="ml-3">
               <p className="text-sm text-yellow-700 dark:text-yellow-500 font-medium">
-                Message Queue is actively processing ({queueStatus.pendingCount} pending). Please do not close the application!
+                Message Queue is actively processing ({queueStatus.pendingCount || 0} pending). Please do not close the application!
               </p>
             </div>
           </div>
         </div>
       )}
+
       {/* Header Actions */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white dark:bg-[#1e222d] p-4 rounded-xl border border-gray-200 dark:border-[#2c3242] shadow-sm transition-colors duration-300">
         <div className="flex items-center space-x-4 w-full sm:w-auto">
-          <input 
-            type="text" 
-            placeholder="Search by student or phone..." 
+          <input
+            type="text"
+            placeholder="Search by student or phone..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full sm:w-64 bg-gray-50 dark:bg-[#171a22] border border-gray-300 dark:border-[#3a3d45] rounded-lg px-4 py-2 text-gray-900 dark:text-[#f2e9de] placeholder-gray-400 dark:placeholder-[#5a5f6e] focus:outline-none focus:border-[#c1552c] focus:ring-1 focus:ring-[#c1552c] transition-colors"
@@ -132,15 +297,14 @@ export function MessagesTab() {
             </Select>
           </div>
         </div>
-        
+
         <div className="flex space-x-3">
-          <button className="bg-white dark:bg-[#2c3242] border border-gray-200 dark:border-[#3a3d45] text-gray-700 dark:text-[#cfd3da] hover:bg-gray-50 dark:hover:bg-[#3a3d45] font-medium rounded-lg px-4 py-2 transition-colors duration-200 flex items-center shadow-sm">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <button
+            onClick={exportLogs}
+            className="bg-white dark:bg-[#2c3242] border border-gray-200 dark:border-[#3a3d45] text-gray-700 dark:text-[#cfd3da] hover:bg-gray-50 dark:hover:bg-[#3a3d45] font-medium rounded-lg px-4 py-2 transition-colors duration-200 flex items-center shadow-sm text-sm"
+          >
+            <Download className="w-4 h-4 mr-2" />
             Export Logs
-          </button>
-          <button className="bg-[#128C7E] hover:bg-[#075E54] text-white font-medium rounded-lg px-5 py-2 transition-colors duration-200 shadow-md flex items-center space-x-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.052 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
-            <span>Manual Message</span>
           </button>
         </div>
       </div>
@@ -171,14 +335,18 @@ export function MessagesTab() {
               filteredMessages.map((msg, i) => {
                 const formattedStatus = getStatusFormat(msg.status);
                 return (
-                  <TableRow key={i} className="group cursor-pointer">
+                  <TableRow
+                    key={msg.id || i}
+                    onClick={() => handleViewMessage(msg)}
+                    className="group cursor-pointer hover:bg-gray-50/70 dark:hover:bg-[#252a38] transition-colors"
+                  >
                     <TableCell>
-                      <span className="text-xs font-mono text-gray-500 dark:text-[#8a8d96]">{msg.id.substring(0,8)}</span>
+                      <span className="text-xs font-mono text-gray-500 dark:text-[#8a8d96]">{msg.id.substring(0, 8)}</span>
                     </TableCell>
                     <TableCell>
                       <div>
-                        <div className="font-semibold text-gray-900 dark:text-[#f2e9de]">{msg.variables?.name || 'Unknown'}</div>
-                        <div className="text-xs text-gray-500 dark:text-[#8a8d96]">{msg.recipient}</div>
+                        <div className="font-semibold text-gray-900 dark:text-[#f2e9de]">{msg.variables?.name || "Unknown"}</div>
+                        <div className="text-xs text-gray-500 dark:text-[#8a8d96]">+{msg.recipient}</div>
                       </div>
                     </TableCell>
                     <TableCell>
@@ -187,14 +355,30 @@ export function MessagesTab() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <span className={`px-2.5 py-1 text-xs font-semibold rounded-full border flex items-center w-fit ${
-                        formattedStatus === 'Sent' ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800/50' : 
-                        (formattedStatus === 'Pending' || formattedStatus === 'Processing') ? 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-500 dark:border-yellow-800/50' : 
-                        'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800/50'
-                      }`}>
-                        {formattedStatus === 'Sent' && <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>}
-                        {(formattedStatus === 'Pending' || formattedStatus === 'Processing') && <svg className="w-3 h-3 mr-1 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>}
-                        {formattedStatus === 'Failed' && <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12"></path></svg>}
+                      <span
+                        className={`px-2.5 py-1 text-xs font-semibold rounded-full border flex items-center w-fit ${
+                          formattedStatus === "Sent"
+                            ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800/50"
+                            : formattedStatus === "Pending" || formattedStatus === "Processing"
+                            ? "bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-500 dark:border-yellow-800/50"
+                            : "bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800/50"
+                        }`}
+                      >
+                        {formattedStatus === "Sent" && (
+                          <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+                          </svg>
+                        )}
+                        {(formattedStatus === "Pending" || formattedStatus === "Processing") && (
+                          <svg className="w-3 h-3 mr-1 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                          </svg>
+                        )}
+                        {formattedStatus === "Failed" && (
+                          <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        )}
                         {formattedStatus}
                       </span>
                     </TableCell>
@@ -202,8 +386,15 @@ export function MessagesTab() {
                       <div className="text-sm text-gray-500 dark:text-[#8a8d96]">{formatTime(msg.createdAt)}</div>
                     </TableCell>
                     <TableCell className="text-right">
-                      <button className="text-sm font-medium text-[#c1552c] hover:underline">
-                        View
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleViewMessage(msg);
+                        }}
+                        className="inline-flex items-center space-x-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#c1552c]/10 text-[#c1552c] hover:bg-[#c1552c] hover:text-white transition-all shadow-xs"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                        <span>View</span>
                       </button>
                     </TableCell>
                   </TableRow>
@@ -213,6 +404,323 @@ export function MessagesTab() {
           </TableBody>
         </Table>
       </div>
+
+      {/* Message Delivery & Log Details Modal */}
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-6 sm:p-7">
+          {selectedMessage && (
+            (() => {
+              const formattedStatus = getStatusFormat(selectedMessage.status);
+              const metaError = parseMetaError(selectedMessage.lastError);
+              const diagnosis = getErrorDiagnosis(metaError);
+
+              return (
+                <div className="space-y-6">
+                  {/* Modal Header */}
+                  <DialogHeader className="text-left space-y-1.5 pb-2 border-b border-gray-100 dark:border-[#2c3242]">
+                    <div className="flex items-center justify-between">
+                      <DialogTitle className="text-xl font-bold text-gray-900 dark:text-[#f2e9de] flex items-center space-x-2">
+                        <span>Message Delivery Log</span>
+                      </DialogTitle>
+                    </div>
+                    <div className="flex items-center space-x-2 text-xs text-gray-500 dark:text-[#8a8d96]">
+                      <span>Message ID:</span>
+                      <code className="bg-gray-100 dark:bg-[#171a22] px-2 py-0.5 rounded font-mono text-gray-800 dark:text-gray-200">
+                        {selectedMessage.id}
+                      </code>
+                      <button
+                        onClick={() => copyToClipboard(selectedMessage.id, "msgId")}
+                        className="hover:text-gray-900 dark:hover:text-white transition-colors"
+                        title="Copy Message ID"
+                      >
+                        {copiedField === "msgId" ? (
+                          <Check className="w-3.5 h-3.5 text-green-600" />
+                        ) : (
+                          <Copy className="w-3.5 h-3.5" />
+                        )}
+                      </button>
+                    </div>
+                  </DialogHeader>
+
+                  {/* Primary Status Banner */}
+                  {formattedStatus === "Sent" ? (
+                    <div className="bg-green-50/90 dark:bg-green-950/25 border border-green-200 dark:border-green-800/40 rounded-xl p-4.5 space-y-3">
+                      <div className="flex items-start space-x-3">
+                        <div className="p-2 bg-green-100 dark:bg-green-900/40 rounded-lg text-green-700 dark:text-green-400 mt-0.5">
+                          <CheckCircle2 className="w-5 h-5" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2">
+                            <h4 className="font-semibold text-green-900 dark:text-green-300 text-base">
+                              Message Sent Successfully
+                            </h4>
+                            <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-green-200/80 dark:bg-green-900/60 text-green-800 dark:text-green-200">
+                              Verified by Meta
+                            </span>
+                          </div>
+                          <p className="text-xs text-green-700/90 dark:text-green-400/90 mt-0.5">
+                            WhatsApp Cloud API accepted this message and handed it off for delivery to the recipient.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2 border-t border-green-200/60 dark:border-green-800/30 text-xs">
+                        <div>
+                          <span className="text-gray-500 dark:text-gray-400">Meta Message ID (wamid):</span>
+                          <div className="flex items-center space-x-1.5 mt-0.5">
+                            <code className="font-mono text-gray-800 dark:text-gray-200 bg-white/70 dark:bg-black/30 px-1.5 py-0.5 rounded truncate max-w-[200px]" title={selectedMessage.messageId}>
+                              {selectedMessage.messageId || "N/A"}
+                            </code>
+                            {selectedMessage.messageId && (
+                              <button
+                                onClick={() => copyToClipboard(selectedMessage.messageId, "wamid")}
+                                className="text-gray-500 hover:text-gray-900 dark:hover:text-white"
+                                title="Copy wamid"
+                              >
+                                {copiedField === "wamid" ? <Check className="w-3.5 h-3.5 text-green-600" /> : <Copy className="w-3.5 h-3.5" />}
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                        <div>
+                          <span className="text-gray-500 dark:text-gray-400">Dispatched At:</span>
+                          <div className="font-medium text-gray-800 dark:text-gray-200 mt-0.5">
+                            {formatTime(selectedMessage.sentAt)}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ) : formattedStatus === "Failed" ? (
+                    <div className="bg-red-50/90 dark:bg-red-950/25 border border-red-200 dark:border-red-800/40 rounded-xl p-4.5 space-y-3">
+                      <div className="flex items-start space-x-3">
+                        <div className="p-2 bg-red-100 dark:bg-red-900/40 rounded-lg text-red-700 dark:text-red-400 mt-0.5">
+                          <XCircle className="w-5 h-5" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2">
+                            <h4 className="font-semibold text-red-900 dark:text-red-300 text-base">
+                              Message Delivery Failed
+                            </h4>
+                            <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-red-200/80 dark:bg-red-900/60 text-red-800 dark:text-red-200">
+                              {selectedMessage.attempts} / {selectedMessage.maxAttempts} Attempts
+                            </span>
+                          </div>
+                          <p className="text-xs text-red-700/90 dark:text-red-400/90 mt-0.5">
+                            Meta WhatsApp Cloud API rejected this message request. See detailed response log below.
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Error Box */}
+                      <div className="bg-white dark:bg-[#171a22] border border-red-200 dark:border-red-900/50 rounded-lg p-3 space-y-2">
+                        <div className="flex items-center justify-between text-xs font-semibold text-red-700 dark:text-red-400">
+                          <span className="flex items-center space-x-1">
+                            <AlertCircle className="w-3.5 h-3.5" />
+                            <span>Meta Error Response:</span>
+                          </span>
+                          {metaError?.code && (
+                            <span className="px-1.5 py-0.5 rounded bg-red-100 dark:bg-red-900/40 font-mono text-[11px]">
+                              Error Code: {metaError.code}
+                              {metaError.subcode ? ` (Subcode: ${metaError.subcode})` : ""}
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="text-xs font-mono text-red-900 dark:text-red-200 break-words whitespace-pre-wrap bg-red-50/50 dark:bg-black/30 p-2.5 rounded border border-red-100 dark:border-red-950">
+                          {metaError?.message || selectedMessage.lastError || "Unknown Meta API Error"}
+                        </div>
+
+                        {metaError?.details && (
+                          <div className="text-xs text-gray-700 dark:text-gray-300 bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-900/40 p-2 rounded">
+                            <strong className="text-amber-800 dark:text-amber-400">Error Details: </strong>
+                            {metaError.details}
+                          </div>
+                        )}
+
+                        {metaError?.fbtrace_id && (
+                          <div className="text-[11px] text-gray-400 dark:text-[#8a8d96] font-mono">
+                            Meta FB Trace ID: {metaError.fbtrace_id}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Diagnosis Tip */}
+                      {diagnosis && (
+                        <div className="bg-amber-50/80 dark:bg-amber-900/15 border border-amber-200 dark:border-amber-800/40 rounded-lg p-3 text-xs space-y-1">
+                          <div className="font-semibold text-amber-900 dark:text-amber-300 flex items-center space-x-1.5">
+                            <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
+                            <span>{diagnosis.title}</span>
+                          </div>
+                          <p className="text-amber-800 dark:text-amber-400">{diagnosis.description}</p>
+                          <p className="text-amber-700 dark:text-amber-500 font-medium">💡 Tip: {diagnosis.tip}</p>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="bg-amber-50/90 dark:bg-amber-950/25 border border-amber-200 dark:border-amber-800/40 rounded-xl p-4.5 space-y-3">
+                      <div className="flex items-start space-x-3">
+                        <div className="p-2 bg-amber-100 dark:bg-amber-900/40 rounded-lg text-amber-700 dark:text-amber-400 mt-0.5">
+                          {formattedStatus === "Processing" ? (
+                            <RefreshCw className="w-5 h-5 animate-spin" />
+                          ) : (
+                            <Clock className="w-5 h-5" />
+                          )}
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2">
+                            <h4 className="font-semibold text-amber-900 dark:text-amber-300 text-base">
+                              {formattedStatus === "Processing" ? "Actively Sending to Meta..." : "Queued / Scheduled to Send"}
+                            </h4>
+                            <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-amber-200/80 dark:bg-amber-900/60 text-amber-800 dark:text-amber-200">
+                              {selectedMessage.attempts} / {selectedMessage.maxAttempts} Attempts
+                            </span>
+                          </div>
+                          <p className="text-xs text-amber-700/90 dark:text-amber-400/90 mt-0.5">
+                            {formattedStatus === "Processing"
+                              ? "The background worker is currently dispatching this message to WhatsApp."
+                              : `Scheduled to dispatch at ${formatTime(selectedMessage.scheduledAt)}.`}
+                          </p>
+                        </div>
+                      </div>
+
+                      {selectedMessage.lastError && (
+                        <div className="text-xs bg-white dark:bg-[#171a22] border border-amber-200 dark:border-amber-900/50 p-2.5 rounded text-amber-800 dark:text-amber-300">
+                          <strong className="block mb-0.5">Last Attempt Warning:</strong>
+                          <span className="font-mono text-[11px]">{selectedMessage.lastError}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Recipient & Template Details Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="bg-gray-50 dark:bg-[#171a22] border border-gray-200 dark:border-[#2c3242] rounded-xl p-3.5 space-y-2">
+                      <div className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-[#8a8d96] flex items-center space-x-1.5">
+                        <User className="w-3.5 h-3.5" />
+                        <span>Recipient Info</span>
+                      </div>
+                      <div className="space-y-1">
+                        <div className="text-sm font-semibold text-gray-900 dark:text-[#f2e9de]">
+                          {selectedMessage.variables?.name || "Unknown Student"}
+                        </div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400 font-mono flex items-center space-x-1">
+                          <Phone className="w-3 h-3" />
+                          <span>+{selectedMessage.recipient}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-gray-50 dark:bg-[#171a22] border border-gray-200 dark:border-[#2c3242] rounded-xl p-3.5 space-y-2">
+                      <div className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-[#8a8d96] flex items-center space-x-1.5">
+                        <FileText className="w-3.5 h-3.5" />
+                        <span>Template Details</span>
+                      </div>
+                      <div className="space-y-1">
+                        <div className="text-sm font-semibold text-gray-900 dark:text-[#f2e9de] flex items-center space-x-2">
+                          <span>{selectedMessage.template?.name || "Manual Message"}</span>
+                          <span className="text-[11px] px-1.5 py-0.5 rounded bg-gray-200 dark:bg-[#2c3242] font-normal text-gray-700 dark:text-gray-300">
+                            {selectedMessage.template?.category || "UTILITY"}
+                          </span>
+                        </div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400">
+                          Language: <span className="font-medium text-gray-900 dark:text-gray-200">{LANGUAGE_NAMES[selectedMessage.template?.language] || selectedMessage.template?.language || "English (en)"}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Variables / Parameters Sent (What actually did) */}
+                  <div className="bg-gray-50 dark:bg-[#171a22] border border-gray-200 dark:border-[#2c3242] rounded-xl p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-[#cfd3da] flex items-center space-x-1.5">
+                        <Code className="w-3.5 h-3.5" />
+                        <span>Payload Parameters Sent to Meta</span>
+                      </div>
+                      <button
+                        onClick={() => setShowRawPayload(!showRawPayload)}
+                        className="text-xs text-[#c1552c] hover:underline"
+                      >
+                        {showRawPayload ? "Show Formatted" : "View Raw JSON"}
+                      </button>
+                    </div>
+
+                    {showRawPayload ? (
+                      <pre className="p-3 bg-gray-900 text-gray-100 rounded-lg text-xs font-mono overflow-x-auto max-h-48">
+                        {JSON.stringify(selectedMessage.variables || {}, null, 2)}
+                      </pre>
+                    ) : (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                        {selectedMessage.variables && typeof selectedMessage.variables === "object" ? (
+                          Object.entries(selectedMessage.variables)
+                            .filter(([key]) => key !== "components")
+                            .map(([key, val]) => (
+                              <div key={key} className="bg-white dark:bg-[#1e222d] p-2.5 rounded-lg border border-gray-200 dark:border-[#2c3242] flex justify-between items-center">
+                                <span className="text-gray-500 dark:text-[#8a8d96]">{VARIABLE_LABELS[key] || key}:</span>
+                                <span className="font-semibold text-gray-900 dark:text-[#f2e9de] font-mono truncate max-w-[150px]">{String(val)}</span>
+                              </div>
+                            ))
+                        ) : (
+                          <div className="text-gray-500 dark:text-gray-400 py-2">No variables attached.</div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Timestamps Timeline */}
+                  <div className="flex flex-wrap items-center justify-between text-xs text-gray-500 dark:text-[#8a8d96] pt-2 border-t border-gray-100 dark:border-[#2c3242]">
+                    <div>Created: <span className="text-gray-800 dark:text-gray-200">{formatTime(selectedMessage.createdAt)}</span></div>
+                    <div>Scheduled: <span className="text-gray-800 dark:text-gray-200">{formatTime(selectedMessage.scheduledAt)}</span></div>
+                    {selectedMessage.sentAt && (
+                      <div>Sent: <span className="text-green-700 dark:text-green-400 font-medium">{formatTime(selectedMessage.sentAt)}</span></div>
+                    )}
+                  </div>
+
+                  {/* Retry Feedback Toast */}
+                  {retryResult.message && (
+                    <div
+                      className={`p-3 rounded-lg text-xs flex items-center space-x-2 ${
+                        retryResult.status === "success"
+                          ? "bg-green-50 text-green-800 border border-green-200 dark:bg-green-950/30 dark:text-green-300 dark:border-green-800"
+                          : "bg-red-50 text-red-800 border border-red-200 dark:bg-red-950/30 dark:text-red-300 dark:border-red-800"
+                      }`}
+                    >
+                      {retryResult.status === "success" ? (
+                        <CheckCircle2 className="w-4 h-4 shrink-0 text-green-600" />
+                      ) : (
+                        <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+                      )}
+                      <span>{retryResult.message}</span>
+                    </div>
+                  )}
+
+                  {/* Dialog Footer Actions */}
+                  <DialogFooter className="flex items-center justify-between sm:justify-between w-full pt-2">
+                    <div>
+                      {formattedStatus === "Failed" && (
+                        <button
+                          onClick={() => handleRetryMessage(selectedMessage.id)}
+                          disabled={retryingId === selectedMessage.id}
+                          className="bg-[#c1552c] hover:bg-[#a84722] text-white font-medium rounded-lg px-4 py-2 text-sm flex items-center space-x-2 disabled:opacity-60 transition-colors shadow-sm"
+                        >
+                          <RefreshCw className={`w-3.5 h-3.5 ${retryingId === selectedMessage.id ? "animate-spin" : ""}`} />
+                          <span>{retryingId === selectedMessage.id ? "Retrying..." : "Retry Sending Now"}</span>
+                        </button>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => setIsModalOpen(false)}
+                      className="bg-gray-100 dark:bg-[#2c3242] text-gray-700 dark:text-[#cfd3da] hover:bg-gray-200 dark:hover:bg-[#3a3d45] font-medium rounded-lg px-4 py-2 text-sm transition-colors"
+                    >
+                      Close
+                    </button>
+                  </DialogFooter>
+                </div>
+              );
+            })()
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
+export default MessagesTab;

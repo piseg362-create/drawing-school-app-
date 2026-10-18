@@ -6,4 +6,5 @@ model SetupChecklist {
   packageSetup    Boolean  @default(false)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+  systemID       String?
 }

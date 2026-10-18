@@ -1,0 +1,13 @@
+model StudentAttendance {
+  id        String   @id @default(uuid())
+  studentId String
+  date      DateTime
+  status    String   @default("PRESENT") // PRESENT, ABSENT
+  note      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  systemID  String?
+
+  @@unique([studentId, date])
+  @@index([date])
+}

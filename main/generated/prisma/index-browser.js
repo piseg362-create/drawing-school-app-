@@ -122,7 +122,8 @@ exports.Prisma.PaymentTakenScalarFieldEnum = {
   paymentCycleId: 'paymentCycleId',
   amount: 'amount',
   takenAt: 'takenAt',
-  note: 'note'
+  note: 'note',
+  systemID: 'systemID'
 };
 
 exports.Prisma.AttendanceScalarFieldEnum = {
@@ -132,7 +133,8 @@ exports.Prisma.AttendanceScalarFieldEnum = {
   status: 'status',
   note: 'note',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  systemID: 'systemID'
 };
 
 exports.Prisma.CalendarEventScalarFieldEnum = {
@@ -143,7 +145,8 @@ exports.Prisma.CalendarEventScalarFieldEnum = {
   description: 'description',
   color: 'color',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  systemID: 'systemID'
 };
 
 exports.Prisma.CarScalarFieldEnum = {
@@ -154,7 +157,8 @@ exports.Prisma.CarScalarFieldEnum = {
   car_Number: 'car_Number',
   car_year: 'car_year',
   updatedAt: 'updatedAt',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  systemID: 'systemID'
 };
 
 exports.Prisma.DemoStatusScalarFieldEnum = {
@@ -170,7 +174,8 @@ exports.Prisma.SetupChecklistScalarFieldEnum = {
   carSetup: 'carSetup',
   packageSetup: 'packageSetup',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  systemID: 'systemID'
 };
 
 exports.Prisma.InstructorScalarFieldEnum = {
@@ -185,7 +190,10 @@ exports.Prisma.InstructorScalarFieldEnum = {
   updatedAt: 'updatedAt',
   payment: 'payment',
   paymentDate: 'paymentDate',
-  assignedCarId: 'assignedCarId'
+  assignedCarId: 'assignedCarId',
+  systemID: 'systemID',
+  accessToken: 'accessToken',
+  globalMongoId: 'globalMongoId'
 };
 
 exports.Prisma.MaintenanceScheduleScalarFieldEnum = {
@@ -194,7 +202,8 @@ exports.Prisma.MaintenanceScheduleScalarFieldEnum = {
   serviceDate: 'serviceDate',
   notes: 'notes',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  systemID: 'systemID'
 };
 
 exports.Prisma.MaintenanceItemScalarFieldEnum = {
@@ -204,7 +213,8 @@ exports.Prisma.MaintenanceItemScalarFieldEnum = {
   intervalDays: 'intervalDays',
   nextServiceDate: 'nextServiceDate',
   notes: 'notes',
-  carId: 'carId'
+  carId: 'carId',
+  systemID: 'systemID'
 };
 
 exports.Prisma.PackageScalarFieldEnum = {
@@ -212,7 +222,8 @@ exports.Prisma.PackageScalarFieldEnum = {
   name: 'name',
   price: 'price',
   duration: 'duration',
-  isActive: 'isActive'
+  isActive: 'isActive',
+  systemID: 'systemID'
 };
 
 exports.Prisma.PaymentCycleScalarFieldEnum = {
@@ -228,7 +239,8 @@ exports.Prisma.PaymentCycleScalarFieldEnum = {
   note: 'note',
   status: 'status',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  systemID: 'systemID'
 };
 
 exports.Prisma.ScheduleScalarFieldEnum = {
@@ -236,18 +248,28 @@ exports.Prisma.ScheduleScalarFieldEnum = {
   student_id: 'student_id',
   Batch_time: 'Batch_time',
   Duration_time: 'Duration_time',
-  Car_id: 'Car_id'
+  Car_id: 'Car_id',
+  systemID: 'systemID'
 };
 
 exports.Prisma.SchoolSetUpScalarFieldEnum = {
   id: 'id',
-  systemID: 'systemID',
   school_name: 'school_name',
   support_Email: 'support_Email',
   address: 'address',
   contact_Number: 'contact_Number',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  systemID: 'systemID',
+  reminderDays: 'reminderDays',
+  enableOnboardingMsg: 'enableOnboardingMsg',
+  enableReminderMsg: 'enableReminderMsg',
+  enableCompletionMsg: 'enableCompletionMsg',
+  workingStartTime: 'workingStartTime',
+  workingEndTime: 'workingEndTime',
+  enableAttendanceReminder: 'enableAttendanceReminder',
+  reminderBeforeMinutes: 'reminderBeforeMinutes',
+  lastAttendanceReminderDate: 'lastAttendanceReminderDate'
 };
 
 exports.Prisma.StudentScalarFieldEnum = {
@@ -266,7 +288,24 @@ exports.Prisma.StudentScalarFieldEnum = {
   remaining_amount: 'remaining_amount',
   Assigned_car_id: 'Assigned_car_id',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  systemID: 'systemID',
+  reminderDate: 'reminderDate',
+  licenseTestDate: 'licenseTestDate',
+  licenseTestTime: 'licenseTestTime',
+  licenseTestLocation: 'licenseTestLocation',
+  licenseTestStatus: 'licenseTestStatus'
+};
+
+exports.Prisma.StudentAttendanceScalarFieldEnum = {
+  id: 'id',
+  studentId: 'studentId',
+  date: 'date',
+  status: 'status',
+  note: 'note',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  systemID: 'systemID'
 };
 
 exports.Prisma.MessageQueueScalarFieldEnum = {
@@ -283,7 +322,8 @@ exports.Prisma.MessageQueueScalarFieldEnum = {
   messageId: 'messageId',
   lastError: 'lastError',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  systemID: 'systemID'
 };
 
 exports.Prisma.WhatsAppTemplateScalarFieldEnum = {
@@ -297,7 +337,8 @@ exports.Prisma.WhatsAppTemplateScalarFieldEnum = {
   body: 'body',
   variables: 'variables',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  systemID: 'systemID'
 };
 
 exports.Prisma.WhatsAppTokenScalarFieldEnum = {
@@ -310,8 +351,13 @@ exports.Prisma.WhatsAppTokenScalarFieldEnum = {
   displayPhoneNumber: 'displayPhoneNumber',
   verifiedName: 'verifiedName',
   safeMode: 'safeMode',
+  switchOffMode: 'switchOffMode',
+  monthlyBudget: 'monthlyBudget',
+  utilityRate: 'utilityRate',
+  defaultLanguage: 'defaultLanguage',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  systemID: 'systemID'
 };
 
 exports.Prisma.SortOrder = {
@@ -408,6 +454,7 @@ exports.Prisma.ModelName = {
   Schedule: 'Schedule',
   SchoolSetUp: 'SchoolSetUp',
   Student: 'Student',
+  StudentAttendance: 'StudentAttendance',
   MessageQueue: 'MessageQueue',
   WhatsAppTemplate: 'WhatsAppTemplate',
   WhatsAppToken: 'WhatsAppToken'
