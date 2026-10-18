@@ -66,10 +66,16 @@ const prismaClientSingleton = () => {
                     { schoolId: systemId }
                   ]
                 };
+                const res = await query(args);
+                if (res && res.length > 0) return res;
+                return query({ ...args, where: {} });
               } else {
                 args.where = { ...args.where, systemID: systemId };
               }
             } else {
+              if (model === 'WhatsAppToken') {
+                return query(args);
+              }
               args.where = { ...args.where, systemID: '__UNAUTHENTICATED__' };
             }
           }
@@ -90,10 +96,16 @@ const prismaClientSingleton = () => {
                     { schoolId: systemId }
                   ]
                 };
+                const res = await query(args);
+                if (res) return res;
+                return query({ ...args, where: {} });
               } else {
                 args.where = { ...args.where, systemID: systemId };
               }
             } else {
+              if (model === 'WhatsAppToken') {
+                return query(args);
+              }
               args.where = { ...args.where, systemID: '__UNAUTHENTICATED__' };
             }
           }

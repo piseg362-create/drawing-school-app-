@@ -61,12 +61,14 @@ export const registerPhoneNumberWithMeta = async (phoneNumberId, accessToken, pi
 
 export const saveWhatsAppToken = async (req, res) => {
   try {
-    const { data, userObj } = req.body;
-    const send = data?.send || data?.data || data;
-    if (send && (send.wabaId || send.phoneNumberId)) {
+    const raw = req.body || {};
+    const send = raw.send || raw.data?.send || raw.data || raw;
+    const schoolId = send.schoolId || raw.schoolId || raw.userObj?.id || raw.userId || "";
+
+    if (send && (send.wabaId || send.phoneNumberId || send.accessToken)) {
       const saved = await upsertLocalWhatsAppToken({
         ...send,
-        schoolId: send.schoolId || userObj?.id || "",
+        schoolId,
       });
 
       // Auto-register phone number with Meta Cloud API

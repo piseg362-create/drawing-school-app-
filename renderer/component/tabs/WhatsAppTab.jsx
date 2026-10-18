@@ -17,6 +17,7 @@ export function WhatsAppTab() {
   const [checkLoading, setCheckLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState(null);
   const [hasStartedSetup, setHasStartedSetup] = useState(false);
+  const [isConfigured, setIsConfigured] = useState(false);
   
   // State for sub-tabs ('connection' | 'templates')
   const [activeSubTab, setActiveSubTab] = useState("connection");
@@ -38,12 +39,64 @@ export function WhatsAppTab() {
   // Switch Off Mode (Don't Send Messages / Master Kill-Switch)
   const [switchOffMode, setSwitchOffMode] = useState(false);
   const [switchOffLoading, setSwitchOffLoading] = useState(false);
+
+  const autoSyncToken = async () => {
+    try {
+      const userStr = localStorage.getItem("user");
+      if (!userStr) return;
+      const userObj = JSON.parse(userStr);
+      const userId = userObj.id || userObj.userId || "";
+
+      // 1. Try local verify-setup route
+      try {
+        const verifyRes = await fetchApi("/whatsapp/verify-setup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId,
+            id: userObj.id,
+            accessToken: userObj.accessToken,
+          }),
+        });
+        const verifyData = await verifyRes.json();
+        if (verifyData.status && verifyData.data) {
+          fetchSettings(true);
+          return;
+        }
+      } catch (localErr) {
+        // Fall through
+      }
+
+      // 2. Direct Vercel query fallback
+      const res = await fetch(`${WHATSAPP_VERIFY_SETUP_API}?userId=${userId}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      const data = await res.json();
+      if (data.status && (data.data || data.send)) {
+        const tokenData = data.send || data.data || data;
+        const syncRes = await fetchApi("/whatsapp/save-token", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...tokenData, userObj, schoolId: userId }),
+        });
+        const syncData = await syncRes.json();
+        if (syncData.status) {
+          fetchSettings(true);
+        }
+      }
+    } catch (err) {
+      console.warn("Auto-sync token background notice:", err);
+    }
+  };
   
-  const fetchSettings = async () => {
+  const fetchSettings = async (skipAutoSync = false) => {
     try {
       const res = await fetchApi("/whatsapp/settings");
       const data = await res.json();
       if (data.status) {
+        setIsConfigured(true);
+        setHasStartedSetup(true);
         setSafeMode(Boolean(data.data.safeMode));
         setSwitchOffMode(Boolean(data.data.switchOffMode));
         setDefaultLanguage(data.data.defaultLanguage || "mr");
@@ -52,14 +105,22 @@ export function WhatsAppTab() {
         setCurrentMonthSpend(Number(data.data.currentMonthSpend) || 0);
         setMonthSentCount(Number(data.data.monthSentCount) || 0);
         setBudgetReached(Boolean(data.data.budgetReached));
-        setHasStartedSetup(true);
         setStatusMessage({
           type: 'success',
           text: "WhatsApp integration is active and verified."
         });
+      } else {
+        setIsConfigured(false);
+        if (!skipAutoSync) {
+          const started = localStorage.getItem("whatsappSetupStarted");
+          if (started === "true") {
+            autoSyncToken();
+          }
+        }
       }
     } catch (e) {
       console.error(e);
+      setIsConfigured(false);
     }
   };
 
@@ -220,51 +281,96 @@ export function WhatsAppTab() {
     try {
       const userStr = localStorage.getItem("user");
       let userId = "";
+      let userObj = null;
       if (userStr) {
-        const userObj = JSON.parse(userStr);
+        userObj = JSON.parse(userStr);
         userId = userObj.id || userObj.userId || "";
       }
 
-      const res = await fetch(`${WHATSAPP_VERIFY_SETUP_API}?userId=${userId}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json"
-        }
-      });
-
-      const data = await res.json();
-      console.log("data", data);
-
-      if (data.status && data.data) {
-        setStatusMessage({
-          type: 'success',
-          text: data.message || "WhatsApp credentials verified successfully!"
+      // 1. Try local verify-setup route first
+      let synced = false;
+      try {
+        const verifyRes = await fetchApi("/whatsapp/verify-setup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId,
+            id: userObj?.id,
+            accessToken: userObj?.accessToken,
+          }),
         });
-        
-        try {
-          const syncRes = await fetchApi("/whatsapp/save-token", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify(data.data)
+        const verifyData = await verifyRes.json();
+        if (verifyData.status && verifyData.data) {
+          synced = true;
+          setStatusMessage({
+            type: "success",
+            text: verifyData.message || "WhatsApp credentials verified and saved locally!",
           });
-          const syncData = await syncRes.json();
-          console.log("Local sync result:", syncData);
-        } catch (syncErr) {
-          console.error("Failed to sync to local DB:", syncErr);
+          setIsConfigured(true);
+          setHasStartedSetup(true);
+          fetchSettings(true);
         }
-      } else {
-        setStatusMessage({
-          type: 'error',
-          text: data.message || "Setup not complete yet. Please complete configuration."
+      } catch (localErr) {
+        console.warn("Local verify-setup fallback:", localErr);
+      }
+
+      if (!synced) {
+        // 2. Direct Vercel query fallback
+        const res = await fetch(`${WHATSAPP_VERIFY_SETUP_API}?userId=${userId}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
         });
+
+        const data = await res.json();
+        console.log("data", data);
+
+        if (data.status && (data.data || data.send)) {
+          const tokenData = data.send || data.data || data;
+          try {
+            const syncRes = await fetchApi("/whatsapp/save-token", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ ...tokenData, userObj, schoolId: userId }),
+            });
+            const syncData = await syncRes.json();
+            console.log("Local sync result:", syncData);
+            if (syncData.status) {
+              setStatusMessage({
+                type: "success",
+                text: "WhatsApp credentials verified and saved successfully!",
+              });
+              setIsConfigured(true);
+              setHasStartedSetup(true);
+              fetchSettings(true);
+            } else {
+              setStatusMessage({
+                type: "error",
+                text: syncData.message || "Failed to save WhatsApp token locally.",
+              });
+            }
+          } catch (syncErr) {
+            console.error("Failed to sync to local DB:", syncErr);
+            setStatusMessage({
+              type: "error",
+              text: "Failed to save WhatsApp token locally.",
+            });
+          }
+        } else {
+          setStatusMessage({
+            type: "error",
+            text: data.message || "Setup not complete yet. Please finish configuration in the security portal.",
+          });
+        }
       }
     } catch (err) {
       console.error(err);
       setStatusMessage({
-        type: 'error',
-        text: "Could not connect to the verification server. Try again later."
+        type: "error",
+        text: "Could not connect to the verification server. Try again later.",
       });
     } finally {
       setCheckLoading(false);
@@ -297,10 +403,14 @@ export function WhatsAppTab() {
                   <PowerOff className="w-3.5 h-3.5" />
                   Switch Off Mode (Sending Paused)
                 </span>
-              ) : hasStartedSetup ? (
+              ) : isConfigured ? (
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                   Active & Connected
+                </span>
+              ) : hasStartedSetup ? (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 dark:bg-blue-950/50 dark:text-blue-300 border border-blue-200 dark:border-blue-800/60">
+                  Sync Required — Click Verify
                 </span>
               ) : (
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-950/50 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60">
@@ -389,7 +499,7 @@ export function WhatsAppTab() {
                     <p className="text-xs text-gray-500">Dedicated OAuth security portal</p>
                   </div>
                 </div>
-                {hasStartedSetup ? (
+                {isConfigured ? (
                   <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-full border border-emerald-200 dark:border-emerald-800/40">
                     Verified
                   </span>

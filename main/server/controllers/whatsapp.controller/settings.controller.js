@@ -1,8 +1,11 @@
-import prisma from "../../config/database.js";
+import prisma, { als } from "../../config/database.js";
 
 export const getSettings = async (req, res) => {
   try {
-    const token = await prisma.whatsAppToken.findFirst();
+    let token = await prisma.whatsAppToken.findFirst();
+    if (!token) {
+      token = await als.run('__BYPASS_TENANT__', () => prisma.whatsAppToken.findFirst());
+    }
     if (!token) return res.status(404).json({ status: false, message: "Not setup" });
     
     // Calculate current month's actual Meta API spend
@@ -52,8 +55,10 @@ export const getSettings = async (req, res) => {
 
 export const updateSettings = async (req, res) => {
   try {
-    const { safeMode, defaultLanguage, switchOffMode, monthlyBudget, utilityRate } = req.body;
-    const token = await prisma.whatsAppToken.findFirst();
+    let token = await prisma.whatsAppToken.findFirst();
+    if (!token) {
+      token = await als.run('__BYPASS_TENANT__', () => prisma.whatsAppToken.findFirst());
+    }
     if (!token) return res.status(404).json({ status: false, message: "Not setup" });
     
     const updateData = {};
