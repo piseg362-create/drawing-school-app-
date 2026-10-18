@@ -141,20 +141,26 @@ export function WhatsAppTab() {
   };
   
   const toggleSafeMode = async () => {
+    if (safeModeLoading) return;
     setSafeModeLoading(true);
+    const prev = safeMode;
+    const nextVal = !prev;
+    setSafeMode(nextVal);
     try {
-      const newValue = !safeMode;
       const res = await fetchApi("/whatsapp/settings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ safeMode: newValue })
+        body: JSON.stringify({ safeMode: nextVal })
       });
-      if (res.ok) {
-        setSafeMode(newValue);
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.status) {
+        setSafeMode(prev);
+      } else {
         fetchSettings();
       }
     } catch (e) {
       console.error(e);
+      setSafeMode(prev);
     } finally {
       setSafeModeLoading(false);
     }
@@ -204,19 +210,26 @@ export function WhatsAppTab() {
   };
 
   const toggleSwitchOffMode = async () => {
+    if (switchOffLoading) return;
     setSwitchOffLoading(true);
+    const prev = switchOffMode;
+    const nextVal = !prev;
+    setSwitchOffMode(nextVal);
     try {
-      const newValue = !switchOffMode;
       const res = await fetchApi("/whatsapp/settings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ switchOffMode: newValue })
+        body: JSON.stringify({ switchOffMode: nextVal })
       });
-      if (res.ok) {
-        setSwitchOffMode(newValue);
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.status) {
+        setSwitchOffMode(prev);
+      } else {
+        fetchSettings();
       }
     } catch (e) {
       console.error(e);
+      setSwitchOffMode(prev);
     } finally {
       setSwitchOffLoading(false);
     }
@@ -596,9 +609,11 @@ export function WhatsAppTab() {
                   </div>
                   <button
                     type="button"
+                    role="switch"
+                    aria-checked={switchOffMode}
                     onClick={toggleSwitchOffMode}
                     disabled={switchOffLoading}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 ${
                       switchOffMode ? 'bg-rose-600' : 'bg-gray-300 dark:bg-gray-600'
                     }`}
                   >
@@ -638,9 +653,11 @@ export function WhatsAppTab() {
                   </div>
                   <button
                     type="button"
+                    role="switch"
+                    aria-checked={safeMode}
                     onClick={toggleSafeMode}
                     disabled={safeModeLoading}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 ${
                       safeMode ? 'bg-emerald-500' : 'bg-gray-300 dark:bg-gray-600'
                     }`}
                   >

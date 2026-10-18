@@ -55,6 +55,7 @@ export const getSettings = async (req, res) => {
 
 export const updateSettings = async (req, res) => {
   try {
+    const { safeMode, defaultLanguage, switchOffMode, monthlyBudget, utilityRate } = req.body || {};
     let token = await prisma.whatsAppToken.findFirst();
     if (!token) {
       token = await als.run('__BYPASS_TENANT__', () => prisma.whatsAppToken.findFirst());
@@ -68,10 +69,12 @@ export const updateSettings = async (req, res) => {
     if (monthlyBudget !== undefined) updateData.monthlyBudget = Math.max(0, Number(monthlyBudget));
     if (utilityRate !== undefined) updateData.utilityRate = Math.max(0.01, Number(utilityRate));
 
-    const updated = await prisma.whatsAppToken.update({
-      where: { id: token.id },
-      data: updateData
-    });
+    const updated = await als.run('__BYPASS_TENANT__', () =>
+      prisma.whatsAppToken.update({
+        where: { id: token.id },
+        data: updateData
+      })
+    );
     
     return res.status(200).json({
       status: true,
