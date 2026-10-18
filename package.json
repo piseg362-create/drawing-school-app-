@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "nextron",
     "web": "next dev renderer -H 0.0.0.0 -p 8888",
-    "prebuild": "node scripts/prepare-production-db.cjs",
+    "prepare-db": "node scripts/prepare-production-db.cjs",
     "build": "nextron build",
     "postinstall": "electron-builder install-app-deps"
   },
