@@ -5,6 +5,32 @@ import { createWindow } from './helpers/create-window'
 import fs from 'fs'
 import os from 'os'
 
+// Load environment variables across dev and production packages
+function loadEnvironment() {
+  const candidateEnvPaths = [
+    path.join(process.cwd(), '.env'),
+    process.resourcesPath ? path.join(process.resourcesPath, '.env') : null,
+    process.resourcesPath ? path.join(process.resourcesPath, 'app.asar.unpacked', '.env') : null,
+    path.join(import.meta.dirname, '..', '.env'),
+    path.join(import.meta.dirname, '.env'),
+  ].filter(Boolean) as string[]
+
+  for (const envPath of candidateEnvPaths) {
+    if (fs.existsSync(envPath)) {
+      try {
+        if (typeof process.loadEnvFile === 'function') {
+          process.loadEnvFile(envPath)
+          console.log(`[main env] Loaded environment from: ${envPath}`)
+          return
+        }
+      } catch (err) {
+        console.warn(`[main env] Failed to load ${envPath}:`, err)
+      }
+    }
+  }
+}
+loadEnvironment()
+
 const isProd = process.env.NODE_ENV === 'production'
 
 const dbPath = isProd 
@@ -126,7 +152,7 @@ if (isProd) {
     })
   }
 
-  const powerBlockerId = powerSaveBlocker.start('prevent-app-suspension')
+  powerSaveBlocker.start('prevent-app-suspension')
 
   app.setLoginItemSettings({
     openAtLogin: true,

@@ -12,4 +12,6 @@ files:
 extraResources:
   - from: resources/prod-empty.db
     to: dev.db
+  - from: .env
+    to: .env
 publish: null

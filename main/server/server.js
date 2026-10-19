@@ -1,4 +1,32 @@
-try { process.loadEnvFile(); } catch (e) {}
+import fs from 'fs'
+import path from 'path'
+
+// Multi-path environment loader
+function loadEnvironment() {
+  const candidateEnvPaths = [
+    path.join(process.cwd(), '.env'),
+    process.resourcesPath ? path.join(process.resourcesPath, '.env') : null,
+    process.resourcesPath ? path.join(process.resourcesPath, 'app.asar.unpacked', '.env') : null,
+    path.join(import.meta.dirname, '..', '..', '.env'),
+    path.join(import.meta.dirname, '..', '.env'),
+    path.join(import.meta.dirname, '.env'),
+  ].filter(Boolean)
+
+  for (const envPath of candidateEnvPaths) {
+    if (fs.existsSync(envPath)) {
+      try {
+        if (typeof process.loadEnvFile === 'function') {
+          process.loadEnvFile(envPath)
+          console.log(`[server env] Loaded environment from: ${envPath}`)
+          return
+        }
+      } catch (err) {
+        // Continue searching
+      }
+    }
+  }
+}
+loadEnvironment()
 import express from 'express'
 import cors from 'cors'
 

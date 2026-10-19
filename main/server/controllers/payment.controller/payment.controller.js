@@ -15,9 +15,12 @@ export async function createRazorpayOrder(req, res) {
       });
     }
 
+    const key_id = process.env.RAZORPAY_KEY_ID || "rzp_live_TjivMCRAk7MwAv";
+    const key_secret = process.env.RAZORPAY_KEY_SECRET || "E86e18zTbrJKGur9lSdIB1GC";
+
     const instance = new Razorpay({
-      key_id: process.env.RAZORPAY_KEY_ID || "rzp_test_placeholder",
-      key_secret: process.env.RAZORPAY_KEY_SECRET || "rzp_secret_placeholder",
+      key_id,
+      key_secret,
     });
 
     const options = {
@@ -31,11 +34,12 @@ export async function createRazorpayOrder(req, res) {
     return res.status(200).json({
       success: true,
       order,
-      key_id: process.env.RAZORPAY_KEY_ID || "rzp_test_placeholder" // send public key to frontend
+      key_id, // send public key to frontend
     });
   } catch (error) {
     console.error("Error creating order:", error);
-    return res.status(500).json({ success: false, message: error.message });
+    const errorMessage = error?.error?.description || error?.description || error?.message || "Failed to create Razorpay order";
+    return res.status(500).json({ success: false, message: errorMessage });
   }
 }
 
@@ -63,7 +67,7 @@ export async function processLicensePayment(req, res) {
       return res.status(400).json({ success: false, message: "Missing Razorpay payment parameters." });
     }
 
-    const secret = process.env.RAZORPAY_KEY_SECRET || "rzp_secret_placeholder";
+    const secret = process.env.RAZORPAY_KEY_SECRET || "E86e18zTbrJKGur9lSdIB1GC";
     const body = razorpay_order_id + "|" + razorpay_payment_id;
     const expectedSignature = crypto
       .createHmac("sha256", secret)
@@ -89,9 +93,10 @@ export async function processLicensePayment(req, res) {
     });
   } catch (error) {
     console.error("Error processing payment:", error);
+    const errorMessage = error?.error?.description || error?.description || error?.message || "Internal server error during payment processing";
     return res.status(500).json({
       success: false,
-      message: "Internal server error during payment processing",
+      message: errorMessage,
     });
   }
 }

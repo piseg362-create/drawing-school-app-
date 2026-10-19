@@ -150,7 +150,7 @@ export function AuthPage({ mode = "login" }) {
                 const orderData = await orderRes.json();
                 
                 if (!orderData.success) {
-                  setErrorMsg("Failed to initialize payment for login.");
+                  setErrorMsg(orderData.message || "Failed to initialize payment for login.");
                   setIsLoading(false);
                   return;
                 }
