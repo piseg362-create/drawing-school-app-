@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useRouter } from "next/navigation";
 import { MessageCircle, ExternalLink, ShieldCheck, RefreshCw, Globe, Check, Layers, Eye, Smartphone, Sparkles, Link2, CheckCircle2, AlertCircle, Sliders, Power, PowerOff, IndianRupee, Wallet } from "lucide-react";
 import { CarLoader } from "../../../component/loader/CarLoader";
-import { fetchApi, WHATSAPP_VERIFY_SETUP_API } from "../../lib/api";
+import { fetchApi, WHATSAPP_VERIFY_SETUP_API, getSystemId } from "../../lib/api";
 
 export function WhatsAppTab() {
   const { t } = useTranslation();
@@ -45,7 +45,8 @@ export function WhatsAppTab() {
       const userStr = localStorage.getItem("user");
       if (!userStr) return;
       const userObj = JSON.parse(userStr);
-      const userId = userObj.id || userObj.userId || "";
+      const userId = getSystemId() || userObj?.userId || userObj?.systemUserId || userObj?.systemId || userObj?._id || userObj?.id || "";
+      const token = userObj?.accessToken || (typeof window !== "undefined" && localStorage.getItem("token")) || "";
 
       // 1. Try local verify-setup route
       try {
@@ -54,8 +55,8 @@ export function WhatsAppTab() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             userId,
-            id: userObj.id,
-            accessToken: userObj.accessToken,
+            id: userId,
+            accessToken: token,
           }),
         });
         const verifyData = await verifyRes.json();
@@ -238,12 +239,14 @@ export function WhatsAppTab() {
   useEffect(() => {
     // 1. Security Check: Retrieve user object from localStorage
     let userObj = null;
+    let token = "";
     try {
       const userStr = localStorage.getItem("user");
   
       if (userStr) {
         userObj = JSON.parse(userStr);
       }
+      token = userObj?.accessToken || (typeof window !== "undefined" && localStorage.getItem("token")) || "";
       
       const started = localStorage.getItem("whatsappSetupStarted");
       if (started === "true") {
@@ -256,7 +259,7 @@ export function WhatsAppTab() {
     }
     
     // 2. Check if user object and accesstoken exist -> Redirect to logout if missing
-    if (!userObj || !userObj.accessToken) {
+    if (!userObj || !token) {
       console.warn("No access token found in user object. Logging out.");
       localStorage.removeItem("isAuthenticated");
       localStorage.removeItem("isDemoMode");
@@ -267,14 +270,19 @@ export function WhatsAppTab() {
       return;
     }
 
+    // Resolve userId from any of the standard identifier keys
+    const resolvedUserId = getSystemId() || userObj.userId || userObj.systemUserId || userObj.systemId || userObj._id || userObj.id || "";
+
     // 3. Construct the backend URL with the requested parameters from the user object
     const backendUrl = new URL("https://backend-for-drawing-school.vercel.app/whatsapp/connect");
     
-    if (userObj.id) backendUrl.searchParams.append("id", userObj.id);
-    if (userObj.userId) backendUrl.searchParams.append("userId", userObj.userId);
+    if (resolvedUserId) {
+      backendUrl.searchParams.append("userId", resolvedUserId);
+      backendUrl.searchParams.append("id", resolvedUserId);
+    }
     if (userObj.email) backendUrl.searchParams.append("email", userObj.email);
     if (userObj.businessName) backendUrl.searchParams.append("businessName", userObj.businessName);
-    if (userObj.accessToken) backendUrl.searchParams.append("accessToken", userObj.accessToken);
+    if (token) backendUrl.searchParams.append("accessToken", token);
 
     setSecureUrl(backendUrl.toString());
     setLoading(false);
@@ -284,7 +292,11 @@ export function WhatsAppTab() {
     if (!secureUrl) return;
     localStorage.setItem("whatsappSetupStarted", "true");
     setHasStartedSetup(true);
-    window.open(secureUrl, "_blank", "noopener,noreferrer");
+    if (typeof window !== "undefined" && window.ipc && typeof window.ipc.send === "function") {
+      window.ipc.send("open-external-url", secureUrl);
+    } else {
+      window.open(secureUrl, "_blank", "noopener,noreferrer");
+    }
   };
 
   const handleCheckData = async () => {
@@ -292,12 +304,12 @@ export function WhatsAppTab() {
     setStatusMessage(null);
     try {
       const userStr = localStorage.getItem("user");
-      let userId = "";
       let userObj = null;
       if (userStr) {
         userObj = JSON.parse(userStr);
-        userId = userObj.id || userObj.userId || "";
       }
+      const userId = getSystemId() || userObj?.userId || userObj?.systemUserId || userObj?.systemId || userObj?._id || userObj?.id || "";
+      const token = userObj?.accessToken || (typeof window !== "undefined" && localStorage.getItem("token")) || "";
 
       // 1. Try local verify-setup route first
       let synced = false;
@@ -307,8 +319,8 @@ export function WhatsAppTab() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             userId,
-            id: userObj?.id,
-            accessToken: userObj?.accessToken,
+            id: userId,
+            accessToken: token,
           }),
         });
         const verifyData = await verifyRes.json();

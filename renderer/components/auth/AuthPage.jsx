@@ -109,7 +109,7 @@ export function AuthPage({ mode = "login" }) {
           const result = await response.json();
           if (result.success && result.data) {
             const systemUserId = result.data.systemUserId || result.data.systemId || result.data.userId || result.data._id || result.data.id;
-            const userData = { ...result.data, systemUserId };
+            const userData = { ...result.data, systemUserId, userId: systemUserId, id: systemUserId };
             localStorage.setItem("user", JSON.stringify(userData));
             if (result.data.accessToken) {
               localStorage.setItem("token", result.data.accessToken);
@@ -317,7 +317,7 @@ export function AuthPage({ mode = "login" }) {
                   const result = await regResponse.json();
                   if (result.success && result.data) {
                     const systemUserId = result.data.systemUserId || result.data.systemId || result.data.userId || result.data._id || result.data.id;
-                    const userData = { ...result.data, systemUserId };
+                    const userData = { ...result.data, systemUserId, userId: systemUserId, id: systemUserId };
                     localStorage.setItem("user", JSON.stringify(userData));
                     if (result.data.accessToken) {
                       localStorage.setItem("token", result.data.accessToken);

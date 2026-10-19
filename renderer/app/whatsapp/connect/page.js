@@ -10,9 +10,9 @@ function WhatsAppConnectContent() {
   // -----------------------------------------
   // GET PARAMETERS FROM URL
   // -----------------------------------------
-  const userId = searchParams.get("userId");
-  const accessToken = searchParams.get("accessToken");
-  const businessName = searchParams.get("businessName");
+  const userId = searchParams.get("userId") || searchParams.get("id");
+  const accessToken = searchParams.get("accessToken") || searchParams.get("token");
+  const businessName = searchParams.get("businessName") || searchParams.get("name");
 
   const [isLoaded, setIsLoaded] = useState(false);
   const [loading, setLoading] = useState(false);
