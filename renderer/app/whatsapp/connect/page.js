@@ -484,7 +484,7 @@ function WhatsAppConnectContent() {
               xfbml: true,
 
               version:
-                "v26.0",
+                "v20.0",
             });
 
             console.log(
